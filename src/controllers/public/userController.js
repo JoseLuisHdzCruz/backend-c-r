@@ -4,13 +4,25 @@ const db = require("../../config/database");
 const Yup = require("yup");
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 
 
 const validationSchema = Yup.object().shape({
   nombre: Yup.string()
-    .min(10, "El nombre debe tener al menos 10 caracteres")
-    .max(50, "El nombre no puede tener más de 50 caracteres")
+    .matches(/^[a-zA-ZáéíóúÁÉÍÓÚüÜ\s]+$/, "El nombre solo puede contener letras, acentos y espacios")
+    .min(3, "El nombre debe tener al menos 10 caracteres")
+    .max(20, "El nombre no puede tener más de 50 caracteres")
+    .required("El nombre es obligatorio"),
+  aPaterno: Yup.string()
+    .matches(/^[a-zA-ZáéíóúÁÉÍÓÚüÜ\s]+$/, "El nombre solo puede contener letras, acentos y espacios")
+    .min(3, "El nombre debe tener al menos 3 caracteres")
+    .max(15, "El nombre no puede tener más de 15 caracteres")
+    .required("El nombre es obligatorio"),
+  aMaterno: Yup.string()
+    .matches(/^[a-zA-ZáéíóúÁÉÍÓÚüÜ\s]+$/, "El nombre solo puede contener letras, acentos y espacios")
+    .min(3, "El nombre debe tener al menos 3 caracteres")
+    .max(15, "El nombre no puede tener más de 15 caracteres")
     .required("El nombre es obligatorio"),
   correo: Yup.string()
     .email("Correo electrónico inválido")
@@ -119,8 +131,8 @@ module.exports = {
       const hashedPassword = await bcrypt.hash(userData.contraseña, 10);
   
       // Insertar el nuevo usuario en la base de datos con la contraseña encriptada
-      const result = await db.query('INSERT INTO usuarios (customerId, nombre, correo, telefono, sexo, fecha_nacimiento, contraseña, ultimoAcceso, statusId, domicilioId, created, modified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())',
-        [userId, userData.nombre, userData.correo, userData.telefono, userData.sexo, userData.fecha_nacimiento, hashedPassword, null, 1, '']);
+      const result = await db.query('INSERT INTO usuarios (customerId, nombre, aPaterno, aMaterno, correo, telefono, sexo, fecha_nacimiento, contraseña, ultimoAcceso, statusId, domicilioId, created, modified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())',
+        [userId, userData.nombre, userData.aPaterno, userData.aMaterno, userData.correo, userData.telefono, userData.sexo, userData.fecha_nacimiento, hashedPassword, null, 1, '']);
   
       // Obtener el usuario recién creado
       const nuevoUsuario = await db.query('SELECT * FROM usuarios WHERE customerId = ?', [userId]);

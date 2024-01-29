@@ -9,12 +9,15 @@ POST http://localhost:5000/users
 Content-Type: application/json
 
 {
-  "nombre": "Luis Martinez",
-  "correo": "luis@gmail.com",
+  "nombre": "Luis Arturo",
+  "aPaterno": "Hernandez",
+  "aMaterno": "De La Cruz",
+  "correo": "art@gmail.com",
   "sexo": "Masculino",
   "fecha_nacimiento": "1990-01-01",
   "telefono": "1234567890",
-  "contraseña": "JOse61@#"
+  "contraseña": "JOse61@#",
+  "Rcontraseña": "JOse61@#"
 }
 
 
