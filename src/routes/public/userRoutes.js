@@ -4,6 +4,8 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../../controllers/public/userController');
 
+
+
 // Ruta para obtener todos los usuarios
 router.get('/', userController.getAllUsers);
 
@@ -14,7 +16,7 @@ router.get('/:id', userController.getUserById);
 router.post('/', userController.createUser);
 
 // Ruta para iniciar sesión
-router.post('/login', userController.loginUser);
+router.post('/login', recaptcha.middleware.verify, userController.loginUser);
 
 // // Ruta para actualizar un usuario
 // router.put('/:id', userController.updateUser);

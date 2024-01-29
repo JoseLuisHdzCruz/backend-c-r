@@ -151,45 +151,54 @@ module.exports = {
     }
   },
 
-    loginUser: async (req, res, next) => {
-      const { correo, contraseña } = req.body;
-
-      try {
-        // Validar los datos usando Yup
-        await loginValidationSchema.validate({ correo, contraseña }, { abortEarly: false });
-
+  loginUser: async (req, res, next) => {
+    const { correo, contraseña } = req.body;
+  
+    try {
+      // Validar los datos usando Yup
+      await loginValidationSchema.validate({ correo, contraseña }, { abortEarly: false });
+  
+      // Verificar el reCAPTCHA
+      if (!req.recaptcha.error) {
+        // El reCAPTCHA se ha completado correctamente, proceder con la autenticación
+  
         // Buscar usuario por correo
         const user = await db.query('SELECT * FROM usuarios WHERE correo = ?', [correo]);
-
+  
         if (user.length === 0) {
-          return res.status(401).json({ error: 'El correo ingresado no esta asociado a una cuenta' });
+          return res.status(401).json({ error: 'El correo ingresado no está asociado a una cuenta' });
         }
-
+  
         // Verificar la contraseña
         const isPasswordValid = await bcrypt.compare(contraseña, user[0].contraseña);
-        
+  
         if (!isPasswordValid) {
           return res.status(401).json({ error: 'Contraseña incorrecta' });
         }
-
+  
         // Verificar si el usuario está activo
         if (user[0].statusId !== 1) {
           return res.status(403).json({ error: 'Usuario no activo' });
         }
-
-        // Enviar una respuesta exitosa si las credenciales son válidas
+  
+        // Responder con éxito si las credenciales son válidas
         res.status(200).json({ message: 'Inicio de sesión exitoso' });
-      } catch (error) {
-        // Manejar errores de validación
-        if (error.name === 'ValidationError') {
-          const errors = error.errors.map(err => err.message);
-          return res.status(400).json({ errors });
-        }
-
-        console.error('Error al iniciar sesión:', error);
-        res.status(500).json({ error: '¡Algo salió mal al iniciar sesión!' });
+      } else {
+        // El reCAPTCHA no se completó correctamente
+        return res.status(401).json({ error: 'Error de reCAPTCHA' });
       }
-    },
+    } catch (error) {
+      // Manejar errores de validación y otros errores
+      if (error.name === 'ValidationError') {
+        const errors = error.errors.map(err => err.message);
+        return res.status(400).json({ errors });
+      }
+  
+      console.error('Error al iniciar sesión:', error);
+      res.status(500).json({ error: '¡Algo salió mal al iniciar sesión!' });
+    }
+  },
+  
   
 
   // Puedes agregar funciones para actualizar y eliminar usuarios aquí
