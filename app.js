@@ -5,6 +5,19 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const db = require('./src/config/database');
 const userRoutes = require('./src/routes/public/userRoutes');
+const crypto = require('crypto');
+const fs = require('fs');
+
+// Generar una clave secreta si aún no está configurada
+if (!process.env.JWT_SECRET) {
+  const secretKey = crypto.randomBytes(32).toString('hex');
+
+  // Guardar la clave en un archivo de entorno (.env)
+  fs.writeFileSync('.env', `JWT_SECRET=${secretKey}\n`);
+
+  console.log('Clave secreta generada y almacenada en el archivo .env');
+  console.log('Asegúrate de mantener el archivo .env seguro y no compartirlo públicamente.');
+}
 
 dotenv.config(); // Cargar variables de entorno desde .env
 

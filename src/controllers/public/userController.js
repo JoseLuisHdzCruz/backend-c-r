@@ -2,25 +2,34 @@
 
 const db = require("../../config/database");
 const Yup = require("yup");
-const { v4: uuidv4 } = require('uuid');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-
+const { v4: uuidv4 } = require("uuid");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const secretKey = process.env.JWT_SECRET || 'valor_predeterminado';
 
 
 const validationSchema = Yup.object().shape({
   nombre: Yup.string()
-    .matches(/^[a-zA-ZáéíóúÁÉÍÓÚüÜ\s]+$/, "El nombre solo puede contener letras, acentos y espacios")
+    .matches(
+      /^[a-zA-ZáéíóúÁÉÍÓÚüÜ\s]+$/,
+      "El nombre solo puede contener letras, acentos y espacios"
+    )
     .min(3, "El nombre debe tener al menos 10 caracteres")
     .max(20, "El nombre no puede tener más de 50 caracteres")
     .required("El nombre es obligatorio"),
   aPaterno: Yup.string()
-    .matches(/^[a-zA-ZáéíóúÁÉÍÓÚüÜ\s]+$/, "El nombre solo puede contener letras, acentos y espacios")
+    .matches(
+      /^[a-zA-ZáéíóúÁÉÍÓÚüÜ\s]+$/,
+      "El nombre solo puede contener letras, acentos y espacios"
+    )
     .min(3, "El nombre debe tener al menos 3 caracteres")
     .max(15, "El nombre no puede tener más de 15 caracteres")
     .required("El nombre es obligatorio"),
   aMaterno: Yup.string()
-    .matches(/^[a-zA-ZáéíóúÁÉÍÓÚüÜ\s]+$/, "El nombre solo puede contener letras, acentos y espacios")
+    .matches(
+      /^[a-zA-ZáéíóúÁÉÍÓÚüÜ\s]+$/,
+      "El nombre solo puede contener letras, acentos y espacios"
+    )
     .min(3, "El nombre debe tener al menos 3 caracteres")
     .max(15, "El nombre no puede tener más de 15 caracteres")
     .required("El nombre es obligatorio"),
@@ -109,88 +118,134 @@ module.exports = {
 
   createUser: async (req, res, next) => {
     const userData = req.body;
-  
+
     try {
       // Validar los datos usando Yup
       await validationSchema.validate(userData, { abortEarly: false });
-  
+
       // Verificar si el correo ya está en uso
-      const existingUser = await db.query('SELECT * FROM usuarios WHERE correo = ?', [userData.correo]);
-  
+      const existingUser = await db.query(
+        "SELECT * FROM usuarios WHERE correo = ?",
+        [userData.correo]
+      );
+
       if (existingUser.length > 0) {
-        return res.status(400).json({ error: 'El correo electrónico ya está en uso' });
+        return res
+          .status(400)
+          .json({ error: "El correo electrónico ya está en uso" });
       }
-  
+
       // Generar un id único
       const userId = uuidv4();
-  
+
       // Convertir fecha_nacimiento a un objeto de fecha
       userData.fecha_nacimiento = new Date(userData.fecha_nacimiento);
-  
+
       // Encriptar la contraseña
       const hashedPassword = await bcrypt.hash(userData.contraseña, 10);
-  
+
       // Insertar el nuevo usuario en la base de datos con la contraseña encriptada
-      const result = await db.query('INSERT INTO usuarios (customerId, nombre, aPaterno, aMaterno, correo, telefono, sexo, fecha_nacimiento, contraseña, ultimoAcceso, statusId, domicilioId, created, modified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())',
-        [userId, userData.nombre, userData.aPaterno, userData.aMaterno, userData.correo, userData.telefono, userData.sexo, userData.fecha_nacimiento, hashedPassword, null, 1, '']);
-  
+      const result = await db.query(
+        "INSERT INTO usuarios (customerId, nombre, aPaterno, aMaterno, correo, telefono, sexo, fecha_nacimiento, contraseña, ultimoAcceso, statusId, domicilioId, created, modified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())",
+        [
+          userId,
+          userData.nombre,
+          userData.aPaterno,
+          userData.aMaterno,
+          userData.correo,
+          userData.telefono,
+          userData.sexo,
+          userData.fecha_nacimiento,
+          hashedPassword,
+          null,
+          1,
+          "",
+        ]
+      );
+
       // Obtener el usuario recién creado
-      const nuevoUsuario = await db.query('SELECT * FROM usuarios WHERE customerId = ?', [userId]);
-  
+      const nuevoUsuario = await db.query(
+        "SELECT * FROM usuarios WHERE customerId = ?",
+        [userId]
+      );
+
       // Responder con el nuevo usuario
       res.status(201).json(nuevoUsuario[0]);
     } catch (error) {
       // Manejar errores de validación
-      if (error.name === 'ValidationError') {
-        const errors = error.errors.map(err => err.message);
+      if (error.name === "ValidationError") {
+        const errors = error.errors.map((err) => err.message);
         return res.status(400).json({ errors });
       }
-  
-      console.error('Error al crear usuario:', error);
-      res.status(500).json({ error: '¡Algo salió mal al crear usuario!' });
+
+      console.error("Error al crear usuario:", error);
+      res.status(500).json({ error: "¡Algo salió mal al crear usuario!" });
     }
   },
 
-    loginUser: async (req, res, next) => {
-      const { correo, contraseña } = req.body;
+  loginUser: async (req, res, next) => {
+    const { correo, contraseña } = req.body;
 
-      try {
-        // Validar los datos usando Yup
-        await loginValidationSchema.validate({ correo, contraseña }, { abortEarly: false });
+    try {
+      // Validar los datos usando Yup
+      await loginValidationSchema.validate(
+        { correo, contraseña },
+        { abortEarly: false }
+      );
 
-        // Buscar usuario por correo
-        const user = await db.query('SELECT * FROM usuarios WHERE correo = ?', [correo]);
+      // Buscar usuario por correo
+      const user = await db.query("SELECT * FROM usuarios WHERE correo = ?", [
+        correo,
+      ]);
 
-        if (user.length === 0) {
-          return res.status(401).json({ error: 'El correo ingresado no esta asociado a una cuenta' });
-        }
-
-        // Verificar la contraseña
-        const isPasswordValid = await bcrypt.compare(contraseña, user[0].contraseña);
-        
-        if (!isPasswordValid) {
-          return res.status(401).json({ error: 'Contraseña incorrecta' });
-        }
-
-        // Verificar si el usuario está activo
-        if (user[0].statusId !== 1) {
-          return res.status(403).json({ error: 'Usuario no activo' });
-        }
-
-        // Enviar una respuesta exitosa si las credenciales son válidas
-        res.status(200).json({ message: 'Inicio de sesión exitoso' });
-      } catch (error) {
-        // Manejar errores de validación
-        if (error.name === 'ValidationError') {
-          const errors = error.errors.map(err => err.message);
-          return res.status(400).json({ errors });
-        }
-
-        console.error('Error al iniciar sesión:', error);
-        res.status(500).json({ error: '¡Algo salió mal al iniciar sesión!' });
+      if (user.length === 0) {
+        return res.status(401).json({
+          error: "El correo ingresado no esta asociado a una cuenta",
+        });
       }
-    },
-  
+
+      // Verificar la contraseña
+      const isPasswordValid = await bcrypt.compare(
+        contraseña,
+        user[0].contraseña
+      );
+
+      if (!isPasswordValid) {
+        return res.status(401).json({ error: "Contraseña incorrecta" });
+      }
+
+      // Verificar si el usuario está activo
+      if (user[0].statusId !== 1) {
+        return res.status(403).json({ error: "Usuario no activo" });
+      }
+
+      // Generar token JWT
+      const token = jwt.sign(
+        { 
+          customerId: user[0].customerId,
+          nombre: user[0].nombre,
+          aPaterno: user[0].aPaterno,
+          aMaterno: user[0].aMaterno, 
+        },
+        secretKey,
+        {
+          expiresIn: "1h", // Puedes ajustar la duración del token según tus necesidades
+        }
+      );
+
+      // Enviar una respuesta exitosa si las credenciales son válidas
+      res.status(200).json({ token, message: "Inicio de sesión exitoso" });
+    } catch (error) {
+      // Manejar errores de validación
+      if (error.name === "ValidationError") {
+        const errors = error.errors.map((err) => err.message);
+        return res.status(400).json({ errors });
+      }
+
+      console.error("Error al iniciar sesión:", error);
+      res.status(500).json({ error: "¡Algo salió mal al iniciar sesión!" });
+    }
+  },
 
   // Puedes agregar funciones para actualizar y eliminar usuarios aquí
 };
