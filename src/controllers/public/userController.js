@@ -152,14 +152,14 @@ module.exports = {
   },
 
   loginUser: async (req, res, next) => {
-    const { correo, contraseña } = req.body;
+    const { correo, contraseña, captchaValue } = req.body;
   
     try {
       // Validar los datos usando Yup
       await loginValidationSchema.validate({ correo, contraseña }, { abortEarly: false });
   
       // Verificar el reCAPTCHA
-      if (!req.recaptcha.error) {
+      if (captchaValue) {
         // El reCAPTCHA se ha completado correctamente, proceder con la autenticación
   
         // Buscar usuario por correo
@@ -183,17 +183,10 @@ module.exports = {
   
         // Responder con éxito si las credenciales son válidas
         res.status(200).json({ message: 'Inicio de sesión exitoso' });
-      } else {
-        // El reCAPTCHA no se completó correctamente
-        return res.status(401).json({ error: 'Error de reCAPTCHA' });
-      }
+      } 
+      return res.status(400).json({ error: 'Error de reCAPTCHA' });
     } catch (error) {
-      // Manejar errores de validación y otros errores
-      if (error.name === 'ValidationError') {
-        const errors = error.errors.map(err => err.message);
-        return res.status(400).json({ errors });
-      }
-  
+      // Manejar errores aquí
       console.error('Error al iniciar sesión:', error);
       res.status(500).json({ error: '¡Algo salió mal al iniciar sesión!' });
     }
