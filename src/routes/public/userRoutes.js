@@ -3,10 +3,6 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../../controllers/public/userController');
-// const Recaptcha = require('express-recaptcha').RecaptchaV3;
-// const recaptcha = new Recaptcha(process.env.RECAPTCHA_SITE_KEY, process.env.RECAPTCHA_SECRET_KEY, { callback: 'cb' });
-
-
 
 // Ruta para obtener todos los usuarios
 router.get('/', userController.getAllUsers);
