@@ -8,15 +8,26 @@ const userRoutes = require('./src/routes/public/userRoutes');
 const crypto = require('crypto');
 const fs = require('fs');
 
-// Generar una clave secreta si aún no está configurada
-if (!process.env.JWT_SECRET) {
+// Lee el contenido del archivo .env si existe
+let envData = '';
+if (fs.existsSync('.env')) {
+  envData = fs.readFileSync('.env', 'utf8');
+}
+
+// Verifica si JWT_SECRET ya está definido en el archivo .env
+if (!envData.includes('JWT_SECRET')) {
   const secretKey = crypto.randomBytes(32).toString('hex');
 
-  // Guardar la clave en un archivo de entorno (.env)
-  fs.writeFileSync('.env', `JWT_SECRET=${secretKey}\n`);
+  // Actualiza el contenido del archivo .env
+  envData += `JWT_SECRET=${secretKey}\n`;
+
+  // Escribe el contenido actualizado en el archivo .env
+  fs.writeFileSync('.env', envData);
 
   console.log('Clave secreta generada y almacenada en el archivo .env');
   console.log('Asegúrate de mantener el archivo .env seguro y no compartirlo públicamente.');
+} else {
+  console.log('La variable JWT_SECRET ya está definida en el archivo .env');
 }
 
 dotenv.config(); // Cargar variables de entorno desde .env

@@ -5,7 +5,7 @@ const Yup = require("yup");
 const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const secretKey = process.env.JWT_SECRET || 'valor_predeterminado';
+const secretKey = process.env.JWT_SECRET;
 
 
 const validationSchema = Yup.object().shape({
@@ -84,6 +84,11 @@ const loginValidationSchema = Yup.object().shape({
     )
     .required("Contraseña es obligatoria"),
 });
+
+let loginAttempts = {}; // Objeto para rastrear los intentos de inicio de sesión por correo electrónico
+const maxLoginAttempts = 3; // Límite de intentos de inicio de sesión
+const loginTimeout = 60000; // Tiempo de espera en milisegundos (60 segundos)
+
 
 module.exports = {
   getAllUsers: async (req, res, next) => {
@@ -187,65 +192,75 @@ module.exports = {
     const { correo, contraseña } = req.body;
 
     try {
-      // Validar los datos usando Yup
-      await loginValidationSchema.validate(
-        { correo, contraseña },
-        { abortEarly: false }
-      );
+        // Lógica para rastrear los intentos de inicio de sesión fallidos
+        const user = await db.query("SELECT * FROM usuarios WHERE correo = ?", [
+            correo,
+        ]);
 
-      // Buscar usuario por correo
-      const user = await db.query("SELECT * FROM usuarios WHERE correo = ?", [
-        correo,
-      ]);
-
-      if (user.length === 0) {
-        return res.status(401).json({
-          error: "El correo ingresado no esta asociado a una cuenta",
-        });
-      }
-
-      // Verificar la contraseña
-      const isPasswordValid = await bcrypt.compare(
-        contraseña,
-        user[0].contraseña
-      );
-
-      if (!isPasswordValid) {
-        return res.status(401).json({ error: "Contraseña incorrecta" });
-      }
-
-      // Verificar si el usuario está activo
-      if (user[0].statusId !== 1) {
-        return res.status(403).json({ error: "Usuario no activo" });
-      }
-
-      // Generar token JWT
-      const token = jwt.sign(
-        { 
-          customerId: user[0].customerId,
-          nombre: user[0].nombre,
-          aPaterno: user[0].aPaterno,
-          aMaterno: user[0].aMaterno, 
-        },
-        secretKey,
-        {
-          expiresIn: "1h", // Puedes ajustar la duración del token según tus necesidades
+        if (user.length === 0) {
+          return res.status(401).json({
+            error: "El correo ingresado no esta asociado a una cuenta",
+          });
         }
-      );
 
-      // Enviar una respuesta exitosa si las credenciales son válidas
-      res.status(200).json({ token, message: "Inicio de sesión exitoso" });
+        // Verificar si el usuario ha excedido el límite de intentos
+        if (user[0].intentosFallidos >= 3) {
+            const tiempoActual = Date.now();
+            const tiempoUltimoIntento = new Date(user[0].ultimoIntentoFallido).getTime();
+            const tiempoTranscurrido = tiempoActual - tiempoUltimoIntento;
+
+            // Verificar si ha transcurrido suficiente tiempo desde el último intento
+            if (tiempoTranscurrido < 30000) {
+                return res.status(429).json({
+                    error: "Se ha excedido el límite de intentos de inicio de sesion",
+                });
+            }
+        }
+
+        // Verificar la contraseña
+        const isPasswordValid = await bcrypt.compare(
+            contraseña,
+            user[0].contraseña
+        );
+
+        if (!isPasswordValid) {
+            // Incrementar el contador de intentos fallidos
+            await db.query("UPDATE usuarios SET intentosFallidos = intentosFallidos + 1, ultimoIntentoFallido = NOW() WHERE correo = ?", [correo]);
+            return res.status(401).json({ error: "Contraseña incorrecta" });
+        }
+
+        // Si las credenciales son válidas, restablecer el contador de intentos fallidos
+        await db.query("UPDATE usuarios SET intentosFallidos = 0 WHERE correo = ?", [correo]);
+
+        // Resto del código para generar el token JWT y enviar una respuesta exitosa
+        // Generar token JWT
+        const token = jwt.sign(
+            {
+                customerId: user[0].customerId,
+                nombre: user[0].nombre,
+                aPaterno: user[0].aPaterno,
+                aMaterno: user[0].aMaterno,
+            },
+            secretKey,
+            {
+                expiresIn: "10s", // Puedes ajustar la duración del token según tus necesidades
+            }
+        );
+
+        // Enviar una respuesta exitosa si las credenciales son válidas
+        res.status(200).json({ token, message: "Inicio de sesión exitoso" });
     } catch (error) {
-      // Manejar errores de validación
-      if (error.name === "ValidationError") {
-        const errors = error.errors.map((err) => err.message);
-        return res.status(400).json({ errors });
-      }
+        // Manejar errores
+        // Manejar errores de validación
+        if (error.name === "ValidationError") {
+            const errors = error.errors.map((err) => err.message);
+            return res.status(400).json({ errors });
+        }
 
-      console.error("Error al iniciar sesión:", error);
-      res.status(500).json({ error: "¡Algo salió mal al iniciar sesión!" });
+        console.error("Error al iniciar sesión:", error);
+        res.status(500).json({ error: "¡Algo salió mal al iniciar sesión!" });
     }
-  },
+},
 
-  // Puedes agregar funciones para actualizar y eliminar usuarios aquí
 };
+
