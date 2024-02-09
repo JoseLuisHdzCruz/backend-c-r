@@ -68,7 +68,7 @@ const enviarCorreoValidacion = async (correo, clave) => {
 const validationSchema = Yup.object().shape({
   nombre: Yup.string()
     .matches(
-      /^[a-zA-ZáéíóúÁÉÍÓÚüÜ\s]+$/,
+      /^[a-zA-ZáéíóúñÑÁÉÍÓÚüÜ\s]+$/,
       "El nombre solo puede contener letras, acentos y espacios"
     )
     .min(3, "El nombre debe tener al menos 10 caracteres")
@@ -76,7 +76,7 @@ const validationSchema = Yup.object().shape({
     .required("El nombre es obligatorio"),
   aPaterno: Yup.string()
     .matches(
-      /^[a-zA-ZáéíóúÁÉÍÓÚüÜ\s]+$/,
+      /^[a-zA-ZáéíóúñÑÁÉÍÓÚüÜ\s]+$/,
       "El nombre solo puede contener letras, acentos y espacios"
     )
     .min(3, "El nombre debe tener al menos 3 caracteres")
@@ -84,7 +84,7 @@ const validationSchema = Yup.object().shape({
     .required("El nombre es obligatorio"),
   aMaterno: Yup.string()
     .matches(
-      /^[a-zA-ZáéíóúÁÉÍÓÚüÜ\s]+$/,
+      /^[a-zA-ZáéíóúñÑÁÉÍÓÚüÜ\s]+$/,
       "El nombre solo puede contener letras, acentos y espacios"
     )
     .min(3, "El nombre debe tener al menos 3 caracteres")
