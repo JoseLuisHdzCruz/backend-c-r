@@ -1,6 +1,4 @@
-// /src/config/db.js
-
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const dotenv = require('dotenv');
 
 dotenv.config(); // Cargar variables de entorno desde .env
@@ -10,7 +8,10 @@ const db = mysql.createConnection({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  port: process.env.DB_PORT||51144
+  port: process.env.DB_PORT || 51144,
+  // Esta opción permite múltiples consultas en una sola sentencia. 
+  // Habilita la compatibilidad con MySQL 8.0.
+  multipleStatements: true
 });
 
 module.exports = {
