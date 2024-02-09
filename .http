@@ -29,3 +29,31 @@ Content-Type: application/json
   "correo": "luis@gmail.com",
   "contraseña": "JOse61@#"
 }
+
+
+###
+POST http://localhost:5000/users/forgotPassword
+Content-Type: application/json
+
+{
+  "correo": "dareckluis@gmail.com"
+}
+
+
+###
+POST http://localhost:5000/users/keyCompare
+Content-Type: application/json
+
+{
+  "correo": "dareckluis@gmail.com",
+  "clave": "4509"
+}
+
+###
+POST http://localhost:5000/users/changePassword
+Content-Type: application/json
+
+{
+  "correo": "dareckluis@gmail.com",
+  "nuevaContraseña": "JOse63@#"
+}
