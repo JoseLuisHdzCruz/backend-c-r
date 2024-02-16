@@ -626,6 +626,16 @@ module.exports = {
 
       // Generar una clave de 4 dígitos
       const clave = Math.floor(1000 + Math.random() * 9000);
+      const fechaActual = new Date();
+      const expiracion = new Date(fechaActual.getTime() + (5 * 60000)); // Agrega 5 minutos en milisegundos
+
+
+
+      // Verificar si el correo existe en la base de datos
+      await db.query(
+        "UPDATE claves_temporales SET clave = ?, expiracion = ? WHERE correo = ?",
+        [clave, expiracion, correo]
+      );
 
       // Enviar la clave por correo electrónico
       await enviarCorreoValidacion(correo, clave.toString());
