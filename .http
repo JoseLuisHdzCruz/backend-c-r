@@ -2,7 +2,7 @@
 GET http://localhost:5000/users/
 
 ###
-GET http://localhost:5000/users?id=dasdsa-dasd-sdda
+GET http://localhost:5000/users?id=02b9fbad-90a5-4d65-bb5e-eeabcef9e5d2
 
 ###
 POST http://localhost:5000/users
@@ -55,5 +55,5 @@ Content-Type: application/json
 
 {
   "correo": "dareckluis@gmail.com",
-  "nuevaContraseña": "JOse63@#"
+  "nuevaContraseña": "JOse61@#"
 }
