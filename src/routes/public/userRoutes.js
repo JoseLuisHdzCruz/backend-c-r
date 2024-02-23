@@ -16,6 +16,17 @@ router.post('/', userController.createUser);
 // Ruta para iniciar sesión
 router.post('/login', userController.loginUser);
 
+// Ruta para enviar por correo clave de verificacion
+router.post('/forgotPassword', userController.verificarCorreoYEnviarClave);
+
+// Ruta para verificar la clave
+router.post('/keyCompare', userController.compararClave);
+
+// Ruta para actualizar la contraseña
+router.post("/changePassword", userController.cambiarContraseña);
+
+
+
 // // Ruta para actualizar un usuario
 // router.put('/:id', userController.updateUser);
 

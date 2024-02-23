@@ -2,7 +2,7 @@
 GET http://localhost:5000/users/
 
 ###
-GET http://localhost:5000/users?id=dasdsa-dasd-sdda
+GET http://localhost:5000/users?id=02b9fbad-90a5-4d65-bb5e-eeabcef9e5d2
 
 ###
 POST http://localhost:5000/users
@@ -26,6 +26,34 @@ POST http://localhost:5000/users/login
 Content-Type: application/json
 
 {
-  "correo": "luis@gmail.com",
+  "correo": "dareckluis@gmail.com",
   "contraseña": "JOse61@#"
+}
+
+
+###
+POST http://localhost:5000/users/forgotPassword
+Content-Type: application/json
+
+{
+  "correo": "dareckluis@gmail.com"
+}
+
+
+###
+POST http://localhost:5000/users/keyCompare
+Content-Type: application/json
+
+{
+  "correo": "dareckluis@gmail.com",
+  "clave": "7006"
+}
+
+###
+POST http://localhost:5000/users/changePassword
+Content-Type: application/json
+
+{
+  "correo": "dareckluis@gmail.com",
+  "nuevaContraseña": "JOse61@#"
 }
