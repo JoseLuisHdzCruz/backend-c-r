@@ -265,18 +265,18 @@ const enviarCorreoIntentoSesionSospechoso = async (correo) => {
 };
 
 const enviarCorreoCambioContraseña = async (correo) => {
-    try {
-        // Configurar el servicio de correo electrónico
-        const transporter = nodemailer.createTransport({
-            service: "gmail",
-            auth: {
-                user: email, // Cambiar por tu dirección de correo electrónico
-                pass: pass, // Cambiar por tu contraseña
-            },
-        });
+  try {
+    // Configurar el servicio de correo electrónico
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: email, // Cambiar por tu dirección de correo electrónico
+        pass: pass, // Cambiar por tu contraseña
+      },
+    });
 
-        // Configurar el mensaje de correo electrónico en formato HTML
-        const mensaje = `
+    // Configurar el mensaje de correo electrónico en formato HTML
+    const mensaje = `
             <!DOCTYPE html>
             <html lang="es">
             <head>
@@ -333,24 +333,27 @@ const enviarCorreoCambioContraseña = async (correo) => {
             </html>
         `;
 
-        // Configurar el mensaje de correo electrónico
-        const mailOptions = {
-            from: email, // Cambiar por tu dirección de correo electrónico
-            to: correo,
-            subject: "Notificación de cambio de contraseña",
-            html: mensaje,
-        };
+    // Configurar el mensaje de correo electrónico
+    const mailOptions = {
+      from: email, // Cambiar por tu dirección de correo electrónico
+      to: correo,
+      subject: "Notificación de cambio de contraseña",
+      html: mensaje,
+    };
 
-        // Enviar el correo electrónico
-        await transporter.sendMail(mailOptions);
-        console.log("Correo electrónico de cambio de contraseña enviado con éxito");
-    } catch (error) {
-        console.error("Error al enviar correo electrónico de cambio de contraseña:", error);
-        throw new Error("Error al enviar correo electrónico de cambio de contraseña");
-    }
+    // Enviar el correo electrónico
+    await transporter.sendMail(mailOptions);
+    console.log("Correo electrónico de cambio de contraseña enviado con éxito");
+  } catch (error) {
+    console.error(
+      "Error al enviar correo electrónico de cambio de contraseña:",
+      error
+    );
+    throw new Error(
+      "Error al enviar correo electrónico de cambio de contraseña"
+    );
+  }
 };
-
-
 
 const validationSchema = Yup.object().shape({
   nombre: Yup.string()
@@ -627,9 +630,7 @@ module.exports = {
       // Generar una clave de 4 dígitos
       const clave = Math.floor(1000 + Math.random() * 9000);
       const fechaActual = new Date();
-      const expiracion = new Date(fechaActual.getTime() + (5 * 60000)); // Agrega 5 minutos en milisegundos
-
-
+      const expiracion = new Date(fechaActual.getTime() + 5 * 60000); // Agrega 5 minutos en milisegundos
 
       // Verificar si el correo existe en la base de datos
       await db.query(
@@ -663,13 +664,11 @@ module.exports = {
 
       // Verificar si se encontró la clave temporal en la base de datos
       if (!claveTemporal) {
-        return res
-          .status(404)
-          .json({
-            success: false,
-            message:
-              "No se encontró una clave temporal asociada al correo proporcionado",
-          });
+        return res.status(404).json({
+          success: false,
+          message:
+            "No se encontró una clave temporal asociada al correo proporcionado",
+        });
       }
 
       // Verificar si la clave recibida coincide con la clave almacenada
@@ -702,62 +701,92 @@ module.exports = {
 
   cambiarContraseña: async (req, res, next) => {
     const { correo, nuevaContraseña } = req.body;
-
+  
     try {
       // Consultar la contraseña actual del usuario
       const user = await db.query(
-        "SELECT contraseña FROM usuarios WHERE correo = ?",
+        "SELECT customerId, contraseña FROM usuarios WHERE correo = ?",
         [correo]
       );
-
+  
       // Verificar si se encontró al usuario
       if (user.length === 0) {
-        return res
-          .status(404)
-          .json({ success: false, error: "Usuario no encontrado" });
+        return res.status(404).json({ success: false, error: "Usuario no encontrado" });
       }
-
+  
       // Verificar si la nueva contraseña es igual a la actual
-      const isSamePassword = await bcrypt.compare(
-        nuevaContraseña,
-        user[0].contraseña
-      );
+      const isSamePassword = await bcrypt.compare(nuevaContraseña, user[0].contraseña);
       if (isSamePassword) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            error: "La nueva contraseña debe ser diferente de la actual",
-          });
+        return res.status(400).json({
+          success: false,
+          error: "La nueva contraseña debe ser diferente de la actual",
+        });
       }
+  
+      // Consultar el historial de contraseñas del usuario
+const passwordHistory = await db.query(
+  "SELECT contraseña, fecha_cambio FROM historial_contraseñas WHERE usuarioId = ?",
+  [user[0].customerId]
+);
+
+// Verificar si la nueva contraseña ya se ha utilizado anteriormente
+const usedPasswordEntry = passwordHistory.find((historial) => {
+  return bcrypt.compareSync(nuevaContraseña, historial.contraseña);
+});
+
+if (usedPasswordEntry) {
+  // Obtener la fecha de cambio del historial de contraseñas
+  const lastChangeDate = new Date(usedPasswordEntry.fecha_cambio);
+  
+  // Verificar si la fecha es válida
+  if (!isNaN(lastChangeDate)) {
+    // Formatear la fecha en el formato deseado
+    const formattedLastChangeDate = `${lastChangeDate.getDate()}/${lastChangeDate.getMonth() + 1}/${lastChangeDate.getFullYear()}`;
+  
+    return res.status(400).json({
+      success: false,
+      error: `La nueva contraseña no puede ser utilizada porque ya se ha utilizado anteriormente. La contraseña se utilizó por última vez el ${formattedLastChangeDate}`,
+    });
+  } else {
+    // En caso de que la fecha no sea válida, proporcionar un mensaje genérico
+    return res.status(400).json({
+      success: false,
+      error: `La nueva contraseña no puede ser utilizada porque ya se ha utilizado anteriormente. No se pudo obtener la fecha de cambio.`,
+    });
+  }
+}
+
 
       // Encriptar la nueva contraseña
       const hashedPassword = await bcrypt.hash(nuevaContraseña, 10);
-
+  
       // Actualizar la contraseña en la base de datos
       await db.query("UPDATE usuarios SET contraseña = ? WHERE correo = ?", [
         hashedPassword,
         correo,
       ]);
-
+  
+      // Agregar la nueva contraseña al historial de contraseñas
+      await db.query(
+        "INSERT INTO historial_contraseñas (usuarioId, contraseña, fecha_cambio) VALUES (?, ?, NOW())",
+        [user[0].customerId, hashedPassword]
+      );
+  
       // Enviar correo electrónico de cambio de contraseña
       await enviarCorreoCambioContraseña(correo); // Función para enviar el correo electrónico
-
+  
       // Responder con un mensaje de éxito
-      res
-        .status(200)
-        .json({
-          success: true,
-          message: "Contraseña actualizada exitosamente",
-        });
+      res.status(200).json({
+        success: true,
+        message: "Contraseña actualizada exitosamente",
+      });
     } catch (error) {
       console.error("Error al cambiar la contraseña:", error);
-      res
-        .status(500)
-        .json({
-          success: false,
-          error: "¡Algo salió mal al cambiar la contraseña!",
-        });
+      res.status(500).json({
+        success: false,
+        error: "¡Algo salió mal al cambiar la contraseña!",
+      });
     }
   },
+  
 };
