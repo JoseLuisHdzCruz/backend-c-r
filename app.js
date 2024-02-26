@@ -5,6 +5,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const db = require('./src/config/database');
 const userRoutes = require('./src/routes/public/userRoutes');
+const productRoutes = require('./src/routes/public/productRoutes');
 const crypto = require('crypto');
 const fs = require('fs');
 
@@ -44,6 +45,7 @@ db.connect();
 
 // Configuración de rutas
 app.use('/users', userRoutes);
+app.use('/products', productRoutes);
 
 // Manejo de errores
 app.use((err, req, res, next) => {

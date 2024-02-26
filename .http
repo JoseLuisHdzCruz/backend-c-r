@@ -57,3 +57,21 @@ Content-Type: application/json
   "correo": "dareckluis@gmail.com",
   "nuevaContraseña": "JOse61@#"
 }
+
+
+###
+GET http://localhost:5000/products/
+
+###
+POST http://localhost:5000/products/
+Content-Type: application/json
+
+{
+  "nombre": "Stich De Peluche Gigante Envió Y Decorado Gratis",
+  "descripcion": "STICH ORIGINAL GIGANTE CON SU ETIQIETAS OJO NO TE CONFUNDAS CON QUIENES COPIARON NUESTRA PUBLICACIÓN Y FOTOS ELLOS NO SON LOS MISMOS NO MANDAN EN CAJA NO ES EL MISMO STICH NUESTRO STICH ES ORIGINAL CON ETIQUETAS SI NO LLEGA CON ETIQUETA NO LO ACEPTES ESE NO LE PONEN GLOBOS NI DEDICATORIA Y SU ULTIMA FOTO ES LO QUE MANDAN QUE ESTA HORRIBLE Y NO ES ESTE!!!",
+  "precio": 1065,
+  "existencia": 2,
+  "categoriaId": 2,
+  "statusId": 1
+}
+
