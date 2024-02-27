@@ -447,7 +447,7 @@ module.exports = {
     const userId = req.params.id;
     try {
       const user = await db.query(
-        "SELECT * FROM usuarios WHERE custumerId = ?",
+        "SELECT * FROM usuarios WHERE customerId = ?",
         [userId]
       );
       if (user.length > 0) {

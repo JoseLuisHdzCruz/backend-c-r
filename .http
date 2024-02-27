@@ -2,7 +2,7 @@
 GET http://localhost:5000/users/
 
 ###
-GET http://localhost:5000/users?id=02b9fbad-90a5-4d65-bb5e-eeabcef9e5d2
+GET http://localhost:5000/users/0ebab22f-8897-4076-828e-2e18e08f93e1
 
 ###
 POST http://localhost:5000/users
@@ -75,3 +75,5 @@ Content-Type: application/json
   "statusId": 1
 }
 
+###
+GET http://localhost:5000/products/534ad899-348d-4ce0-817c-962571fb59b2

@@ -31,7 +31,7 @@ module.exports = {
     const productId = req.params.id;
     try {
       const product = await db.query(
-        "SELECT * FROM products WHERE productId = ?",
+        "SELECT * FROM products WHERE productoId = ?",
         [productId]
       );
       if (product.length > 0) {
