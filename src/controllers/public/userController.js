@@ -496,18 +496,17 @@ module.exports = {
       }
 
       // Validar el número de teléfono usando la API de apilayer
-      const countryCode = process.env.COUNTRY_CODE; // Código de país para México
-      const apiKey = process.env.API_KEY_NUMVERIFLY;
-      console.log('hola')
-      const validateResponse = await axios.get(
-        `http://apilayer.net/api/validate?access_key=${apiKey}&number=${userData.telefono}&country_code=${countryCode}`
-      );
-      console.log('hola tu')
-      if (!validateResponse.data.valid) {
-        return res
-          .status(400)
-          .json({ error: "El número de teléfono no es válido o no existe" });
-      }
+      // const countryCode = process.env.COUNTRY_CODE; // Código de país para México
+      // const apiKey = process.env.API_KEY_NUMVERIFLY;
+      // const validateResponse = await axios.get(
+      //   `http://apilayer.net/api/validate?access_key=${apiKey}&number=${userData.telefono}&country_code=${countryCode}`
+      // );
+
+      // if (!validateResponse.data.valid) {
+      //   return res
+      //     .status(400)
+      //     .json({ error: "El número de teléfono no es válido o no existe" });
+      // }
 
       // Generar un id único
       const userId = uuidv4();
