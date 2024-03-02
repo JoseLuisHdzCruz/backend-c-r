@@ -627,14 +627,20 @@ module.exports = {
       // Enviar una respuesta exitosa si las credenciales son válidas
       res.status(200).json({ token, message: "Inicio de sesión exitoso" });
     } catch (error) {
-      // Manejar errores
+      // Manejar errores de validación
       if (error.name === "ValidationError") {
         const errors = error.errors.map((err) => err.message);
         return res.status(400).json({ errors });
       }
-
-      console.error("Error al iniciar sesión:", error);
-      res.status(500).json({ error: "¡Algo salió mal al iniciar sesión!" });
+    
+      // Manejar errores específicos de la inserción en la base de datos
+      if (error.code === 'ER_DUP_ENTRY') {
+        return res.status(400).json({ error: "El correo electrónico ya está en uso" });
+      }
+    
+      // Manejar otros tipos de errores
+      console.error("Error al crear usuario:", error);
+      res.status(500).json({ error: "¡Algo salió mal al crear usuario!" });
     }
   },
 
