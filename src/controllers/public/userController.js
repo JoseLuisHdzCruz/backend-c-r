@@ -2,6 +2,7 @@
 
 const db = require("../../config/database");
 const Yup = require("yup");
+const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -470,6 +471,18 @@ module.exports = {
       // Validar los datos usando Yup
       await validationSchema.validate(userData, { abortEarly: false });
 
+      // Validar el número de teléfono usando la API de apilayer
+      const apiKeyZerobounce = process.env.API_KEY_ZEROBOUNCE;
+      const validateEmailResponse = await axios.get(
+        `https://api.zerobounce.net/v2/validate?api_key=${apiKeyZerobounce}&email=${userData.correo}`
+      );
+
+      if (validateEmailResponse.data.status==="invalid") {
+        return res
+          .status(400)
+          .json({ error: "El correo electronico no es válido o no existe" });
+      }
+
       // Verificar si el correo ya está en uso
       const existingUser = await db.query(
         "SELECT * FROM usuarios WHERE correo = ?",
@@ -480,6 +493,19 @@ module.exports = {
         return res
           .status(400)
           .json({ error: "El correo electrónico ya está en uso" });
+      }
+
+      // Validar el número de teléfono usando la API de apilayer
+      const countryCode = process.env.COUNTRY_CODE; // Código de país para México
+      const apiKey = process.env.API_KEY_NUMVERIFLY;
+      const validateResponse = await axios.get(
+        `http://apilayer.net/api/validate?access_key=${apiKey}&number=${userData.telefono}&country_code=${countryCode}`
+      );
+
+      if (!validateResponse.data.valid) {
+        return res
+          .status(400)
+          .json({ error: "El número de teléfono no es válido o no existe" });
       }
 
       // Generar un id único
@@ -701,80 +727,86 @@ module.exports = {
 
   cambiarContraseña: async (req, res, next) => {
     const { correo, nuevaContraseña } = req.body;
-  
+
     try {
       // Consultar la contraseña actual del usuario
       const user = await db.query(
         "SELECT customerId, contraseña FROM usuarios WHERE correo = ?",
         [correo]
       );
-  
+
       // Verificar si se encontró al usuario
       if (user.length === 0) {
-        return res.status(404).json({ success: false, error: "Usuario no encontrado" });
+        return res
+          .status(404)
+          .json({ success: false, error: "Usuario no encontrado" });
       }
-  
+
       // Verificar si la nueva contraseña es igual a la actual
-      const isSamePassword = await bcrypt.compare(nuevaContraseña, user[0].contraseña);
+      const isSamePassword = await bcrypt.compare(
+        nuevaContraseña,
+        user[0].contraseña
+      );
       if (isSamePassword) {
         return res.status(400).json({
           success: false,
           error: "La nueva contraseña debe ser diferente de la actual",
         });
       }
-  
+
       // Consultar el historial de contraseñas del usuario
-const passwordHistory = await db.query(
-  "SELECT contraseña, fecha_cambio FROM historial_contraseñas WHERE usuarioId = ?",
-  [user[0].customerId]
-);
+      const passwordHistory = await db.query(
+        "SELECT contraseña, fecha_cambio FROM historial_contraseñas WHERE usuarioId = ?",
+        [user[0].customerId]
+      );
 
-// Verificar si la nueva contraseña ya se ha utilizado anteriormente
-const usedPasswordEntry = passwordHistory.find((historial) => {
-  return bcrypt.compareSync(nuevaContraseña, historial.contraseña);
-});
+      // Verificar si la nueva contraseña ya se ha utilizado anteriormente
+      const usedPasswordEntry = passwordHistory.find((historial) => {
+        return bcrypt.compareSync(nuevaContraseña, historial.contraseña);
+      });
 
-if (usedPasswordEntry) {
-  // Obtener la fecha de cambio del historial de contraseñas
-  const lastChangeDate = new Date(usedPasswordEntry.fecha_cambio);
-  
-  // Verificar si la fecha es válida
-  if (!isNaN(lastChangeDate)) {
-    // Formatear la fecha en el formato deseado
-    const formattedLastChangeDate = `${lastChangeDate.getDate()}/${lastChangeDate.getMonth() + 1}/${lastChangeDate.getFullYear()}`;
-  
-    return res.status(400).json({
-      success: false,
-      error: `La nueva contraseña no puede ser utilizada porque ya se ha utilizado anteriormente. La contraseña se utilizó por última vez el ${formattedLastChangeDate}`,
-    });
-  } else {
-    // En caso de que la fecha no sea válida, proporcionar un mensaje genérico
-    return res.status(400).json({
-      success: false,
-      error: `La nueva contraseña no puede ser utilizada porque ya se ha utilizado anteriormente. No se pudo obtener la fecha de cambio.`,
-    });
-  }
-}
+      if (usedPasswordEntry) {
+        // Obtener la fecha de cambio del historial de contraseñas
+        const lastChangeDate = new Date(usedPasswordEntry.fecha_cambio);
 
+        // Verificar si la fecha es válida
+        if (!isNaN(lastChangeDate)) {
+          // Formatear la fecha en el formato deseado
+          const formattedLastChangeDate = `${lastChangeDate.getDate()}/${
+            lastChangeDate.getMonth() + 1
+          }/${lastChangeDate.getFullYear()}`;
+
+          return res.status(400).json({
+            success: false,
+            error: `La nueva contraseña no puede ser utilizada porque ya se ha utilizado anteriormente. La contraseña se utilizó por última vez el ${formattedLastChangeDate}`,
+          });
+        } else {
+          // En caso de que la fecha no sea válida, proporcionar un mensaje genérico
+          return res.status(400).json({
+            success: false,
+            error: `La nueva contraseña no puede ser utilizada porque ya se ha utilizado anteriormente. No se pudo obtener la fecha de cambio.`,
+          });
+        }
+      }
 
       // Encriptar la nueva contraseña
       const hashedPassword = await bcrypt.hash(nuevaContraseña, 10);
-  
+
       // Actualizar la contraseña en la base de datos
       await db.query("UPDATE usuarios SET contraseña = ? WHERE correo = ?", [
         hashedPassword,
         correo,
       ]);
-  
+
       // Agregar la nueva contraseña al historial de contraseñas
       await db.query(
         "INSERT INTO historial_contraseñas (usuarioId, contraseña, fecha_cambio) VALUES (?, ?, NOW())",
         [user[0].customerId, hashedPassword]
       );
-  
+
       // Enviar correo electrónico de cambio de contraseña
       await enviarCorreoCambioContraseña(correo); // Función para enviar el correo electrónico
-  
+
       // Responder con un mensaje de éxito
       res.status(200).json({
         success: true,
@@ -788,5 +820,4 @@ if (usedPasswordEntry) {
       });
     }
   },
-  
 };

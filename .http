@@ -12,7 +12,7 @@ Content-Type: application/json
   "nombre": "Luis Arturo",
   "aPaterno": "Hernandez",
   "aMaterno": "De La Cruz",
-  "correo": "art@gmail.com",
+  "correo": "gushercr1@gmail.com",
   "sexo": "Masculino",
   "fecha_nacimiento": "1990-01-01",
   "telefono": "1234567890",
