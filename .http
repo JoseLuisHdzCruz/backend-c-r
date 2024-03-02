@@ -20,6 +20,22 @@ Content-Type: application/json
   "Rcontraseña": "JOse61@#"
 }
 
+###
+POST http://localhost:5000/users/
+Content-Type: application/json
+
+{
+  "nombre": "Luis Arturo",
+  "aPaterno": "Hernandez",
+  "aMaterno": "De La Cruz",
+  "correo": "gushercr@gmail.com",
+  "sexo": "Masculino",
+  "fecha_nacimiento": "1990-01-01",
+  "telefono": "1234",
+  "contraseña": "JOse61@#",
+  "Rcontraseña": "JOse61@#"
+}
+
 
 ###
 POST http://localhost:5000/users/login

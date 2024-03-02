@@ -496,17 +496,17 @@ module.exports = {
       }
 
       // Validar el número de teléfono usando la API de apilayer
-      // const countryCode = process.env.COUNTRY_CODE; // Código de país para México
-      // const apiKey = process.env.API_KEY_NUMVERIFLY;
-      // const validateResponse = await axios.get(
-      //   `http://apilayer.net/api/validate?access_key=${apiKey}&number=${userData.telefono}&country_code=${countryCode}`
-      // );
+      const countryCode = process.env.COUNTRY_CODE; // Código de país para México
+      const apiKey = process.env.API_KEY_NUMVERIFLY;
+      const validateResponse = await axios.get(
+        `http://apilayer.net/api/validate?access_key=${apiKey}&number=${userData.telefono}&country_code=${countryCode}`
+      );
 
-      // if (!validateResponse.data.valid) {
-      //   return res
-      //     .status(400)
-      //     .json({ error: "El número de teléfono no es válido o no existe" });
-      // }
+      if (!validateResponse.data.valid) {
+        return res
+          .status(400)
+          .json({ error: "El número de teléfono no es válido o no existe" });
+      }
 
       // Generar un id único
       const userId = uuidv4();
@@ -547,7 +547,7 @@ module.exports = {
         const errors = error.errors.map((err) => err.message);
         return res.status(400).json({ errors });
       }
-
+    
       console.error("Error al crear usuario:", error);
       res.status(500).json({ error: "¡Algo salió mal al crear usuario!" });
     }
