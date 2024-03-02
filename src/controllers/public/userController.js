@@ -364,7 +364,16 @@ const validationSchema = Yup.object().shape({
     )
     .min(3, "El nombre debe tener al menos 10 caracteres")
     .max(20, "El nombre no puede tener más de 50 caracteres")
-    .required("El nombre es obligatorio"),
+    .required("El nombre es obligatorio")
+    .test(
+      "no-repetir-caracteres",
+      "El nombre no puede contener caracteres repetidos consecutivos más de 2 veces",
+      (value) => {
+        // Verificar que no haya más de 2 caracteres repetidos consecutivos
+        const regex = /([a-zA-ZáéíóúñÑÁÉÍÓÚüÜ])\1{2,}/g;
+        return !regex.test(value);
+      }
+    ),
   aPaterno: Yup.string()
     .matches(
       /^[a-zA-ZáéíóúñÑÁÉÍÓÚüÜ\s]+$/,
@@ -372,7 +381,16 @@ const validationSchema = Yup.object().shape({
     )
     .min(3, "El nombre debe tener al menos 3 caracteres")
     .max(15, "El nombre no puede tener más de 15 caracteres")
-    .required("El nombre es obligatorio"),
+    .required("El nombre es obligatorio")
+    .test(
+      "no-repetir-caracteres",
+      "El nombre no puede contener caracteres repetidos consecutivos más de 2 veces",
+      (value) => {
+        // Verificar que no haya más de 2 caracteres repetidos consecutivos
+        const regex = /([a-zA-ZáéíóúñÑÁÉÍÓÚüÜ])\1{2,}/g;
+        return !regex.test(value);
+      }
+    ),
   aMaterno: Yup.string()
     .matches(
       /^[a-zA-ZáéíóúñÑÁÉÍÓÚüÜ\s]+$/,
@@ -380,7 +398,16 @@ const validationSchema = Yup.object().shape({
     )
     .min(3, "El nombre debe tener al menos 3 caracteres")
     .max(15, "El nombre no puede tener más de 15 caracteres")
-    .required("El nombre es obligatorio"),
+    .required("El nombre es obligatorio")
+    .test(
+      "no-repetir-caracteres",
+      "El nombre no puede contener caracteres repetidos consecutivos más de 2 veces",
+      (value) => {
+        // Verificar que no haya más de 2 caracteres repetidos consecutivos
+        const regex = /([a-zA-ZáéíóúñÑÁÉÍÓÚüÜ])\1{2,}/g;
+        return !regex.test(value);
+      }
+    ),
   correo: Yup.string()
     .email("Correo electrónico inválido")
     .required("Email es obligatorio")
@@ -388,16 +415,18 @@ const validationSchema = Yup.object().shape({
       /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/,
       "Ingresa una dirección de correo electrónico válida"
     ),
-  telefono: Yup.string()
+  telefono: Yup.number()
+    .typeError("Formato invalido")
     .required("Telefono requerido")
-    .matches(/^\d+$/, "El teléfono debe contener solo números")
     .min(10, "El Telefono debe tener al menos 10 digitos"),
   sexo: Yup.string().required("Seleccione su sexo"),
   fecha_nacimiento: Yup.date()
-    .max(new Date(), "La fecha de nacimiento no puede ser en el futuro")
-    .required("Campo obligatorio"),
+    .max(
+      new Date(new Date().setFullYear(new Date().getFullYear() - 18)),
+      "Debes ser mayor de 18 años"
+    )
+    .required("Fecha de nacimiento es obligatoria"),
   contraseña: Yup.string()
-    .min(8, "La contraseña debe tener al menos 6 caracteres")
     .required("Contraseña es obligatoria")
     .min(8, "La contraseña debe tener al menos 8 caracteres")
     .matches(/\d{1,2}/, "Debe contener al menos 1 o 2 dígitos")
@@ -406,8 +435,14 @@ const validationSchema = Yup.object().shape({
     .matches(
       /[^A-Za-z0-9]{1,2}/,
       "Debe contener al menos 1 o 2 caracteres especiales"
-    )
-    .required("Contraseña es obligatoria"),
+    ),
+  RContraseña: Yup.string()
+    .required("Campo obligatorio")
+    .oneOf([Yup.ref("contraseña"), null], "Las contraseñas deben coincidir"),
+  aceptaTerminos: Yup.boolean().oneOf(
+    [true],
+    "Debes aceptar los términos y condiciones para registrarte"
+  ),
 });
 
 // Esquema de validación específico para el inicio de sesión
