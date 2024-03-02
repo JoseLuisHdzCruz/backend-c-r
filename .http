@@ -5,17 +5,17 @@ GET http://localhost:5000/users/
 GET http://localhost:5000/users/0ebab22f-8897-4076-828e-2e18e08f93e1
 
 ###
-POST http://localhost:5000/users
+POST https://backend-c-r-production.up.railway.app/users/
 Content-Type: application/json
 
 {
   "nombre": "Luis Arturo",
   "aPaterno": "Hernandez",
   "aMaterno": "De La Cruz",
-  "correo": "gushercr1@gmail.com",
+  "correo": "gushercr@gmail.com",
   "sexo": "Masculino",
   "fecha_nacimiento": "1990-01-01",
-  "telefono": "1234567890",
+  "telefono": "1234",
   "contraseña": "JOse61@#",
   "Rcontraseña": "JOse61@#"
 }
