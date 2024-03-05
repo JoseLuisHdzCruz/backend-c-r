@@ -2,22 +2,36 @@
 GET http://localhost:5000/users/
 
 ###
-GET http://localhost:5000/users/702b9fbad-90a5-4d65-bb5e-eeabcef9e5d2
+GET http://localhost:5000/users/0ebab22f-8897-4076-828e-2e18e08f93e1
 
 ###
-POST http://localhost:5000/users
+POST https://backend-c-r-production.up.railway.app/users/
 Content-Type: application/json
 
 {
   "nombre": "Luis Arturo",
   "aPaterno": "Hernandez",
   "aMaterno": "De La Cruz",
-  "correo": "art@gmail.com",
+  "correo": "gushercr@gmeil.com",
   "sexo": "Masculino",
   "fecha_nacimiento": "1990-01-01",
   "telefono": "1234567890",
-  "contraseña": "JOse61@#",
-  "Rcontraseña": "JOse61@#"
+  "contraseña": "JOse61@#"
+}
+
+###
+POST http://localhost:5000/users/
+Content-Type: application/json
+
+{
+  "nombre": "Luis Arturo",
+  "aPaterno": "Hernandez",
+  "aMaterno": "De La Cruz",
+  "correo": "gushercr@gmail.com",
+  "sexo": "Masculino",
+  "fecha_nacimiento": "1990-01-01",
+  "telefono": "1234567890",
+  "contraseña": "JOse61@#"
 }
 
 
@@ -27,7 +41,7 @@ Content-Type: application/json
 
 {
   "correo": "dareckluis@gmail.com",
-  "contraseña": "JOse61@#"
+  "contraseña": "JOse11@#"
 }
 
 
@@ -67,11 +81,14 @@ POST http://localhost:5000/products/
 Content-Type: application/json
 
 {
-  "nombre": "Basta Piensa Rapido Juego De Mesa",
-  "descripcion": "Con este pasatiempo entretenido las risas están aseguradas.",
-  "precio": 224,
-  "existencia": 25,
-  "categoriaId": 1,
-  "statusId": 1
+  "nombre": "Cactus Bailarín 120 Canciones",
+  "descripcion": "Estimado cliente, Hola, antes de comprar nuestros productos, por favor confirme la información del tamaño del producto, no nos causan la necesidad de devolver el producto a usted debido a su negligencia, también por favor asegúrese antes de realizar un pedido, trate de no cancelar temporalmente, por lo que estaremos muy perturbados, gracias por su cooperación, gracias.",
+  "precio": 1065,
+  "existencia": 2,
+  "categoriaId": 2,
+  "statusId": 1,
+  "imagen": "https://res.cloudinary.com/drvcma1kk/image/upload/v1709424362/Icono-producto_hsmag2.png"
 }
 
+###
+GET http://localhost:5000/products/534ad899-348d-4ce0-817c-962571fb59b2

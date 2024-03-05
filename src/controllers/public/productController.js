@@ -44,7 +44,7 @@ module.exports = {
     const productId = req.params.id;
     try {
       const product = await db.query(
-        "SELECT * FROM products WHERE productId = ?",
+        "SELECT * FROM products WHERE productoId = ?",
         [productId]
       );
       if (product.length > 0) {
@@ -73,7 +73,7 @@ module.exports = {
 
       // Insertar el nuevo producto en la base de datos
       const result = await db.query(
-        "INSERT INTO products (productoId, nombre, descripcion, precio, existencia, categoriaId, statusId, created, modified, imagen, IVA) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), '', 1);",
+        "INSERT INTO products (productoId, nombre, descripcion, precio, existencia, categoriaId, statusId, created, modified, imagen, IVA) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, 1);",
         [
           productId,
           productData.nombre,
@@ -82,7 +82,7 @@ module.exports = {
           productData.existencia,
           productData.categoriaId,
           productData.statusId,
-          //   productData.imagen || null,
+          productData.imagen
         ]
       );
       
