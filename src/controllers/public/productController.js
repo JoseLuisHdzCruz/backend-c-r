@@ -1,10 +1,15 @@
 // /src/controllers/productController.js
 
-const db = require("../../config/database");
-const Yup = require("yup");
+
+const db = require("../../config/database"); // se importa el modulo database 
+// se manda a llamar la biblioteca yup para las validaciones de la entrada de datos
+const Yup = require("yup"); 
+// Esta función V4 genera especificamente los identificadores unicos de manera aleatoria 
 const { v4: uuidv4 } = require("uuid");
 
 
+//Aqui se hacen las validaciones haciendo uso de la libreria yup 
+//validacionschema especifica las reglas que deben cumplir los datos
 const validationSchema = Yup.object().shape({
   nombre: Yup.string().required("El nombre es obligatorio"),
   descripcion: Yup.string().required("La descripción es obligatoria"),
@@ -16,7 +21,11 @@ const validationSchema = Yup.object().shape({
   IVA: Yup.number().nullable().positive("El IVA debe ser positivo"),
 });
 
+//objeto
 module.exports = {
+ // se exporta un objeto con la funcion getAllProducts
+ // req,res estan de manera asincrona donde se manejan las solicitudes 
+ //para obtener todos los productos
   getAllProducts: async (req, res, next) => {
     try {
       const products = await db.query("SELECT * FROM products;");
@@ -27,6 +36,10 @@ module.exports = {
     }
   },
 
+  
+  //getProductById maneja las solicitudes para obtener un producto específico
+  // de la base de datos según su ID y 
+  //devuelve el producto recuperado como una respuesta JSON al cliente.
   getProductById: async (req, res, next) => {
     const productId = req.params.id;
     try {
@@ -47,6 +60,7 @@ module.exports = {
     }
   },
 
+  //Maneja solicitudes HTTP entrantes para crear un nuevo producto 
   createProduct: async (req, res, next) => {
     const productData = req.body;
 
