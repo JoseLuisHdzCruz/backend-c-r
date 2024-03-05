@@ -652,6 +652,7 @@ module.exports = {
           nombre: user[0].nombre,
           aPaterno: user[0].aPaterno,
           aMaterno: user[0].aMaterno,
+          sexo: user[0].sexo
         },
         secretKey,
         {
