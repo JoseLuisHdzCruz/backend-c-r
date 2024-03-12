@@ -11,10 +11,10 @@ router.get('/', userController.getAllUsers);
 router.get('/:id', userController.getUserById);
 
 // Ruta para obtener la pregunta secreta del usuario mediante correo
-router.post('/SecretQuestion', userController.getSecretQuestion);
+router.post('/ecretQuestion', userController.getSecretQuestion);
 
 // Ruta para comparar si la respuesta enviada es correcta
-router.post('/SecretAnswer', userController.checkSecretAnswer);
+router.post('/secretAnswer', userController.checkSecretAnswer);
 
 // Ruta para crear un nuevo usuario
 router.post('/', userController.createUser);
