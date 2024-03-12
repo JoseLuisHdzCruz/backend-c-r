@@ -479,6 +479,22 @@ module.exports = {
     }
   },
 
+  getSecretQuestion: async (req, res, next) => {
+    const { correo } = req.body; // Usando destructuring para obtener el correo electrónico del cuerpo de la solicitud
+    try {
+      const users = await db.query("SELECT preguntaSecreta FROM usuarios WHERE correo = ?", [correo]);
+      if (users.length > 0) {
+        res.json(users[0].preguntaSecreta); // Devolver solo la pregunta secreta, no todo el usuario
+      } else {
+        res.status(404).json({ error: "Usuario no encontrado" }); // Manejar el caso en que el usuario no se encuentre
+      }
+    } catch (error) {
+      console.error("Error al obtener pregunta secreta:", error);
+      res.status(500).json({ error: "¡Algo salió mal al obtener la pregunta secreta!" });
+    }
+  },
+  
+
   getUserById: async (req, res, next) => {
     const userId = req.params.id;
     try {
@@ -866,4 +882,6 @@ module.exports = {
       });
     }
   },
+
+
 };
