@@ -655,8 +655,8 @@ module.exports = {
           sexo: user[0].sexo,
           correo: user[0].correo,
           imagen: user[0].imagen,
-          edad: [0].fecha_nacimiento,
-          telefono: [0].telefono
+          edad: user[0].fecha_nacimiento,
+          telefono: user[0].telefono
         },
         secretKey,
         {
