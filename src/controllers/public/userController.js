@@ -362,8 +362,8 @@ const validationSchema = Yup.object().shape({
       /^[a-zA-ZáéíóúñÑÁÉÍÓÚüÜ\s]+$/,
       "El nombre solo puede contener letras, acentos y espacios"
     )
-    .min(3, "El nombre debe tener al menos 10 caracteres")
-    .max(20, "El nombre no puede tener más de 50 caracteres")
+    .min(3, "El nombre debe tener al menos 3 caracteres")
+    .max(20, "El nombre no puede tener más de 20 caracteres")
     .required("El nombre es obligatorio")
     .test(
       "no-repetir-caracteres",
@@ -420,6 +420,15 @@ const validationSchema = Yup.object().shape({
     .required("Telefono requerido")
     .min(10, "El Telefono debe tener al menos 10 digitos"),
   sexo: Yup.string().required("Seleccione su sexo"),
+  preguntaSecreta: Yup.string().required("Seleccione su pregunta"),
+  respuestaSecreta: Yup.string()
+    .matches(
+      /^[a-zA-ZáéíóúñÑÁÉÍÓÚüÜ\s]+$/,
+      "El nombre solo puede contener letras, acentos y espacios"
+    )
+    .min(3, "La respuesta debe tener al menos 3 caracteres")
+    .max(50, "La respuesta no puede tener más de 50 caracteres")
+    .required("La respuesta es obligatorio"),
   fecha_nacimiento: Yup.date()
     .max(
       new Date(new Date().setFullYear(new Date().getFullYear() - 18)),
@@ -617,7 +626,7 @@ module.exports = {
 
       // Insertar el nuevo usuario en la base de datos con la contraseña encriptada
       const result = await db.query(
-        "INSERT INTO usuarios (customerId, nombre, aPaterno, aMaterno, correo, telefono, sexo, fecha_nacimiento, contraseña, ultimoAcceso, statusId, created, modified, intentosFallidos) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, null, 1, NOW(), NOW(), 0)",
+        "INSERT INTO usuarios (customerId, nombre, aPaterno, aMaterno, correo, telefono, sexo, fecha_nacimiento, contraseña, ultimoAcceso, statusId, created, modified, intentosFallidos, preguntaSecreta, respuestaPSecreta) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, null, 1, NOW(), NOW(), 0, ?, ?)",
         [
           userId,
           userData.nombre,
@@ -628,6 +637,8 @@ module.exports = {
           userData.sexo,
           userData.fecha_nacimiento,
           hashedPassword,
+          userData.preguntaSecreta,
+          userData.respuestaSecreta
         ]
       );
 
