@@ -482,7 +482,10 @@ module.exports = {
   getSecretQuestion: async (req, res, next) => {
     const { correo } = req.body; // Usando destructuring para obtener el correo electrónico del cuerpo de la solicitud
     try {
-      const users = await db.query("SELECT preguntaSecreta FROM usuarios WHERE correo = ?", [correo]);
+      const users = await db.query(
+        "SELECT preguntaSecreta FROM usuarios WHERE correo = ?",
+        [correo]
+      );
       if (users.length > 0) {
         res.json(users[0].preguntaSecreta); // Devolver solo la pregunta secreta, no todo el usuario
       } else {
@@ -490,10 +493,54 @@ module.exports = {
       }
     } catch (error) {
       console.error("Error al obtener pregunta secreta:", error);
-      res.status(500).json({ error: "¡Algo salió mal al obtener la pregunta secreta!" });
+      res
+        .status(500)
+        .json({ error: "¡Algo salió mal al obtener la pregunta secreta!" });
     }
   },
-  
+
+  checkSecretAnswer: async (req, res, next) => {
+    const { correo, respuesta } = req.body; // Obtener el correo electrónico y la respuesta secreta del cuerpo de la solicitud
+    try {
+      // Consultar la respuesta secreta almacenada en la base de datos para el usuario con el correo electrónico dado
+      const user = await db.query(
+        "SELECT respuestaPSecreta FROM usuarios WHERE correo = ?",
+        [correo]
+      );
+      if (user.length > 0) {
+        const respuestaSecretaDB = user[0].respuestaPSecreta; // Obtener la respuesta secreta almacenada en la base de datos
+        // Comparar la respuesta proporcionada con la respuesta secreta almacenada en la base de datos
+        if (respuesta === respuestaSecretaDB) {
+          // Si las respuestas coinciden, responder con un mensaje de éxito
+          res
+            .status(200)
+            .json({ success: true, message: "¡La respuesta es correcta!" });
+        } else {
+          // Si las respuestas no coinciden, responder con un mensaje de error
+          res
+            .status(400)
+            .json({
+              success: false,
+              error: "La respuesta proporcionada es incorrecta.",
+            });
+        }
+      } else {
+        // Si no se encuentra ningún usuario con el correo electrónico dado, responder con un mensaje de error
+        res
+          .status(404)
+          .json({ success: false, error: "Usuario no encontrado." });
+      }
+    } catch (error) {
+      // Manejar cualquier error que pueda ocurrir durante la consulta a la base de datos
+      console.error("Error al verificar respuesta secreta:", error);
+      res
+        .status(500)
+        .json({
+          success: false,
+          error: "¡Algo salió mal al verificar la respuesta secreta!",
+        });
+    }
+  },
 
   getUserById: async (req, res, next) => {
     const userId = req.params.id;
@@ -528,7 +575,7 @@ module.exports = {
         `https://api.zerobounce.net/v2/validate?api_key=${apiKeyZerobounce}&email=${userData.correo}`
       );
 
-      if (validateEmailResponse.data.status==="invalid") {
+      if (validateEmailResponse.data.status === "invalid") {
         return res
           .status(400)
           .json({ error: "El correo electronico no es válido o no existe" });
@@ -598,7 +645,7 @@ module.exports = {
         const errors = error.errors.map((err) => err.message);
         return res.status(400).json({ errors });
       }
-    
+
       console.error("Error al crear usuario:", error);
       res.status(500).json({ error: "¡Algo salió mal al crear usuario!" });
     }
@@ -672,7 +719,7 @@ module.exports = {
           correo: user[0].correo,
           imagen: user[0].imagen,
           edad: user[0].fecha_nacimiento,
-          telefono: user[0].telefono
+          telefono: user[0].telefono,
         },
         secretKey,
         {
@@ -688,12 +735,14 @@ module.exports = {
         const errors = error.errors.map((err) => err.message);
         return res.status(400).json({ errors });
       }
-    
+
       // Manejar errores específicos de la inserción en la base de datos
-      if (error.code === 'ER_DUP_ENTRY') {
-        return res.status(400).json({ error: "El correo electrónico ya está en uso" });
+      if (error.code === "ER_DUP_ENTRY") {
+        return res
+          .status(400)
+          .json({ error: "El correo electrónico ya está en uso" });
       }
-    
+
       // Manejar otros tipos de errores
       console.error("Error al crear usuario:", error);
       res.status(500).json({ error: "¡Algo salió mal al crear usuario!" });
@@ -882,6 +931,4 @@ module.exports = {
       });
     }
   },
-
-
 };

@@ -5,12 +5,22 @@ GET http://localhost:5000/users/
 GET http://localhost:5000/users/0ebab22f-8897-4076-828e-2e18e08f93e1
 
 ###
-POST http://localhost:5000/users/
+POST http://localhost:5000/users/SecretQuestion
 Content-Type: application/json
 
 {
   "correo": "dareckluis@gmail.com"
 }
+
+###
+POST http://localhost:5000/users/SecretAnswer
+Content-Type: application/json
+
+{
+  "correo": "dareckluis@gmail.com",
+  "respuesta": "Azul Marino"
+}
+
 
 ###
 POST https://backend-c-r-production.up.railway.app/users/
