@@ -47,6 +47,27 @@ module.exports = {
     }
   },
 
+  searchProducts: async (req, res, next) => {
+    const { search } = req.body;
+
+    try {
+      // Convertir la cadena de búsqueda a minúsculas para hacer la búsqueda insensible a mayúsculas y minúsculas
+      const searchTerm = search.toLowerCase();
+
+      // Realizar la consulta para buscar productos que contengan el término de búsqueda en el nombre
+      const products = await db.query(
+        "SELECT * FROM products WHERE LOWER(nombre) LIKE ?",
+        [`%${searchTerm}%`]
+      );
+
+      // Responder con los productos encontrados
+      res.json(products);
+    } catch (error) {
+      console.error("Error al buscar productos:", error);
+      res.status(500).json({ error: "¡Algo salió mal al buscar productos!" });
+    }
+  },
+
   createProduct: async (req, res, next) => {
     const productData = req.body;
 
