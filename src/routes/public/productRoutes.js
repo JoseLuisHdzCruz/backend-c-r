@@ -13,6 +13,9 @@ router.get('/:id', productController.getProductById);
 // Ruta para crear un nuevo producto
 router.post('/', productController.createProduct);
 
+// Ruta para buscar productos
+router.post('/search', productController.searchProducts);
+
 // Ruta para actualizar un producto
 router.put('/:id', productController.updateProduct);
 
