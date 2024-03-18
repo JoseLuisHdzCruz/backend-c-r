@@ -362,8 +362,8 @@ const validationSchema = Yup.object().shape({
       /^[a-zA-ZáéíóúñÑÁÉÍÓÚüÜ\s]+$/,
       "El nombre solo puede contener letras, acentos y espacios"
     )
-    .min(3, "El nombre debe tener al menos 10 caracteres")
-    .max(20, "El nombre no puede tener más de 50 caracteres")
+    .min(3, "El nombre debe tener al menos 3 caracteres")
+    .max(20, "El nombre no puede tener más de 20 caracteres")
     .required("El nombre es obligatorio")
     .test(
       "no-repetir-caracteres",
@@ -420,6 +420,15 @@ const validationSchema = Yup.object().shape({
     .required("Telefono requerido")
     .min(10, "El Telefono debe tener al menos 10 digitos"),
   sexo: Yup.string().required("Seleccione su sexo"),
+  preguntaSecreta: Yup.string().required("Seleccione su pregunta"),
+  respuestaSecreta: Yup.string()
+    .matches(
+      /^[a-zA-ZáéíóúñÑÁÉÍÓÚüÜ\s]+$/,
+      "El nombre solo puede contener letras, acentos y espacios"
+    )
+    .min(3, "La respuesta debe tener al menos 3 caracteres")
+    .max(50, "La respuesta no puede tener más de 50 caracteres")
+    .required("La respuesta es obligatorio"),
   fecha_nacimiento: Yup.date()
     .max(
       new Date(new Date().setFullYear(new Date().getFullYear() - 18)),
@@ -479,6 +488,69 @@ module.exports = {
     }
   },
 
+  getSecretQuestion: async (req, res, next) => {
+    const { correo } = req.body; // Usando destructuring para obtener el correo electrónico del cuerpo de la solicitud
+    try {
+      const users = await db.query(
+        "SELECT preguntaSecreta FROM usuarios WHERE correo = ?",
+        [correo]
+      );
+      if (users.length > 0) {
+        res.json(users[0].preguntaSecreta); // Devolver solo la pregunta secreta, no todo el usuario
+      } else {
+        res.status(404).json({ error: "Usuario no encontrado" }); // Manejar el caso en que el usuario no se encuentre
+      }
+    } catch (error) {
+      console.error("Error al obtener pregunta secreta:", error);
+      res
+        .status(500)
+        .json({ error: "¡Algo salió mal al obtener la pregunta secreta!" });
+    }
+  },
+
+  checkSecretAnswer: async (req, res, next) => {
+    const { correo, respuesta } = req.body; // Obtener el correo electrónico y la respuesta secreta del cuerpo de la solicitud
+    try {
+      // Consultar la respuesta secreta almacenada en la base de datos para el usuario con el correo electrónico dado
+      const user = await db.query(
+        "SELECT respuestaPSecreta FROM usuarios WHERE correo = ?",
+        [correo]
+      );
+      if (user.length > 0) {
+        const respuestaSecretaDB = user[0].respuestaPSecreta; // Obtener la respuesta secreta almacenada en la base de datos
+        // Comparar la respuesta proporcionada con la respuesta secreta almacenada en la base de datos
+        if (respuesta === respuestaSecretaDB) {
+          // Si las respuestas coinciden, responder con un mensaje de éxito
+          res
+            .status(200)
+            .json({ success: true, message: "¡La respuesta es correcta!" });
+        } else {
+          // Si las respuestas no coinciden, responder con un mensaje de error
+          res
+            .status(400)
+            .json({
+              success: false,
+              error: "La respuesta proporcionada es incorrecta.",
+            });
+        }
+      } else {
+        // Si no se encuentra ningún usuario con el correo electrónico dado, responder con un mensaje de error
+        res
+          .status(404)
+          .json({ success: false, error: "Usuario no encontrado." });
+      }
+    } catch (error) {
+      // Manejar cualquier error que pueda ocurrir durante la consulta a la base de datos
+      console.error("Error al verificar respuesta secreta:", error);
+      res
+        .status(500)
+        .json({
+          success: false,
+          error: "¡Algo salió mal al verificar la respuesta secreta!",
+        });
+    }
+  },
+
   getUserById: async (req, res, next) => {
     const userId = req.params.id;
     try {
@@ -512,7 +584,7 @@ module.exports = {
         `https://api.zerobounce.net/v2/validate?api_key=${apiKeyZerobounce}&email=${userData.correo}`
       );
 
-      if (validateEmailResponse.data.status==="invalid") {
+      if (validateEmailResponse.data.status === "invalid") {
         return res
           .status(400)
           .json({ error: "El correo electronico no es válido o no existe" });
@@ -554,7 +626,7 @@ module.exports = {
 
       // Insertar el nuevo usuario en la base de datos con la contraseña encriptada
       const result = await db.query(
-        "INSERT INTO usuarios (customerId, nombre, aPaterno, aMaterno, correo, telefono, sexo, fecha_nacimiento, contraseña, ultimoAcceso, statusId, created, modified, intentosFallidos) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, null, 1, NOW(), NOW(), 0)",
+        "INSERT INTO usuarios (customerId, nombre, aPaterno, aMaterno, correo, telefono, sexo, fecha_nacimiento, contraseña, ultimoAcceso, statusId, created, modified, intentosFallidos, preguntaSecreta, respuestaPSecreta) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, null, 1, NOW(), NOW(), 0, ?, ?)",
         [
           userId,
           userData.nombre,
@@ -565,6 +637,8 @@ module.exports = {
           userData.sexo,
           userData.fecha_nacimiento,
           hashedPassword,
+          userData.preguntaSecreta,
+          userData.respuestaSecreta
         ]
       );
 
@@ -582,7 +656,7 @@ module.exports = {
         const errors = error.errors.map((err) => err.message);
         return res.status(400).json({ errors });
       }
-    
+
       console.error("Error al crear usuario:", error);
       res.status(500).json({ error: "¡Algo salió mal al crear usuario!" });
     }
@@ -652,7 +726,11 @@ module.exports = {
           nombre: user[0].nombre,
           aPaterno: user[0].aPaterno,
           aMaterno: user[0].aMaterno,
-          sexo: user[0].sexo
+          sexo: user[0].sexo,
+          correo: user[0].correo,
+          imagen: user[0].imagen,
+          edad: user[0].fecha_nacimiento,
+          telefono: user[0].telefono,
         },
         secretKey,
         {
@@ -668,12 +746,14 @@ module.exports = {
         const errors = error.errors.map((err) => err.message);
         return res.status(400).json({ errors });
       }
-    
+
       // Manejar errores específicos de la inserción en la base de datos
-      if (error.code === 'ER_DUP_ENTRY') {
-        return res.status(400).json({ error: "El correo electrónico ya está en uso" });
+      if (error.code === "ER_DUP_ENTRY") {
+        return res
+          .status(400)
+          .json({ error: "El correo electrónico ya está en uso" });
       }
-    
+
       // Manejar otros tipos de errores
       console.error("Error al crear usuario:", error);
       res.status(500).json({ error: "¡Algo salió mal al crear usuario!" });

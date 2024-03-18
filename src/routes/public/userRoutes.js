@@ -10,6 +10,12 @@ router.get('/', userController.getAllUsers);
 // Ruta para obtener un usuario por ID
 router.get('/:id', userController.getUserById);
 
+// Ruta para obtener la pregunta secreta del usuario mediante correo
+router.post('/secretQuestion', userController.getSecretQuestion);
+
+// Ruta para comparar si la respuesta enviada es correcta
+router.post('/secretAnswer', userController.checkSecretAnswer);
+
 // Ruta para crear un nuevo usuario
 router.post('/', userController.createUser);
 

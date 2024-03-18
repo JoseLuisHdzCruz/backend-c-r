@@ -2,7 +2,25 @@
 GET http://localhost:5000/users/
 
 ###
-GET http://localhost:5000/users/0ebab22f-8897-4076-828e-2e18e08f93e1
+GET http://localhost:5000/users/83a7400c-2f20-4c4f-8bf2-2139806cd9dc
+
+###
+POST http://localhost:5000/users/SecretQuestion
+Content-Type: application/json
+
+{
+  "correo": "dareckluis@gmail.com"
+}
+
+###
+POST http://localhost:5000/users/SecretAnswer
+Content-Type: application/json
+
+{
+  "correo": "dareckluis@gmail.com",
+  "respuesta": "Azul marino"
+}
+
 
 ###
 POST https://backend-c-r-production.up.railway.app/users/
@@ -96,3 +114,12 @@ Content-Type: application/json
 
 ###
 GET http://localhost:5000/products/534ad899-348d-4ce0-817c-962571fb59b2
+
+
+###
+POST http://localhost:5000/products/search
+Content-Type: application/json
+
+{
+  "search": "peluche"
+}
