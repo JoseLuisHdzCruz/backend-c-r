@@ -36,6 +36,19 @@ module.exports = {
     }
   },
 
+  getRandomProducts: async (req, res, next) => {
+    try {
+      // Consulta para obtener 10 productos aleatorios
+      const randomProducts = await db.query(
+        "SELECT * FROM products ORDER BY RAND() LIMIT 10;"
+      );
+      res.json(randomProducts);
+    } catch (error) {
+      console.error("Error al obtener productos aleatorios:", error);
+      res.status(500).json({ error: "¡Algo salió mal al obtener productos aleatorios!" });
+    }
+  },
+
   
   //getProductById maneja las solicitudes para obtener un producto específico
   // de la base de datos según su ID y 

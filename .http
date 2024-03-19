@@ -94,6 +94,10 @@ Content-Type: application/json
 ###
 GET http://localhost:5000/products/
 
+
+###
+GET http://localhost:5000/products/randomProducts
+
 ###
 POST http://localhost:5000/products/
 Content-Type: application/json
