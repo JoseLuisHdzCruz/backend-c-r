@@ -198,6 +198,25 @@ module.exports = {
     }
   },
 
+  findPhoneByEmail : async (req, res, next) => {
+    const { correo } = req.params; // Obtener el correo electrónico de los parámetros de la solicitud
+    try {
+      // Buscar el usuario por correo electrónico en la base de datos
+      const user = await Usuario.findOne({ where: { correo } });
+      
+      if (user) {
+        // Si se encuentra el usuario, devolver el número de teléfono
+        res.status(200).json({ telefono: user.telefono });
+      } else {
+        // Si no se encuentra el usuario, devolver un mensaje de error
+        res.status(404).json({ error: "Usuario no encontrado" });
+      }
+    } catch (error) {
+      console.error("Error al buscar teléfono por correo electrónico:", error);
+      res.status(500).json({ error: "¡Algo salió mal al buscar teléfono por correo electrónico!" });
+    }
+  },
+
   createUser: async (req, res, next) => {
     const userData = req.body;
 
