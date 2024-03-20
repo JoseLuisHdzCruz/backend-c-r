@@ -28,6 +28,9 @@ router.post('/login', userController.loginUser);
 // Ruta para enviar por correo clave de verificacion
 router.post('/forgotPassword', userController.verificarCorreoYEnviarClave);
 
+// Ruta para enviar por correo clave de verificacion
+router.post('/sedKeyWhatsApp', userController.enviarTokenPorWhatsapp);
+
 // Ruta para verificar la clave
 router.post('/keyCompare', userController.compararClave);
 

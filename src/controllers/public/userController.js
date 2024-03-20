@@ -10,10 +10,15 @@ const UserActivityLog = require("../../models/logsModel");
 // const db = require("../../config/database");
 // const Yup = require("yup");
 const axios = require("axios");
+const twilio = require('twilio');
 const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const secretKey = process.env.JWT_SECRET;
+// Configurar las credenciales de Twilio
+const accountSid = process.env.ACCOUNTSID;
+const authToken = process.env.TOKEN_TWILIO;
+const twilioClient = twilio(accountSid, authToken);
 const {
   enviarCorreoValidacion,
   enviarCorreoInicioSesionExitoso,
@@ -341,7 +346,7 @@ module.exports = {
 
           return res.status(429).json({
             error:
-              "Se ha excedido el límite de intentos de inicio de sesión, espere 30s para intentarlo de nuevo.",
+              "Se ha excedido el límite de intentos",
           });
         }
       }
@@ -400,6 +405,7 @@ module.exports = {
       res.status(500).json({ error: "¡Algo salió mal al iniciar sesión!" });
     }
   },
+
   verificarCorreoYEnviarClave: async (req, res, next) => {
     const { correo } = req.body;
 
@@ -434,6 +440,45 @@ module.exports = {
       res
         .status(500)
         .json({ error: "¡Algo salió mal al verificar correo y enviar clave!" });
+    }
+  },
+
+  enviarTokenPorWhatsapp: async (req, res, next) => {
+    const { correo } = req.body;
+
+    try {
+      // Verificar si el correo existe en la base de datos
+      const user = await Usuario.findOne({ where: { correo } });
+
+      if (!user) {
+        return res.status(401).json({
+          error: "El correo ingresado no está asociado a una cuenta",
+        });
+      }
+
+      // Generar una clave de 4 dígitos
+      const clave = Math.floor(1000 + Math.random() * 9000);
+      const expiracion = new Date(Date.now() + 5 * 60000); // Agrega 5 minutos en milisegundos
+
+      // Actualizar la clave temporal en la base de datos
+      await ClavesTemporales.update(
+        { clave, expiracion },
+        { where: { correo } }
+      );
+
+      // Enviar el token por WhatsApp
+      await twilioClient.messages.create({
+        body: `Tu token de verificación es: ${clave}, esta clave solo sera valida por 5 minutos.`,
+        from: 'whatsapp:+14155238886', // Número de Twilio Sandbox de WhatsApp
+        to: `whatsapp:+52${user.telefono}`, // Agrega el código de país al número de teléfono
+      });
+
+      res.status(200).json({
+        message: "Token de verificación enviado por WhatsApp",
+      });
+    } catch (error) {
+      console.error("Error al enviar token por WhatsApp:", error);
+      res.status(500).json({ error: "¡Algo salió mal al enviar token por WhatsApp!" });
     }
   },
 

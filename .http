@@ -15,6 +15,15 @@ Content-Type: application/json
   "correo": "dareckluis@gmail.com"
 }
 
+
+###
+POST http://localhost:5000/users/sedKeyWhatsApp
+Content-Type: application/json
+
+{
+  "correo": "dareckluis@gmail.com"
+}
+
 ###
 POST http://localhost:5000/users/SecretAnswer
 Content-Type: application/json
@@ -66,7 +75,7 @@ Content-Type: application/json
 
 {
   "correo": "itzel@gmail.com",
-  "contraseña": "JOse61@#"
+  "contraseña": "JOse01@#"
 }
 
 
