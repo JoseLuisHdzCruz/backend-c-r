@@ -16,7 +16,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const secretKey = process.env.JWT_SECRET;
 // Configurar las credenciales de Twilio
-const accountSid = process.env.ACCOUNTSID;
+const accountSid = 'ACe5e0045ad78466fea29886b336ebcfba';
 const authToken = process.env.TOKEN_TWILIO;
 const twilioClient = twilio(accountSid, authToken);
 const {
