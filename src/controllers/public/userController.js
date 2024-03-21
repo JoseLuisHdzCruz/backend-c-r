@@ -1,123 +1,133 @@
 // /src/controllers/userController.js
 
-const db = require("../../config/database");
-const Yup = require("yup");
+// Importa tus modelos aquí
+const Usuario = require("../../models/usuarioModel");
+const Status = require("../../models/statusModel");
+const ClavesTemporales = require("../../models/clavesTemporalesModels");
+const HistorialContrasenas = require("../../models/historialContraseñas");
+const UserActivityLog = require("../../models/logsModel");
+
+// const db = require("../../config/database");
+// const Yup = require("yup");
 const axios = require("axios");
+const twilio = require('twilio');
 const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const secretKey = process.env.JWT_SECRET;
-const { 
-  enviarCorreoValidacion, 
-  enviarCorreoInicioSesionExitoso, 
-  enviarCorreoIntentoSesionSospechoso, 
-  enviarCorreoCambioContraseña 
+// Configurar las credenciales de Twilio
+const accountSid = 'ACe5e0045ad78466fea29886b336ebcfba';
+const authToken = process.env.TOKEN_TWILIO;
+const twilioClient = twilio(accountSid, authToken);
+const {
+  enviarCorreoValidacion,
+  enviarCorreoInicioSesionExitoso,
+  enviarCorreoIntentoSesionSospechoso,
+  enviarCorreoCambioContraseña,
 } = require("../../services/emailService");
 
-
-const validationSchema = Yup.object().shape({
-  nombre: Yup.string()
-    .matches(
-      /^[a-zA-ZáéíóúñÑÁÉÍÓÚüÜ\s]+$/,
-      "El nombre solo puede contener letras, acentos y espacios"
-    )
-    .min(3, "El nombre debe tener al menos 3 caracteres")
-    .max(20, "El nombre no puede tener más de 20 caracteres")
-    .required("El nombre es obligatorio")
-    .test(
-      "no-repetir-caracteres",
-      "El nombre no puede contener caracteres repetidos consecutivos más de 2 veces",
-      (value) => {
-        // Verificar que no haya más de 2 caracteres repetidos consecutivos
-        const regex = /([a-zA-ZáéíóúñÑÁÉÍÓÚüÜ])\1{2,}/g;
-        return !regex.test(value);
-      }
-    ),
-  aPaterno: Yup.string()
-    .matches(
-      /^[a-zA-ZáéíóúñÑÁÉÍÓÚüÜ\s]+$/,
-      "El nombre solo puede contener letras, acentos y espacios"
-    )
-    .min(3, "El nombre debe tener al menos 3 caracteres")
-    .max(15, "El nombre no puede tener más de 15 caracteres")
-    .required("El nombre es obligatorio")
-    .test(
-      "no-repetir-caracteres",
-      "El nombre no puede contener caracteres repetidos consecutivos más de 2 veces",
-      (value) => {
-        // Verificar que no haya más de 2 caracteres repetidos consecutivos
-        const regex = /([a-zA-ZáéíóúñÑÁÉÍÓÚüÜ])\1{2,}/g;
-        return !regex.test(value);
-      }
-    ),
-  aMaterno: Yup.string()
-    .matches(
-      /^[a-zA-ZáéíóúñÑÁÉÍÓÚüÜ\s]+$/,
-      "El nombre solo puede contener letras, acentos y espacios"
-    )
-    .min(3, "El nombre debe tener al menos 3 caracteres")
-    .max(15, "El nombre no puede tener más de 15 caracteres")
-    .required("El nombre es obligatorio")
-    .test(
-      "no-repetir-caracteres",
-      "El nombre no puede contener caracteres repetidos consecutivos más de 2 veces",
-      (value) => {
-        // Verificar que no haya más de 2 caracteres repetidos consecutivos
-        const regex = /([a-zA-ZáéíóúñÑÁÉÍÓÚüÜ])\1{2,}/g;
-        return !regex.test(value);
-      }
-    ),
-  correo: Yup.string()
-    .email("Correo electrónico inválido")
-    .required("Email es obligatorio")
-    .matches(
-      /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/,
-      "Ingresa una dirección de correo electrónico válida"
-    ),
-  telefono: Yup.number()
-    .typeError("Formato invalido")
-    .required("Telefono requerido")
-    .min(10, "El Telefono debe tener al menos 10 digitos"),
-  sexo: Yup.string().required("Seleccione su sexo"),
-  preguntaSecreta: Yup.string().required("Seleccione su pregunta"),
-  respuestaSecreta: Yup.string()
-    .matches(
-      /^[a-zA-ZáéíóúñÑÁÉÍÓÚüÜ\s]+$/,
-      "El nombre solo puede contener letras, acentos y espacios"
-    )
-    .min(3, "La respuesta debe tener al menos 3 caracteres")
-    .max(50, "La respuesta no puede tener más de 50 caracteres")
-    .required("La respuesta es obligatorio"),
-  fecha_nacimiento: Yup.date()
-    .max(
-      new Date(new Date().setFullYear(new Date().getFullYear() - 18)),
-      "Debes ser mayor de 18 años"
-    )
-    .required("Fecha de nacimiento es obligatoria"),
-  contraseña: Yup.string()
-    .required("Contraseña es obligatoria")
-    .min(8, "La contraseña debe tener al menos 8 caracteres")
-    .matches(/\d{1,2}/, "Debe contener al menos 1 o 2 dígitos")
-    .matches(/[A-Z]{1,2}/, "Debe contener al menos 1 o 2 letras mayúsculas")
-    .matches(/[a-z]{1,2}/, "Debe contener al menos 1 o 2 letras minúsculas")
-    .matches(
-      /[^A-Za-z0-9]{1,2}/,
-      "Debe contener al menos 1 o 2 caracteres especiales"
-    ),
-  RContraseña: Yup.string()
-    .required("Campo obligatorio")
-    .oneOf([Yup.ref("contraseña"), null], "Las contraseñas deben coincidir"),
-  aceptaTerminos: Yup.boolean().oneOf(
-    [true],
-    "Debes aceptar los términos y condiciones para registrarte"
-  ),
-});
-
+// const validationSchema = Yup.object().shape({
+//   nombre: Yup.string()
+//     .matches(
+//       /^[a-zA-ZáéíóúñÑÁÉÍÓÚüÜ\s]+$/,
+//       "El nombre solo puede contener letras, acentos y espacios"
+//     )
+//     .min(3, "El nombre debe tener al menos 3 caracteres")
+//     .max(20, "El nombre no puede tener más de 20 caracteres")
+//     .required("El nombre es obligatorio")
+//     .test(
+//       "no-repetir-caracteres",
+//       "El nombre no puede contener caracteres repetidos consecutivos más de 2 veces",
+//       (value) => {
+//         // Verificar que no haya más de 2 caracteres repetidos consecutivos
+//         const regex = /([a-zA-ZáéíóúñÑÁÉÍÓÚüÜ])\1{2,}/g;
+//         return !regex.test(value);
+//       }
+//     ),
+//   aPaterno: Yup.string()
+//     .matches(
+//       /^[a-zA-ZáéíóúñÑÁÉÍÓÚüÜ\s]+$/,
+//       "El nombre solo puede contener letras, acentos y espacios"
+//     )
+//     .min(3, "El nombre debe tener al menos 3 caracteres")
+//     .max(15, "El nombre no puede tener más de 15 caracteres")
+//     .required("El nombre es obligatorio")
+//     .test(
+//       "no-repetir-caracteres",
+//       "El nombre no puede contener caracteres repetidos consecutivos más de 2 veces",
+//       (value) => {
+//         // Verificar que no haya más de 2 caracteres repetidos consecutivos
+//         const regex = /([a-zA-ZáéíóúñÑÁÉÍÓÚüÜ])\1{2,}/g;
+//         return !regex.test(value);
+//       }
+//     ),
+//   aMaterno: Yup.string()
+//     .matches(
+//       /^[a-zA-ZáéíóúñÑÁÉÍÓÚüÜ\s]+$/,
+//       "El nombre solo puede contener letras, acentos y espacios"
+//     )
+//     .min(3, "El nombre debe tener al menos 3 caracteres")
+//     .max(15, "El nombre no puede tener más de 15 caracteres")
+//     .required("El nombre es obligatorio")
+//     .test(
+//       "no-repetir-caracteres",
+//       "El nombre no puede contener caracteres repetidos consecutivos más de 2 veces",
+//       (value) => {
+//         // Verificar que no haya más de 2 caracteres repetidos consecutivos
+//         const regex = /([a-zA-ZáéíóúñÑÁÉÍÓÚüÜ])\1{2,}/g;
+//         return !regex.test(value);
+//       }
+//     ),
+//   correo: Yup.string()
+//     .email("Correo electrónico inválido")
+//     .required("Email es obligatorio")
+//     .matches(
+//       /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/,
+//       "Ingresa una dirección de correo electrónico válida"
+//     ),
+//   telefono: Yup.number()
+//     .typeError("Formato invalido")
+//     .required("Telefono requerido")
+//     .min(10, "El Telefono debe tener al menos 10 digitos"),
+//   sexo: Yup.string().required("Seleccione su sexo"),
+//   preguntaSecreta: Yup.string().required("Seleccione su pregunta"),
+//   respuestaSecreta: Yup.string()
+//     .matches(
+//       /^[a-zA-ZáéíóúñÑÁÉÍÓÚüÜ\s]+$/,
+//       "El nombre solo puede contener letras, acentos y espacios"
+//     )
+//     .min(3, "La respuesta debe tener al menos 3 caracteres")
+//     .max(50, "La respuesta no puede tener más de 50 caracteres")
+//     .required("La respuesta es obligatorio"),
+//   fecha_nacimiento: Yup.date()
+//     .max(
+//       new Date(new Date().setFullYear(new Date().getFullYear() - 18)),
+//       "Debes ser mayor de 18 años"
+//     )
+//     .required("Fecha de nacimiento es obligatoria"),
+//   contraseña: Yup.string()
+//     .required("Contraseña es obligatoria")
+//     .min(8, "La contraseña debe tener al menos 8 caracteres")
+//     .matches(/\d{1,2}/, "Debe contener al menos 1 o 2 dígitos")
+//     .matches(/[A-Z]{1,2}/, "Debe contener al menos 1 o 2 letras mayúsculas")
+//     .matches(/[a-z]{1,2}/, "Debe contener al menos 1 o 2 letras minúsculas")
+//     .matches(
+//       /[^A-Za-z0-9]{1,2}/,
+//       "Debe contener al menos 1 o 2 caracteres especiales"
+//     ),
+//   RContraseña: Yup.string()
+//     .required("Campo obligatorio")
+//     .oneOf([Yup.ref("contraseña"), null], "Las contraseñas deben coincidir"),
+//   aceptaTerminos: Yup.boolean().oneOf(
+//     [true],
+//     "Debes aceptar los términos y condiciones para registrarte"
+//   ),
+// });
 
 module.exports = {
   getAllUsers: async (req, res, next) => {
     try {
-      const users = await db.query("CALL sp_consultar_usuarios();");
+      const users = await Usuario.findAll(); // Utilizar el método findAll del modelo User
       res.json(users);
     } catch (error) {
       console.error("Error al obtener usuarios:", error);
@@ -128,14 +138,11 @@ module.exports = {
   getSecretQuestion: async (req, res, next) => {
     const { correo } = req.body; // Usando destructuring para obtener el correo electrónico del cuerpo de la solicitud
     try {
-      const users = await db.query(
-        "SELECT preguntaSecreta FROM usuarios WHERE correo = ?",
-        [correo]
-      );
-      if (users.length > 0) {
-        res.json(users[0].preguntaSecreta); // Devolver solo la pregunta secreta, no todo el usuario
+      const user = await Usuario.findOne({ where: { correo } }); // Buscar usuario por correo
+      if (user) {
+        res.json({ preguntaSecreta: user.preguntaSecreta }); // Devolver solo la pregunta secreta
       } else {
-        res.status(404).json({ error: "Usuario no encontrado" }); // Manejar el caso en que el usuario no se encuentre
+        res.status(404).json({ error: "Usuario no encontrado" });
       }
     } catch (error) {
       console.error("Error al obtener pregunta secreta:", error);
@@ -148,27 +155,20 @@ module.exports = {
   checkSecretAnswer: async (req, res, next) => {
     const { correo, respuesta } = req.body; // Obtener el correo electrónico y la respuesta secreta del cuerpo de la solicitud
     try {
-      // Consultar la respuesta secreta almacenada en la base de datos para el usuario con el correo electrónico dado
-      const user = await db.query(
-        "SELECT respuestaPSecreta FROM usuarios WHERE correo = ?",
-        [correo]
-      );
-      if (user.length > 0) {
-        const respuestaSecretaDB = user[0].respuestaPSecreta; // Obtener la respuesta secreta almacenada en la base de datos
+      const user = await Usuario.findOne({ where: { correo } }); // Buscar usuario por correo
+      if (user) {
         // Comparar la respuesta proporcionada con la respuesta secreta almacenada en la base de datos
-        if (respuesta === respuestaSecretaDB) {
+        if (respuesta === user.respuestaPSecreta) {
           // Si las respuestas coinciden, responder con un mensaje de éxito
           res
             .status(200)
             .json({ success: true, message: "¡La respuesta es correcta!" });
         } else {
           // Si las respuestas no coinciden, responder con un mensaje de error
-          res
-            .status(400)
-            .json({
-              success: false,
-              error: "La respuesta proporcionada es incorrecta.",
-            });
+          res.status(400).json({
+            success: false,
+            error: "La respuesta proporcionada es incorrecta.",
+          });
         }
       } else {
         // Si no se encuentra ningún usuario con el correo electrónico dado, responder con un mensaje de error
@@ -179,24 +179,19 @@ module.exports = {
     } catch (error) {
       // Manejar cualquier error que pueda ocurrir durante la consulta a la base de datos
       console.error("Error al verificar respuesta secreta:", error);
-      res
-        .status(500)
-        .json({
-          success: false,
-          error: "¡Algo salió mal al verificar la respuesta secreta!",
-        });
+      res.status(500).json({
+        success: false,
+        error: "¡Algo salió mal al verificar la respuesta secreta!",
+      });
     }
   },
 
   getUserById: async (req, res, next) => {
     const userId = req.params.id;
     try {
-      const user = await db.query(
-        "SELECT * FROM usuarios WHERE customerId = ?",
-        [userId]
-      );
-      if (user.length > 0) {
-        res.json(user[0]);
+      const user = await Usuario.findByPk(userId); // Buscar usuario por ID
+      if (user) {
+        res.json(user);
       } else {
         res.status(404).json({ message: "Usuario no encontrado" });
       }
@@ -208,14 +203,30 @@ module.exports = {
     }
   },
 
+  findPhoneByEmail : async (req, res, next) => {
+    const { correo } = req.params; // Obtener el correo electrónico de los parámetros de la solicitud
+    try {
+      // Buscar el usuario por correo electrónico en la base de datos
+      const user = await Usuario.findOne({ where: { correo } });
+      
+      if (user) {
+        // Si se encuentra el usuario, devolver el número de teléfono
+        res.status(200).json({ telefono: user.telefono });
+      } else {
+        // Si no se encuentra el usuario, devolver un mensaje de error
+        res.status(404).json({ error: "Usuario no encontrado" });
+      }
+    } catch (error) {
+      console.error("Error al buscar teléfono por correo electrónico:", error);
+      res.status(500).json({ error: "¡Algo salió mal al buscar teléfono por correo electrónico!" });
+    }
+  },
+
   createUser: async (req, res, next) => {
     const userData = req.body;
 
     try {
-      // Validar los datos usando Yup
-      await validationSchema.validate(userData, { abortEarly: false });
-
-      // Validar el número de teléfono usando la API de apilayer
+      // Validar el correo electrónico usando la API de ZeroBounce
       const apiKeyZerobounce = process.env.API_KEY_ZEROBOUNCE;
       const validateEmailResponse = await axios.get(
         `https://api.zerobounce.net/v2/validate?api_key=${apiKeyZerobounce}&email=${userData.correo}`
@@ -224,26 +235,24 @@ module.exports = {
       if (validateEmailResponse.data.status === "invalid") {
         return res
           .status(400)
-          .json({ error: "El correo electronico no es válido o no existe" });
+          .json({ error: "El correo electrónico no es válido o no existe" });
       }
 
       // Verificar si el correo ya está en uso
-      const existingUser = await db.query(
-        "SELECT * FROM usuarios WHERE correo = ?",
-        [userData.correo]
-      );
-
-      if (existingUser.length > 0) {
+      const existingUser = await Usuario.findOne({
+        where: { correo: userData.correo },
+      });
+      if (existingUser) {
         return res
           .status(400)
           .json({ error: "El correo electrónico ya está en uso" });
       }
 
-      // Validar el número de teléfono usando la API de apilayer
+      // Validar el número de teléfono usando la API de Numverify
       const countryCode = process.env.COUNTRY_CODE; // Código de país para México
-      const apiKey = process.env.API_KEY_NUMVERIFLY;
+      const apiKeyNumverify = process.env.API_KEY_NUMVERIFLY;
       const validateResponse = await axios.get(
-        `http://apilayer.net/api/validate?access_key=${apiKey}&number=${userData.telefono}&country_code=${countryCode}`
+        `http://apilayer.net/api/validate?access_key=${apiKeyNumverify}&number=${userData.telefono}&country_code=${countryCode}`
       );
 
       if (!validateResponse.data.valid) {
@@ -252,48 +261,50 @@ module.exports = {
           .json({ error: "El número de teléfono no es válido o no existe" });
       }
 
-      // Generar un id único
+      // Generar un ID único para el usuario
       const userId = uuidv4();
-
-      // Convertir fecha_nacimiento a un objeto de fecha
-      userData.fecha_nacimiento = new Date(userData.fecha_nacimiento);
 
       // Encriptar la contraseña
       const hashedPassword = await bcrypt.hash(userData.contraseña, 10);
 
-      // Insertar el nuevo usuario en la base de datos con la contraseña encriptada
-      const result = await db.query(
-        "INSERT INTO usuarios (customerId, nombre, aPaterno, aMaterno, correo, telefono, sexo, fecha_nacimiento, contraseña, ultimoAcceso, statusId, created, modified, intentosFallidos, preguntaSecreta, respuestaPSecreta) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, null, 1, NOW(), NOW(), 0, ?, ?)",
-        [
-          userId,
-          userData.nombre,
-          userData.aPaterno,
-          userData.aMaterno,
-          userData.correo,
-          userData.telefono,
-          userData.sexo,
-          userData.fecha_nacimiento,
-          hashedPassword,
-          userData.preguntaSecreta,
-          userData.respuestaSecreta
-        ]
-      );
+      const respuestaPSecreta = userData.respuestaPSecreta.trim().toLowerCase(); // Elimina espacios antes y después y convierte a minúsculas
+      const respuestaPSecretaSinAcentos = respuestaPSecreta
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, ""); // Elimina acentos
 
-      // Obtener el usuario recién creado
-      const nuevoUsuario = await db.query(
-        "SELECT * FROM usuarios WHERE customerId = ?",
-        [userId]
-      );
+      // Crear el usuario en la base de datos
+      const nuevoUsuario = await Usuario.create({
+        customerId: userId,
+        nombre: userData.nombre,
+        aPaterno: userData.aPaterno,
+        aMaterno: userData.aMaterno,
+        correo: userData.correo,
+        telefono: userData.telefono,
+        sexo: userData.sexo,
+        fecha_nacimiento: userData.fecha_nacimiento,
+        contraseña: hashedPassword,
+        preguntaSecreta: userData.preguntaSecreta,
+        respuestaPSecreta: respuestaPSecretaSinAcentos,
+        statusId: 1,
+        intentosFallidos: 0,
+        ultimoIntentoFallido: null,
+        ultimoAcceso: null,
+        imagen: null,
+      });
+
+      await UserActivityLog.create({
+        userId: userId,
+        eventType: "Usuario creado",
+        eventDetails: `Se creo el usuario ${userData.nombre} ${userData.aPaterno} (${userData.correo}).`,
+        eventDate: new Date(),
+        ipAddress: req.ip, // Obtener la dirección IP del cliente
+        deviceType: req.headers["user-agent"], // Obtener el tipo de dispositivo desde el encabezado
+        httpStatusCode: res.statusCode, // Obtiene el código de estado HTTP de la respuesta
+      });
 
       // Responder con el nuevo usuario
-      res.status(201).json(nuevoUsuario[0]);
+      res.status(201).json(nuevoUsuario);
     } catch (error) {
-      // Manejar errores de validación
-      if (error.name === "ValidationError") {
-        const errors = error.errors.map((err) => err.message);
-        return res.status(400).json({ errors });
-      }
-
       console.error("Error al crear usuario:", error);
       res.status(500).json({ error: "¡Algo salió mal al crear usuario!" });
     }
@@ -303,71 +314,73 @@ module.exports = {
     const { correo, contraseña } = req.body;
 
     try {
-      // Lógica para rastrear los intentos de inicio de sesión fallidos
-      const user = await db.query("SELECT * FROM usuarios WHERE correo = ?", [
-        correo,
-      ]);
+      // Buscar al usuario en la base de datos
+      const user = await Usuario.findOne({ where: { correo } });
 
-      if (user.length === 0) {
+      if (!user) {
         return res.status(401).json({
-          error: "El correo ingresado no esta asociado a una cuenta",
+          error: "El correo ingresado no está asociado a una cuenta",
         });
       }
 
       // Verificar si el usuario ha excedido el límite de intentos
-      if (user[0].intentosFallidos >= 3) {
+      if (user.intentosFallidos >= 3) {
         const tiempoActual = Date.now();
         const tiempoUltimoIntento = new Date(
-          user[0].ultimoIntentoFallido
+          user.ultimoIntentoFallido
         ).getTime();
         const tiempoTranscurrido = tiempoActual - tiempoUltimoIntento;
 
         // Verificar si ha transcurrido suficiente tiempo desde el último intento
         if (tiempoTranscurrido < 30000) {
           await enviarCorreoIntentoSesionSospechoso(correo); // Enviar correo de intento de inicio de sesión sospechoso
+          await UserActivityLog.create({
+            userId: user.customerId,
+            eventType: "Inicio de sesion sospechoso",
+            eventDetails: `Se ha exedido el numero de intentos para colocar la contraseña correctamente.`,
+            eventDate: new Date(),
+            ipAddress: req.ip, // Obtener la dirección IP del cliente
+            deviceType: req.headers["user-agent"], // Obtener el tipo de dispositivo desde el encabezado
+            httpStatusCode: res.statusCode, // Obtiene el código de estado HTTP de la respuesta
+          });
 
           return res.status(429).json({
-            error: "Se ha excedido el límite de intentos de inicio de sesion",
+            error:
+              "Se ha excedido el límite de intentos",
           });
         }
       }
 
-      // Verificar la contraseña
-      const isPasswordValid = await bcrypt.compare(
-        contraseña,
-        user[0].contraseña
-      );
+      // Verificar si la contraseña es válida
+      const isPasswordValid = await bcrypt.compare(contraseña, user.contraseña);
 
       if (!isPasswordValid) {
-        // Incrementar el contador de intentos fallidos
-        await db.query(
-          "UPDATE usuarios SET intentosFallidos = intentosFallidos + 1, ultimoIntentoFallido = NOW() WHERE correo = ?",
-          [correo]
-        );
+        // Incrementar el contador de intentos fallidos y actualizar la fecha del último intento fallido
+        await user.update({
+          intentosFallidos: user.intentosFallidos + 1,
+          ultimoIntentoFallido: new Date(),
+        });
+
         return res.status(401).json({ error: "Contraseña incorrecta" });
       }
 
       // Si las credenciales son válidas, restablecer el contador de intentos fallidos
-      await db.query(
-        "UPDATE usuarios SET intentosFallidos = 0, ultimoAcceso = NOW() WHERE correo = ?",
-        [correo]
-      );
+      await user.update({ intentosFallidos: 0, ultimoAcceso: new Date() });
 
       await enviarCorreoInicioSesionExitoso(correo); // Enviar correo de inicio de sesión exitoso
 
-      // Resto del código para generar el token JWT y enviar una respuesta exitosa
       // Generar token JWT
       const token = jwt.sign(
         {
-          customerId: user[0].customerId,
-          nombre: user[0].nombre,
-          aPaterno: user[0].aPaterno,
-          aMaterno: user[0].aMaterno,
-          sexo: user[0].sexo,
-          correo: user[0].correo,
-          imagen: user[0].imagen,
-          edad: user[0].fecha_nacimiento,
-          telefono: user[0].telefono,
+          customerId: user.customerId,
+          nombre: user.nombre,
+          aPaterno: user.aPaterno,
+          aMaterno: user.aMaterno,
+          sexo: user.sexo,
+          correo: user.correo,
+          imagen: user.imagen,
+          edad: user.fecha_nacimiento,
+          telefono: user.telefono,
         },
         secretKey,
         {
@@ -375,25 +388,21 @@ module.exports = {
         }
       );
 
+      await UserActivityLog.create({
+        userId: user.customerId,
+        eventType: "Inicio de sesion exitoso",
+        eventDetails: `Se ha iniciado sesion exitosamente en la cuenta del usuario ${user.nombre} ${user.aPaterno} que tiene el correo asociado: ${user.correo}.`,
+        eventDate: new Date(),
+        ipAddress: req.ip, // Obtener la dirección IP del cliente
+        deviceType: req.headers["user-agent"], // Obtener el tipo de dispositivo desde el encabezado
+        httpStatusCode: res.statusCode, // Obtiene el código de estado HTTP de la respuesta
+      });
+
       // Enviar una respuesta exitosa si las credenciales son válidas
       res.status(200).json({ token, message: "Inicio de sesión exitoso" });
     } catch (error) {
-      // Manejar errores de validación
-      if (error.name === "ValidationError") {
-        const errors = error.errors.map((err) => err.message);
-        return res.status(400).json({ errors });
-      }
-
-      // Manejar errores específicos de la inserción en la base de datos
-      if (error.code === "ER_DUP_ENTRY") {
-        return res
-          .status(400)
-          .json({ error: "El correo electrónico ya está en uso" });
-      }
-
-      // Manejar otros tipos de errores
-      console.error("Error al crear usuario:", error);
-      res.status(500).json({ error: "¡Algo salió mal al crear usuario!" });
+      console.error("Error al iniciar sesión:", error);
+      res.status(500).json({ error: "¡Algo salió mal al iniciar sesión!" });
     }
   },
 
@@ -402,11 +411,9 @@ module.exports = {
 
     try {
       // Verificar si el correo existe en la base de datos
-      const user = await db.query("SELECT * FROM usuarios WHERE correo = ?", [
-        correo,
-      ]);
+      const user = await Usuario.findOne({ where: { correo } });
 
-      if (user.length === 0) {
+      if (!user) {
         return res.status(401).json({
           error: "El correo ingresado no está asociado a una cuenta",
         });
@@ -414,13 +421,12 @@ module.exports = {
 
       // Generar una clave de 4 dígitos
       const clave = Math.floor(1000 + Math.random() * 9000);
-      const fechaActual = new Date();
-      const expiracion = new Date(fechaActual.getTime() + 5 * 60000); // Agrega 5 minutos en milisegundos
+      const expiracion = new Date(Date.now() + 5 * 60000); // Agrega 5 minutos en milisegundos
 
-      // Verificar si el correo existe en la base de datos
-      await db.query(
-        "UPDATE claves_temporales SET clave = ?, expiracion = ? WHERE correo = ?",
-        [clave, expiracion, correo]
+      // Actualizar la clave temporal en la base de datos
+      await ClavesTemporales.update(
+        { clave, expiracion },
+        { where: { correo } }
       );
 
       // Enviar la clave por correo electrónico
@@ -437,15 +443,52 @@ module.exports = {
     }
   },
 
+  enviarTokenPorWhatsapp: async (req, res, next) => {
+    const { correo } = req.body;
+
+    try {
+      // Verificar si el correo existe en la base de datos
+      const user = await Usuario.findOne({ where: { correo } });
+
+      if (!user) {
+        return res.status(401).json({
+          error: "El correo ingresado no está asociado a una cuenta",
+        });
+      }
+
+      // Generar una clave de 4 dígitos
+      const clave = Math.floor(1000 + Math.random() * 9000);
+      const expiracion = new Date(Date.now() + 5 * 60000); // Agrega 5 minutos en milisegundos
+
+      // Actualizar la clave temporal en la base de datos
+      await ClavesTemporales.update(
+        { clave, expiracion },
+        { where: { correo } }
+      );
+
+      // Enviar el token por WhatsApp
+      await twilioClient.messages.create({
+        body: `Tu token de verificación es: ${clave}, esta clave solo sera valida por 5 minutos.`,
+        from: 'whatsapp:+14155238886', // Número de Twilio Sandbox de WhatsApp
+        to: `whatsapp:+521${user.telefono}`, // Agrega el código de país al número de teléfono
+      });
+
+      res.status(200).json({
+        message: "Token de verificación enviado por WhatsApp",
+      });
+    } catch (error) {
+      console.error("Error al enviar token por WhatsApp:", error);
+      res.status(500).json({ error: "¡Algo salió mal al enviar token por WhatsApp!" });
+    }
+  },
+
   compararClave: async (req, res, next) => {
     const { correo, clave } = req.body;
     try {
       // Consultar la clave temporal asociada al correo en la base de datos
-      const result = await db.query(
-        "SELECT * FROM claves_temporales WHERE correo = ?",
-        [correo]
-      );
-      const claveTemporal = result[0];
+      const claveTemporal = await ClavesTemporales.findOne({
+        where: { correo },
+      });
 
       // Verificar si se encontró la clave temporal en la base de datos
       if (!claveTemporal) {
@@ -459,7 +502,7 @@ module.exports = {
       // Verificar si la clave recibida coincide con la clave almacenada
       if (clave === claveTemporal.clave) {
         // Verificar si la clave ha expirado
-        if (new Date() <= new Date(claveTemporal.expiracion)) {
+        if (new Date() <= claveTemporal.expiracion) {
           // La clave es válida y no ha expirado
           return res
             .status(200)
@@ -488,14 +531,11 @@ module.exports = {
     const { correo, nuevaContraseña } = req.body;
 
     try {
-      // Consultar la contraseña actual del usuario
-      const user = await db.query(
-        "SELECT customerId, contraseña FROM usuarios WHERE correo = ?",
-        [correo]
-      );
+      // Buscar al usuario en la base de datos
+      const user = await Usuario.findOne({ where: { correo } });
 
       // Verificar si se encontró al usuario
-      if (user.length === 0) {
+      if (!user) {
         return res
           .status(404)
           .json({ success: false, error: "Usuario no encontrado" });
@@ -504,7 +544,7 @@ module.exports = {
       // Verificar si la nueva contraseña es igual a la actual
       const isSamePassword = await bcrypt.compare(
         nuevaContraseña,
-        user[0].contraseña
+        user.contraseña
       );
       if (isSamePassword) {
         return res.status(400).json({
@@ -513,58 +553,32 @@ module.exports = {
         });
       }
 
-      // Consultar el historial de contraseñas del usuario
-      const passwordHistory = await db.query(
-        "SELECT contraseña, fecha_cambio FROM historial_contraseñas WHERE usuarioId = ?",
-        [user[0].customerId]
-      );
-
-      // Verificar si la nueva contraseña ya se ha utilizado anteriormente
-      const usedPasswordEntry = passwordHistory.find((historial) => {
-        return bcrypt.compareSync(nuevaContraseña, historial.contraseña);
-      });
-
-      if (usedPasswordEntry) {
-        // Obtener la fecha de cambio del historial de contraseñas
-        const lastChangeDate = new Date(usedPasswordEntry.fecha_cambio);
-
-        // Verificar si la fecha es válida
-        if (!isNaN(lastChangeDate)) {
-          // Formatear la fecha en el formato deseado
-          const formattedLastChangeDate = `${lastChangeDate.getDate()}/${
-            lastChangeDate.getMonth() + 1
-          }/${lastChangeDate.getFullYear()}`;
-
-          return res.status(400).json({
-            success: false,
-            error: `La nueva contraseña no puede ser utilizada porque ya se ha utilizado anteriormente. La contraseña se utilizó por última vez el ${formattedLastChangeDate}`,
-          });
-        } else {
-          // En caso de que la fecha no sea válida, proporcionar un mensaje genérico
-          return res.status(400).json({
-            success: false,
-            error: `La nueva contraseña no puede ser utilizada porque ya se ha utilizado anteriormente. No se pudo obtener la fecha de cambio.`,
-          });
-        }
-      }
-
       // Encriptar la nueva contraseña
       const hashedPassword = await bcrypt.hash(nuevaContraseña, 10);
 
       // Actualizar la contraseña en la base de datos
-      await db.query("UPDATE usuarios SET contraseña = ? WHERE correo = ?", [
-        hashedPassword,
-        correo,
-      ]);
+      await user.update({ contraseña: hashedPassword });
 
       // Agregar la nueva contraseña al historial de contraseñas
-      await db.query(
-        "INSERT INTO historial_contraseñas (usuarioId, contraseña, fecha_cambio) VALUES (?, ?, NOW())",
-        [user[0].customerId, hashedPassword]
-      );
+      await HistorialContrasenas.create({
+        usuarioId: user.customerId,
+        contraseña: hashedPassword,
+        fecha_cambio: new Date(),
+      });
 
       // Enviar correo electrónico de cambio de contraseña
-      await enviarCorreoCambioContraseña(correo); // Función para enviar el correo electrónico
+      await enviarCorreoCambioContraseña(correo);
+
+      // Registrar la actividad del usuario
+      await UserActivityLog.create({
+        userId: user.customerId,
+        eventType: "Cambio de contraseña",
+        eventDetails: `Se cambió la contraseña del usuario ${user.nombre} ${user.aPaterno} (${user.correo}).`,
+        eventDate: new Date(),
+        ipAddress: req.ip, // Obtener la dirección IP del cliente
+        deviceType: req.headers["user-agent"], // Obtener el tipo de dispositivo desde el encabezado
+        httpStatusCode: res.statusCode, // Obtiene el código de estado HTTP de la respuesta
+      });
 
       // Responder con un mensaje de éxito
       res.status(200).json({

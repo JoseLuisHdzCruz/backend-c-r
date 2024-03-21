@@ -1,11 +1,13 @@
 // /src/controllers/productController.js
+// Importa tus modelos aquí
+const Producto = require("../../models/productsModel");
+const Categoria = require("../../models/categoriaModel");
 
-
-const db = require("../../config/database"); // se importa el modulo database 
-// se manda a llamar la biblioteca yup para las validaciones de la entrada de datos
-const Yup = require("yup"); 
-// Esta función V4 genera especificamente los identificadores unicos de manera aleatoria 
+const db = require("../../config/database");
+const Yup = require("yup");
 const { v4: uuidv4 } = require("uuid");
+const { Op } = require('sequelize');
+
 
 
 //Aqui se hacen las validaciones haciendo uso de la libreria yup 
@@ -21,6 +23,12 @@ const validationSchema = Yup.object().shape({
   IVA: Yup.number().nullable().positive("El IVA debe ser positivo"),
 });
 
+// Función para obtener elementos aleatorios de una matriz
+function getRandomElements(array, numElements) {
+  const shuffled = array.sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, numElements);
+}
+
 //objeto
 module.exports = {
  // se exporta un objeto con la funcion getAllProducts
@@ -28,7 +36,7 @@ module.exports = {
  //para obtener todos los productos
   getAllProducts: async (req, res, next) => {
     try {
-      const products = await db.query("SELECT * FROM products;");
+      const products = await Producto.findAll();
       res.json(products);
     } catch (error) {
       console.error("Error al obtener productos:", error);
@@ -38,10 +46,8 @@ module.exports = {
 
   getRandomProducts: async (req, res, next) => {
     try {
-      // Consulta para obtener 10 productos aleatorios
-      const randomProducts = await db.query(
-        "SELECT * FROM products ORDER BY RAND() LIMIT 10;"
-      );
+      const products = await Producto.findAll();
+      const randomProducts = getRandomElements(products, 10);
       res.json(randomProducts);
     } catch (error) {
       console.error("Error al obtener productos aleatorios:", error);
@@ -56,36 +62,34 @@ module.exports = {
   getProductById: async (req, res, next) => {
     const productId = req.params.id;
     try {
-      const product = await db.query(
-        "SELECT * FROM products WHERE productoId = ?",
-        [productId]
-      );
-      if (product.length > 0) {
-        res.json(product[0]);
+      const product = await Producto.findByPk(productId);
+      if (product) {
+        res.json(product);
       } else {
         res.status(404).json({ message: "Producto no encontrado" });
       }
     } catch (error) {
       console.error("Error al obtener producto por ID:", error);
-      res
-        .status(500)
-        .json({ error: "¡Algo salió mal al obtener producto por ID!" });
+      res.status(500).json({ error: "¡Algo salió mal al obtener producto por ID!" });
     }
   },
 
   searchProducts: async (req, res, next) => {
     const { search } = req.body;
-
+  
     try {
       // Convertir la cadena de búsqueda a minúsculas para hacer la búsqueda insensible a mayúsculas y minúsculas
       const searchTerm = search.toLowerCase();
-
-      // Realizar la consulta para buscar productos que contengan el término de búsqueda en el nombre
-      const products = await db.query(
-        "SELECT * FROM products WHERE LOWER(nombre) LIKE ?",
-        [`%${searchTerm}%`]
-      );
-
+  
+      // Realizar la búsqueda de productos que contengan el término de búsqueda en el nombre
+      const products = await Producto.findAll({
+        where: {
+          nombre: {
+            [Op.like]: `%${searchTerm}%`
+          }
+        }
+      });
+  
       // Responder con los productos encontrados
       res.json(products);
     } catch (error) {
@@ -99,37 +103,23 @@ module.exports = {
     const productData = req.body;
 
     try {
-      // Validar los datos usando Yup
       await validationSchema.validate(productData, { abortEarly: false });
-      
-      // Generar un id único
-      const productId = uuidv4();
 
-      // Insertar el nuevo producto en la base de datos
-      const result = await db.query(
-        "INSERT INTO products (productoId, nombre, descripcion, precio, existencia, categoriaId, statusId, created, modified, imagen, IVA) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, 1);",
-        [
-          productId,
-          productData.nombre,
-          productData.descripcion,
-          productData.precio,
-          productData.existencia,
-          productData.categoriaId,
-          productData.statusId,
-          productData.imagen
-        ]
-      );
-      
-      // Obtener el producto recién creado
-      const newProduct = await db.query(
-        "SELECT * FROM products WHERE productoId = ?",
-        [productId]
-      );
+      const newProduct = await Producto.create({
+        productoId: uuidv4(),
+        nombre: productData.nombre,
+        descripcion: productData.descripcion,
+        precio: productData.precio,
+        existencia: productData.existencia,
+        categoriaId: productData.categoriaId,
+        statusId: productData.statusId,
+        imagen: productData.imagen,
+        IVA: productData.precio * 0.16,
+        precioFinal: productData.precio + productData.precio * 0.16,
+      });
 
-      // Responder con el nuevo producto
-      res.status(201).json(newProduct[0]);
+      res.status(201).json(newProduct);
     } catch (error) {
-      // Manejar errores de validación
       if (error.name === "ValidationError") {
         const errors = error.errors.map((err) => err.message);
         return res.status(400).json({ errors });
@@ -145,45 +135,26 @@ module.exports = {
     const productData = req.body;
 
     try {
-      // Validar los datos usando Yup
       await validationSchema.validate(productData, { abortEarly: false });
 
-      // Verificar si el producto existe
-      const existingProduct = await db.query(
-        "SELECT * FROM products WHERE productId = ?",
-        [productId]
-      );
-
-      if (existingProduct.length === 0) {
+      const existingProduct = await Producto.findByPk(productId);
+      if (!existingProduct) {
         return res.status(404).json({ error: "Producto no encontrado" });
       }
 
-      // Actualizar el producto en la base de datos
-      await db.query(
-        "UPDATE products SET nombre = ?, descripcion = ?, precio = ?, existencia = ?, categoriaId = ?, statusId = ?, modified = NOW(), imagen = ?, IVA = ? WHERE productId = ?",
-        [
-          productData.nombre,
-          productData.descripcion,
-          productData.precio,
-          productData.existencia,
-          productData.categoriaId,
-          productData.statusId,
-          productData.imagen || null,
-          productData.IVA || null,
-          productId,
-        ]
-      );
+      await existingProduct.update({
+        nombre: productData.nombre,
+        descripcion: productData.descripcion,
+        precio: productData.precio,
+        existencia: productData.existencia,
+        categoriaId: productData.categoriaId,
+        statusId: productData.statusId,
+        imagen: productData.imagen || null,
+        IVA: productData.IVA || null
+      });
 
-      // Obtener el producto actualizado
-      const updatedProduct = await db.query(
-        "SELECT * FROM products WHERE productId = ?",
-        [productId]
-      );
-
-      // Responder con el producto actualizado
-      res.json(updatedProduct[0]);
+      res.json(existingProduct);
     } catch (error) {
-      // Manejar errores de validación
       if (error.name === "ValidationError") {
         const errors = error.errors.map((err) => err.message);
         return res.status(400).json({ errors });

@@ -3,7 +3,6 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const db = require('./src/config/database');
 const userRoutes = require('./src/routes/public/userRoutes');
 const productRoutes = require('./src/routes/public/productRoutes');
 const crypto = require('crypto');
@@ -40,8 +39,7 @@ const port = process.env.PORT || 5000;
 app.use(cors()); // Middleware de CORS
 app.use(express.json());
 
-// Conectar a la base de datos
-db.connect();
+
 
 // Configuración de rutas
 app.use('/users', userRoutes);
