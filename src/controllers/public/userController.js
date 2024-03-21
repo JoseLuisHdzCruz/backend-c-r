@@ -470,7 +470,7 @@ module.exports = {
       await twilioClient.messages.create({
         body: `Tu token de verificación es: ${clave}, esta clave solo sera valida por 5 minutos.`,
         from: 'whatsapp:+14155238886', // Número de Twilio Sandbox de WhatsApp
-        to: `whatsapp:+52${user.telefono}`, // Agrega el código de país al número de teléfono
+        to: `whatsapp:+521${user.telefono}`, // Agrega el código de país al número de teléfono
       });
 
       res.status(200).json({
