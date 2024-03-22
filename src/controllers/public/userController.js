@@ -6,17 +6,32 @@ const Status = require("../../models/statusModel");
 const ClavesTemporales = require("../../models/clavesTemporalesModels");
 const HistorialContrasenas = require("../../models/historialContraseñas");
 const UserActivityLog = require("../../models/logsModel");
+const Session = require("../../models/sesionModel");
+const Domicilio = require("../../models/domicilioModel");
+const Sucursal = require("../../models/sucursalesModel");
+
+const Administrador = require("../../models/adminModel");
+const Carrito = require("../../models/carritoModel");
+
+const DetalleVenta = require("../../models/detalleVentaModel");
+const MetodoPago = require("../../models/metodoPago");
+
+const Venta = require("../../models/ventaModel");
+const StatusVenta = require("../../models/statusVentaModel");
+
+
+
 
 // const db = require("../../config/database");
 // const Yup = require("yup");
 const axios = require("axios");
-const twilio = require('twilio');
+const twilio = require("twilio");
 const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const secretKey = process.env.JWT_SECRET;
 // Configurar las credenciales de Twilio
-const accountSid = 'ACe5e0045ad78466fea29886b336ebcfba';
+const accountSid = "ACe5e0045ad78466fea29886b336ebcfba";
 const authToken = process.env.TOKEN_TWILIO;
 const twilioClient = twilio(accountSid, authToken);
 const {
@@ -203,12 +218,12 @@ module.exports = {
     }
   },
 
-  findPhoneByEmail : async (req, res, next) => {
+  findPhoneByEmail: async (req, res, next) => {
     const { correo } = req.params; // Obtener el correo electrónico de los parámetros de la solicitud
     try {
       // Buscar el usuario por correo electrónico en la base de datos
       const user = await Usuario.findOne({ where: { correo } });
-      
+
       if (user) {
         // Si se encuentra el usuario, devolver el número de teléfono
         res.status(200).json({ telefono: user.telefono });
@@ -218,7 +233,11 @@ module.exports = {
       }
     } catch (error) {
       console.error("Error al buscar teléfono por correo electrónico:", error);
-      res.status(500).json({ error: "¡Algo salió mal al buscar teléfono por correo electrónico!" });
+      res
+        .status(500)
+        .json({
+          error: "¡Algo salió mal al buscar teléfono por correo electrónico!",
+        });
     }
   },
 
@@ -345,8 +364,7 @@ module.exports = {
           });
 
           return res.status(429).json({
-            error:
-              "Se ha excedido el límite de intentos",
+            error: "Se ha excedido el límite de intentos",
           });
         }
       }
@@ -368,6 +386,12 @@ module.exports = {
       await user.update({ intentosFallidos: 0, ultimoAcceso: new Date() });
 
       await enviarCorreoInicioSesionExitoso(correo); // Enviar correo de inicio de sesión exitoso
+
+      // Crear una nueva sesión para el usuario
+      await Session.create({
+        userId: user.customerId,
+        sessionId: generateSessionId(), // Genera un sessionId único (puedes implementar esta función según tus necesidades)
+      });
 
       // Generar token JWT
       const token = jwt.sign(
@@ -469,7 +493,7 @@ module.exports = {
       // Enviar el token por WhatsApp
       await twilioClient.messages.create({
         body: `Tu token de verificación es: ${clave}, esta clave solo sera valida por 5 minutos.`,
-        from: 'whatsapp:+14155238886', // Número de Twilio Sandbox de WhatsApp
+        from: "whatsapp:+14155238886", // Número de Twilio Sandbox de WhatsApp
         to: `whatsapp:+521${user.telefono}`, // Agrega el código de país al número de teléfono
       });
 
@@ -478,7 +502,9 @@ module.exports = {
       });
     } catch (error) {
       console.error("Error al enviar token por WhatsApp:", error);
-      res.status(500).json({ error: "¡Algo salió mal al enviar token por WhatsApp!" });
+      res
+        .status(500)
+        .json({ error: "¡Algo salió mal al enviar token por WhatsApp!" });
     }
   },
 

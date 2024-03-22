@@ -1,7 +1,7 @@
 // Importar Sequelize y configuración de conexión
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-// const Usuario = require("./usuarioModel")
+const Usuario = require("./usuarioModel")
 
 
 // Definir el modelo UserActivityLog
@@ -12,8 +12,12 @@ const UserActivityLog = sequelize.define('UserActivityLog', {
     autoIncrement: true
   },
   userId: {
-    type: DataTypes.STRING,
-    allowNull: false
+    type: DataTypes.UUID,
+    allowNull: false,
+    references: {
+        model: 'Usuario',
+        key: 'customerId'
+      }
   },
   eventType: {
     type: DataTypes.STRING,
@@ -44,7 +48,8 @@ const UserActivityLog = sequelize.define('UserActivityLog', {
   timestamps: false,
 });
 
-
+// Establece la relación con el modelo Usuario
+UserActivityLog.belongsTo(Usuario, { foreignKey: 'userId' });
 
 // Sincronizar el modelo con la base de datos
 (async () => {
