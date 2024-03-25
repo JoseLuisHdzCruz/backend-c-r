@@ -1,15 +1,15 @@
 // Importar Sequelize y configuración de conexión
 const { DataTypes } = require('sequelize');
-const sequelize = require("../config/database");
+const sequelize = require("../src/config/database");
 const Status = require("./statusModel");
 const Categoria = require("./categoriaModel");
 
 // Definir el modelo Producto
 const Producto = sequelize.define('Producto', {
   productoId: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
-    primaryKey: true
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
   },
   nombre: {
     type: DataTypes.STRING,

@@ -1,13 +1,13 @@
 'use strict';
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('carrito', {
-      carritoId: {
+    await queryInterface.createTable('historial_contraseñas', {
+      contraseñasId: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true
       },
-      customerId: {
+      usuarioId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -15,29 +15,17 @@ module.exports = {
           key: 'customerId'
         }
       },
-      productoId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'products',
-          key: 'productoId'
-        }
-      },
-      producto: {
+      contraseña: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      cantidad: {
-        type: Sequelize.INTEGER,
-        allowNull: false
-      },
-      precio: {
-        type: Sequelize.DECIMAL(10, 2),
+      fecha_cambio: {
+        type: Sequelize.DATEONLY,
         allowNull: false
       }
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('carrito');
+    await queryInterface.dropTable('historial_contraseñas');
   }
 };

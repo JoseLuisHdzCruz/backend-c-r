@@ -1,15 +1,16 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require("../config/database");
+const sequelize = require("../src/config/database");
 const Producto = require("./productsModel")
+const Venta = require("./ventaModel")
 
 const DetalleVenta = sequelize.define('DetalleVenta', {
   detalleVentaId: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
-    primaryKey: true
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
   },
   productoId: {
-    type: DataTypes.UUID,
+    type: DataTypes.INTEGER,
     allowNull: false,
     references: {
       model: 'Producto',
@@ -31,7 +32,15 @@ const DetalleVenta = sequelize.define('DetalleVenta', {
   totalDV: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false
-  }
+  },
+  ventaId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'Venta',
+      key: 'ventaId'
+    }
+  },
 }, {
   tableName: 'detalle_ventas',
   timestamps: false,
@@ -40,6 +49,7 @@ const DetalleVenta = sequelize.define('DetalleVenta', {
 
 // Establece la relación con el modelo Producto
 DetalleVenta.belongsTo(Producto, { foreignKey: 'productoId' });
+DetalleVenta.belongsTo(Venta, { foreignKey: 'ventaId' });
 
 (async () => {
   await DetalleVenta.sync();

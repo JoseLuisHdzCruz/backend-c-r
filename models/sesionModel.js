@@ -1,6 +1,6 @@
 // Importar Sequelize y configuración de conexión
 const { DataTypes } = require('sequelize');
-const sequelize = require("../config/database");
+const sequelize = require("../src/config/database");
 const Usuario = require("./usuarioModel")
 
 // Definir el modelo Session
@@ -11,7 +11,7 @@ const Session = sequelize.define('Session', {
     autoIncrement: true
   },
   userId: {
-    type: DataTypes.UUID,
+    type: DataTypes.INTEGER,
     allowNull: false,
     references: {
         model: 'Usuario',

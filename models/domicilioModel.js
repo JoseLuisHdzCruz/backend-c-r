@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require("../config/database");
+const sequelize = require("../src/config/database");
 const Usuario = require("./usuarioModel");
 
 const Domicilio = sequelize.define('Domicilio', {
@@ -33,7 +33,7 @@ const Domicilio = sequelize.define('Domicilio', {
     allowNull: true
   },
   customerId: {
-    type: DataTypes.UUID,
+    type: DataTypes.INTEGER,
     allowNull: false,
     references: {
       model: 'Usuario',

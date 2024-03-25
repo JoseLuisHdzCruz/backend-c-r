@@ -35,20 +35,20 @@ Content-Type: application/json
 
 
 ###
-POST https://backend-c-r-production.up.railway.app/users/
+POST http://localhost:5000/users/
 Content-Type: application/json
 
 {
-  "nombre": "Luis Arturo",
-  "aPaterno": "Hernandez",
-  "aMaterno": "De La Cruz",
-  "correo": "jose.darko21@gmail.com",
-  "sexo": "masculino",
-  "fecha_nacimiento": "1990-01-01",
-  "telefono": "5512663934",
+  "nombre": "Itzel",
+  "aPaterno": "Doroteo",
+  "aMaterno": "Martinez",
+  "correo": "20211032@uthh.edu.mx",
+  "sexo": "femenino",
+  "fecha_nacimiento": "1997-05-06",
+  "telefono": "7658337003",
   "contraseña": "JOse61@#",
   "preguntaSecreta": "¿Color favorito?",
-  "respuestaPSecreta": "Morado "
+  "respuestaPSecreta": "morado"
 }
 
 ###
@@ -73,8 +73,8 @@ POST http://localhost:5000/users/login
 Content-Type: application/json
 
 {
-  "correo": "itzel@gmail.com",
-  "contraseña": "JOse01@#"
+  "correo": "dareckluis@gmail.com",
+  "contraseña": "JOse61@#"
 }
 
 
@@ -93,7 +93,7 @@ Content-Type: application/json
 
 {
   "correo": "dareckluis@gmail.com",
-  "clave": "2469"
+  "clave": "1230"
 }
 
 ###
@@ -101,8 +101,8 @@ POST http://localhost:5000/users/changePassword
 Content-Type: application/json
 
 {
-  "correo": "dareckluis@gmail.com",
-  "nuevaContraseña": "JOse02@#"
+  "correo": "20211032@uthh.edu.mx",
+  "nuevaContraseña": "JOse61@#"
 }
 
 
@@ -128,7 +128,7 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:5000/products/534ad899-348d-4ce0-817c-962571fb59b2
+GET http://localhost:5000/products/13
 
 
 ###

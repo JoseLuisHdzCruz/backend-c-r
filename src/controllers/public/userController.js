@@ -1,26 +1,23 @@
 // /src/controllers/userController.js
 
 // Importa tus modelos aquí
-const Usuario = require("../../models/usuarioModel");
-const Status = require("../../models/statusModel");
-const ClavesTemporales = require("../../models/clavesTemporalesModels");
-const HistorialContrasenas = require("../../models/historialContraseñas");
-const UserActivityLog = require("../../models/logsModel");
-const Session = require("../../models/sesionModel");
-const Domicilio = require("../../models/domicilioModel");
-const Sucursal = require("../../models/sucursalesModel");
+const Usuario = require("../../../models/usuarioModel");
+const Status = require("../../../models/statusModel");
+const ClavesTemporales = require("../../../models/clavesTemporalesModels");
+const HistorialContrasenas = require("../../../models/historialContraseñas");
+const UserActivityLog = require("../../../models/logsModel");
+const Session = require("../../../models/sesionModel");
+const Domicilio = require("../../../models/domicilioModel");
+const Sucursal = require("../../../models/sucursalesModel");
 
-const Administrador = require("../../models/adminModel");
-const Carrito = require("../../models/carritoModel");
+const Administrador = require("../../../models/adminModel");
+const Carrito = require("../../../models/carritoModel");
 
-const DetalleVenta = require("../../models/detalleVentaModel");
-const MetodoPago = require("../../models/metodoPago");
+const DetalleVenta = require("../../../models/detalleVentaModel");
+const MetodoPago = require("../../../models/metodoPago");
 
-const Venta = require("../../models/ventaModel");
-const StatusVenta = require("../../models/statusVentaModel");
-
-
-
+const Venta = require("../../../models/ventaModel");
+const StatusVenta = require("../../../models/statusVentaModel");
 
 // const db = require("../../config/database");
 // const Yup = require("yup");
@@ -233,11 +230,9 @@ module.exports = {
       }
     } catch (error) {
       console.error("Error al buscar teléfono por correo electrónico:", error);
-      res
-        .status(500)
-        .json({
-          error: "¡Algo salió mal al buscar teléfono por correo electrónico!",
-        });
+      res.status(500).json({
+        error: "¡Algo salió mal al buscar teléfono por correo electrónico!",
+      });
     }
   },
 
@@ -280,9 +275,6 @@ module.exports = {
           .json({ error: "El número de teléfono no es válido o no existe" });
       }
 
-      // Generar un ID único para el usuario
-      const userId = uuidv4();
-
       // Encriptar la contraseña
       const hashedPassword = await bcrypt.hash(userData.contraseña, 10);
 
@@ -293,7 +285,6 @@ module.exports = {
 
       // Crear el usuario en la base de datos
       const nuevoUsuario = await Usuario.create({
-        customerId: userId,
         nombre: userData.nombre,
         aPaterno: userData.aPaterno,
         aMaterno: userData.aMaterno,
@@ -311,8 +302,14 @@ module.exports = {
         imagen: null,
       });
 
+      await HistorialContrasenas.create({
+        usuarioId: nuevoUsuario.customerId,
+        contraseña: nuevoUsuario.contraseña,
+        fecha_cambio: new Date(),
+      });
+
       await UserActivityLog.create({
-        userId: userId,
+        userId: nuevoUsuario.customerId,
         eventType: "Usuario creado",
         eventDetails: `Se creo el usuario ${userData.nombre} ${userData.aPaterno} (${userData.correo}).`,
         eventDate: new Date(),
@@ -390,7 +387,7 @@ module.exports = {
       // Crear una nueva sesión para el usuario
       await Session.create({
         userId: user.customerId,
-        sessionId: generateSessionId(), // Genera un sessionId único (puedes implementar esta función según tus necesidades)
+        sessionId: uuidv4(), // Genera un sessionId único (puedes implementar esta función según tus necesidades)
       });
 
       // Generar token JWT
@@ -447,12 +444,15 @@ module.exports = {
       const clave = Math.floor(1000 + Math.random() * 9000);
       const expiracion = new Date(Date.now() + 5 * 60000); // Agrega 5 minutos en milisegundos
 
-      // Actualizar la clave temporal en la base de datos
-      await ClavesTemporales.update(
-        { clave, expiracion },
-        { where: { correo } }
-      );
+      const [claveTemporal, created] = await ClavesTemporales.findOrCreate({
+        where: { correo },
+        defaults: { clave, expiracion }, // Valores predeterminados para crear el registro si no existe
+      });
 
+      if (!created) {
+        // El registro ya existía, por lo que se actualiza la clave y la expiración
+        await claveTemporal.update({ clave, expiracion });
+      }
       // Enviar la clave por correo electrónico
       await enviarCorreoValidacion(correo, clave.toString());
 
@@ -484,11 +484,15 @@ module.exports = {
       const clave = Math.floor(1000 + Math.random() * 9000);
       const expiracion = new Date(Date.now() + 5 * 60000); // Agrega 5 minutos en milisegundos
 
-      // Actualizar la clave temporal en la base de datos
-      await ClavesTemporales.update(
-        { clave, expiracion },
-        { where: { correo } }
-      );
+      const [claveTemporal, created] = await ClavesTemporales.findOrCreate({
+        where: { correo },
+        defaults: { clave, expiracion }, // Valores predeterminados para crear el registro si no existe
+      });
+
+      if (!created) {
+        // El registro ya existía, por lo que se actualiza la clave y la expiración
+        await claveTemporal.update({ clave, expiracion });
+      }
 
       // Enviar el token por WhatsApp
       await twilioClient.messages.create({
@@ -577,6 +581,27 @@ module.exports = {
           success: false,
           error: "La nueva contraseña debe ser diferente de la actual",
         });
+      }
+
+      // Obtener todas las contraseñas anteriores del usuario
+      const historialContraseñas = await HistorialContrasenas.findAll({
+        where: { usuarioId: user.customerId },
+        order: [["fecha_cambio", "DESC"]], // Ordenar por fecha de cambio en orden descendente
+      });
+
+      // Comparar la nueva contraseña con todas las contraseñas anteriores
+      for (const historial of historialContraseñas) {
+        const isSameAsPreviousPassword = await bcrypt.compare(
+          nuevaContraseña,
+          historial.contraseña
+        );
+        if (isSameAsPreviousPassword) {
+          const fechaCambio = historial.fecha_cambio;
+          return res.status(400).json({
+            success: false,
+            error: `La nueva contraseña ya fue usada anteriormente el ${fechaCambio}`,
+          });
+        }
       }
 
       // Encriptar la nueva contraseña

@@ -1,22 +1,71 @@
 'use strict';
-
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    /**
-     * Add altering commands here.
-     *
-     * Example:
-     * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
-     */
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.createTable('venta', {
+      ventaId: {
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+      },
+      folio:{
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      customerId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'usuarios',
+          key: 'customerId'
+        }
+      },
+      cantidad: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      total: {
+        type: Sequelize.DECIMAL(10, 2),
+        allowNull: false
+      },
+      fecha: {
+        type: Sequelize.DATE,
+        allowNull: false
+      },
+      statusVentaId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'status_ventas',
+          key: 'statusVentaId'
+        }
+      },
+      metodoPagoId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'metodosPago',
+          key: 'metPagoId'
+        }
+      },
+      socursalesId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'sucursales',
+          key: 'SucursalId'
+        }
+      },
+      domicilioId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'domicilio',
+          key: 'DomicilioId'
+        }
+      },
+    });
   },
-
-  async down (queryInterface, Sequelize) {
-    /**
-     * Add reverting commands here.
-     *
-     * Example:
-     * await queryInterface.dropTable('users');
-     */
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.dropTable('venta');
   }
 };

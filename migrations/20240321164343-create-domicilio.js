@@ -1,22 +1,47 @@
 'use strict';
-
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    /**
-     * Add altering commands here.
-     *
-     * Example:
-     * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
-     */
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.createTable('domicilio', {
+      DomicilioId: {
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+      },
+      CP: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      Calle: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      Colonia: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      Estado: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      Ciudad: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      Referencias: {
+        type: Sequelize.TEXT,
+        allowNull: true
+      },
+      customerId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'usuarios',
+          key: 'customerId'
+        }
+      }
+    });
   },
-
-  async down (queryInterface, Sequelize) {
-    /**
-     * Add reverting commands here.
-     *
-     * Example:
-     * await queryInterface.dropTable('users');
-     */
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.dropTable('domicilio');
   }
 };

@@ -1,11 +1,11 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require("../config/database");
+const sequelize = require("../src/config/database");
 
 const Administrador = sequelize.define('Administrador', {
   admonId: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
-    primaryKey: true
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
   },
   nombre: {
     type: DataTypes.STRING,

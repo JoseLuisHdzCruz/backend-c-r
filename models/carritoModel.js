@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require("../config/database");
+const sequelize = require("../src/config/database");
 const Usuario = require("./usuarioModel");
+const Producto = require("./productsModel");
 
 const Carrito = sequelize.define('Carrito', {
   carritoId: {
@@ -9,11 +10,19 @@ const Carrito = sequelize.define('Carrito', {
     autoIncrement: true
   },
   customerId: {
-    type: DataTypes.UUID,
+    type: DataTypes.INTEGER,
     allowNull: false,
     references: {
       model: 'Usuario',
       key: 'customerId'
+    }
+  },
+  productoId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'Producto',
+      key: 'productoId'
     }
   },
   producto: {
@@ -34,6 +43,7 @@ const Carrito = sequelize.define('Carrito', {
 });
 
 Carrito.belongsTo(Usuario, { foreignKey: 'customerId' });
+Carrito.belongsTo(Producto, { foreignKey: 'productoId' });
 
 (async () => {
   await Carrito.sync();

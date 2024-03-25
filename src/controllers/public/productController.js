@@ -1,7 +1,7 @@
 // /src/controllers/productController.js
 // Importa tus modelos aquí
-const Producto = require("../../models/productsModel");
-const Categoria = require("../../models/categoriaModel");
+const Producto = require("../../../models/productsModel");
+const Categoria = require("../../../models/categoriaModel");
 
 const Yup = require("yup");
 const { v4: uuidv4 } = require("uuid");
@@ -94,7 +94,6 @@ module.exports = {
       await validationSchema.validate(productData, { abortEarly: false });
 
       const newProduct = await Producto.create({
-        productoId: uuidv4(),
         nombre: productData.nombre,
         descripcion: productData.descripcion,
         precio: productData.precio,

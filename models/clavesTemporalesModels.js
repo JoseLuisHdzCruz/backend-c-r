@@ -1,6 +1,6 @@
 // Importar Sequelize y configuración de conexión
 const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require("../config/database");
+const sequelize = require("../src/config/database");
 
 // Definir el modelo ClavesTemporales
 const ClavesTemporales = sequelize.define('ClavesTemporales', {

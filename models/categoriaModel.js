@@ -1,29 +1,29 @@
 // Importar Sequelize y configuración de conexión
 const { DataTypes } = require('sequelize');
-const sequelize = require("../config/database");
+const sequelize = require("../src/config/database");
 
 // Definir el modelo Status
-const Status = sequelize.define('Status', {
-  statusId: {
+const Categoria = sequelize.define('Categoria', {
+  categoriaId: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
-  status: {
+  categoria: {
     type: DataTypes.STRING,
     allowNull: false
   }
 }, {
   // Opciones adicionales del modelo
-  tableName: 'status',
+  tableName: 'categoria',
   timestamps: false,
 });
 
 // Sincronizar el modelo con la base de datos
 (async () => {
-  await Status.sync();
-  console.log("Modelo Status sincronizado correctamente");
+  await Categoria.sync();
+  console.log("Modelo Categoria sincronizado correctamente");
 })();
 
-// Exportar el modelo Status
-module.exports = Status;
+// Exportar el modelo Categoria
+module.exports = Categoria;
