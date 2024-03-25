@@ -5,6 +5,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const userRoutes = require('./src/routes/public/userRoutes');
 const productRoutes = require('./src/routes/public/productRoutes');
+const addressRoutes = require('./src/routes/public/domicilioRoutes')
 const crypto = require('crypto');
 const fs = require('fs');
 
@@ -44,6 +45,8 @@ app.use(express.json());
 // Configuración de rutas
 app.use('/users', userRoutes);
 app.use('/products', productRoutes);
+app.use('/address', addressRoutes);
+
 
 // Manejo de errores
 app.use((err, req, res, next) => {

@@ -7,8 +7,7 @@ const ClavesTemporales = require("../../../models/clavesTemporalesModels");
 const HistorialContrasenas = require("../../../models/historialContraseñas");
 const UserActivityLog = require("../../../models/logsModel");
 const Session = require("../../../models/sesionModel");
-const Domicilio = require("../../../models/domicilioModel");
-const Sucursal = require("../../../models/sucursalesModel");
+
 
 const Administrador = require("../../../models/adminModel");
 const Carrito = require("../../../models/carritoModel");
@@ -38,103 +37,6 @@ const {
   enviarCorreoCambioContraseña,
 } = require("../../services/emailService");
 
-// const validationSchema = Yup.object().shape({
-//   nombre: Yup.string()
-//     .matches(
-//       /^[a-zA-ZáéíóúñÑÁÉÍÓÚüÜ\s]+$/,
-//       "El nombre solo puede contener letras, acentos y espacios"
-//     )
-//     .min(3, "El nombre debe tener al menos 3 caracteres")
-//     .max(20, "El nombre no puede tener más de 20 caracteres")
-//     .required("El nombre es obligatorio")
-//     .test(
-//       "no-repetir-caracteres",
-//       "El nombre no puede contener caracteres repetidos consecutivos más de 2 veces",
-//       (value) => {
-//         // Verificar que no haya más de 2 caracteres repetidos consecutivos
-//         const regex = /([a-zA-ZáéíóúñÑÁÉÍÓÚüÜ])\1{2,}/g;
-//         return !regex.test(value);
-//       }
-//     ),
-//   aPaterno: Yup.string()
-//     .matches(
-//       /^[a-zA-ZáéíóúñÑÁÉÍÓÚüÜ\s]+$/,
-//       "El nombre solo puede contener letras, acentos y espacios"
-//     )
-//     .min(3, "El nombre debe tener al menos 3 caracteres")
-//     .max(15, "El nombre no puede tener más de 15 caracteres")
-//     .required("El nombre es obligatorio")
-//     .test(
-//       "no-repetir-caracteres",
-//       "El nombre no puede contener caracteres repetidos consecutivos más de 2 veces",
-//       (value) => {
-//         // Verificar que no haya más de 2 caracteres repetidos consecutivos
-//         const regex = /([a-zA-ZáéíóúñÑÁÉÍÓÚüÜ])\1{2,}/g;
-//         return !regex.test(value);
-//       }
-//     ),
-//   aMaterno: Yup.string()
-//     .matches(
-//       /^[a-zA-ZáéíóúñÑÁÉÍÓÚüÜ\s]+$/,
-//       "El nombre solo puede contener letras, acentos y espacios"
-//     )
-//     .min(3, "El nombre debe tener al menos 3 caracteres")
-//     .max(15, "El nombre no puede tener más de 15 caracteres")
-//     .required("El nombre es obligatorio")
-//     .test(
-//       "no-repetir-caracteres",
-//       "El nombre no puede contener caracteres repetidos consecutivos más de 2 veces",
-//       (value) => {
-//         // Verificar que no haya más de 2 caracteres repetidos consecutivos
-//         const regex = /([a-zA-ZáéíóúñÑÁÉÍÓÚüÜ])\1{2,}/g;
-//         return !regex.test(value);
-//       }
-//     ),
-//   correo: Yup.string()
-//     .email("Correo electrónico inválido")
-//     .required("Email es obligatorio")
-//     .matches(
-//       /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/,
-//       "Ingresa una dirección de correo electrónico válida"
-//     ),
-//   telefono: Yup.number()
-//     .typeError("Formato invalido")
-//     .required("Telefono requerido")
-//     .min(10, "El Telefono debe tener al menos 10 digitos"),
-//   sexo: Yup.string().required("Seleccione su sexo"),
-//   preguntaSecreta: Yup.string().required("Seleccione su pregunta"),
-//   respuestaSecreta: Yup.string()
-//     .matches(
-//       /^[a-zA-ZáéíóúñÑÁÉÍÓÚüÜ\s]+$/,
-//       "El nombre solo puede contener letras, acentos y espacios"
-//     )
-//     .min(3, "La respuesta debe tener al menos 3 caracteres")
-//     .max(50, "La respuesta no puede tener más de 50 caracteres")
-//     .required("La respuesta es obligatorio"),
-//   fecha_nacimiento: Yup.date()
-//     .max(
-//       new Date(new Date().setFullYear(new Date().getFullYear() - 18)),
-//       "Debes ser mayor de 18 años"
-//     )
-//     .required("Fecha de nacimiento es obligatoria"),
-//   contraseña: Yup.string()
-//     .required("Contraseña es obligatoria")
-//     .min(8, "La contraseña debe tener al menos 8 caracteres")
-//     .matches(/\d{1,2}/, "Debe contener al menos 1 o 2 dígitos")
-//     .matches(/[A-Z]{1,2}/, "Debe contener al menos 1 o 2 letras mayúsculas")
-//     .matches(/[a-z]{1,2}/, "Debe contener al menos 1 o 2 letras minúsculas")
-//     .matches(
-//       /[^A-Za-z0-9]{1,2}/,
-//       "Debe contener al menos 1 o 2 caracteres especiales"
-//     ),
-//   RContraseña: Yup.string()
-//     .required("Campo obligatorio")
-//     .oneOf([Yup.ref("contraseña"), null], "Las contraseñas deben coincidir"),
-//   aceptaTerminos: Yup.boolean().oneOf(
-//     [true],
-//     "Debes aceptar los términos y condiciones para registrarte"
-//   ),
-// });
 
 module.exports = {
   getAllUsers: async (req, res, next) => {

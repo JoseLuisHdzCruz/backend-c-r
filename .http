@@ -114,14 +114,14 @@ GET http://localhost:5000/products/
 GET http://localhost:5000/products/randomProducts
 
 ###
-POST http://localhost:5000/products/
+POST https://backend-c-r-production.up.railway.app/products/
 Content-Type: application/json
 
 {
-  "nombre": "Cactus Bailarín 120 Canciones",
-  "descripcion": "Estimado cliente, Hola, antes de comprar nuestros productos, por favor confirme la información del tamaño del producto, no nos causan la necesidad de devolver el producto a usted debido a su negligencia, también por favor asegúrese antes de realizar un pedido, trate de no cancelar temporalmente, por lo que estaremos muy perturbados, gracias por su cooperación, gracias.",
-  "precio": 1065,
-  "existencia": 2,
+  "nombre": "Set 82 Juguetes Pastel Cumpleaños",
+  "descripcion": "Juguete de 82 piezas de simulación de pastel de cumpleaños para postres y manualidades.",
+  "precio": 520,
+  "existencia": 12,
   "categoriaId": 2,
   "statusId": 1,
   "imagen": "https://res.cloudinary.com/drvcma1kk/image/upload/v1709424362/Icono-producto_hsmag2.png"
@@ -138,3 +138,38 @@ Content-Type: application/json
 {
   "search": "oso"
 }
+
+
+
+###
+POST http://localhost:5000/address/add-domicilio
+Content-Type: application/json
+
+{
+  "CP": "43000",
+  "Calle": "Calle Ejemplo",
+  "Colonia": "Colonia Ejemplo",
+  "Estado": "Estado Ejemplo",
+  "Ciudad": "Ciudad Ejemplo",
+  "Referencias": "Referencias Ejemplo",
+  "customerId": 1
+}
+
+###
+POST http://localhost:5000/address/sucursales
+Content-Type: application/json
+
+{
+  "Nombre": "Sucursal Ejemplo",
+  "CP": "12345",
+  "Calle": "Calle Ejemplo",
+  "Colonia": "Colonia Ejemplo",
+  "Estado": "Estado Ejemplo",
+  "Ciudad": "Ciudad Ejemplo",
+  "Telefono": "1234567890",
+  "Horario": "Horario Ejemplo",
+  "InformacionAdicional": "Información Adicional Ejemplo"
+}
+
+###
+GET http://localhost:5000/address/get-sucursal

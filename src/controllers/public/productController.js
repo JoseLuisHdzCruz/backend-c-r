@@ -4,7 +4,6 @@ const Producto = require("../../../models/productsModel");
 const Categoria = require("../../../models/categoriaModel");
 
 const Yup = require("yup");
-const { v4: uuidv4 } = require("uuid");
 const { Op } = require('sequelize');
 
 
