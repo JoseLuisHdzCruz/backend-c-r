@@ -8,7 +8,7 @@ GET http://localhost:5000/users/0ebab22f-8897-4076-828e-2e18e08f93e1
 GET http://localhost:5000/users/findPhone/dareckluis@gmail.com
 
 ###
-POST http://localhost:5000/users/SecretQuestion
+POST https://backend-c-r-production.up.railway.app/users/secretQuestion
 Content-Type: application/json
 
 {
@@ -17,7 +17,7 @@ Content-Type: application/json
 
 
 ###
-POST https://backend-c-r-production.up.railway.app/users/sedKeyWhatsApp/sedKeyWhatsApp
+POST http://localhost:5000/users/sedKeyWhatsApp
 Content-Type: application/json
 
 {
@@ -35,7 +35,7 @@ Content-Type: application/json
 
 
 ###
-POST http://localhost:5000/users/
+POST https://backend-c-r-production.up.railway.app/users/
 Content-Type: application/json
 
 {
@@ -43,13 +43,12 @@ Content-Type: application/json
   "aPaterno": "Hernandez",
   "aMaterno": "De La Cruz",
   "correo": "jose.darko21@gmail.com",
-  "sexo": "Masculino",
+  "sexo": "masculino",
   "fecha_nacimiento": "1990-01-01",
   "telefono": "5512663934",
   "contraseña": "JOse61@#",
   "preguntaSecreta": "¿Color favorito?",
   "respuestaPSecreta": "Morado "
-  
 }
 
 ###

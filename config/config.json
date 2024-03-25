@@ -1,11 +1,11 @@
 {
   "development": {
     "dialect": "mysql",
-    "host": "viaduct.proxy.rlwy.net",
-    "port": "51144",
+    "host": "localhost",
+    "port": "3306",
     "username": "root",
-    "password": "B-heAfA65BC6GHbBFD51a-4AAdF5GGDF",
-    "database": "railway",
+    "password": "",
+    "database": "proyectoIng",
     "logging": false
   },
   "test": {
