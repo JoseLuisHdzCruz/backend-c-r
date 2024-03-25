@@ -11,7 +11,7 @@ router.put('/update-sucursal/:id', domicilioController.updateSucursal);
 router.delete('/delete-sucursal/:id', domicilioController.deleteSucursal);
 router.get('/get-sucursal/:id', domicilioController.getSucursalById);
 
-router.get('/get-domicilio', domicilioController.getAllDomicilios);
+router.get('/get-domicilio/:id', domicilioController.getAllDomicilios);
 router.post('/add-domicilio', domicilioController.createDomicilio);
 router.put('/update-domicilio/:id', domicilioController.updateDomicilio);
 router.delete('/delete-domicilio/:id', domicilioController.deleteDomicilio);

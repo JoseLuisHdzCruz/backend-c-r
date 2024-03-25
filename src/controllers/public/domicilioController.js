@@ -4,8 +4,13 @@ const Usuario = require("../../../models/usuarioModel");
 
 const domicilioController = {
   getAllDomicilios: async (req, res, next) => {
+    const UserId = req.params.id;
     try {
-      const domicilios = await Domicilio.findAll();
+      const domicilios = await Domicilio.findAll({
+        where: {
+          customerId: UserId // Filtrar por customerId
+        }
+      });
       res.json(domicilios);
     } catch (error) {
       console.error("Error al obtener todas las direcciones:", error);
