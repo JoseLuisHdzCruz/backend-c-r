@@ -7,6 +7,15 @@ module.exports = {
         primaryKey: true,
         autoIncrement: true
       },
+      Nombre: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true
+      },
+      Telefono: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
       CP: {
         type: Sequelize.STRING,
         allowNull: false
