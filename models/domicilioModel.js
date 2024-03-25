@@ -8,6 +8,15 @@ const Domicilio = sequelize.define('Domicilio', {
     primaryKey: true,
     autoIncrement: true
   },
+  Nombre: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true
+  },
+  Telefono: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   CP: {
     type: DataTypes.STRING,
     allowNull: false
