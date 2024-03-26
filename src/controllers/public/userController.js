@@ -287,9 +287,11 @@ module.exports = {
       await enviarCorreoInicioSesionExitoso(correo); // Enviar correo de inicio de sesión exitoso
 
       // Crear una nueva sesión para el usuario
-      await Session.create({
+      const new_sesion = await Session.create({
         userId: user.customerId,
         sessionId: uuidv4(), // Genera un sessionId único (puedes implementar esta función según tus necesidades)
+        ipAddress: req.ip,
+        deviceType: req.headers["user-agent"],
       });
 
       // Generar token JWT
@@ -304,6 +306,7 @@ module.exports = {
           imagen: user.imagen,
           edad: user.fecha_nacimiento,
           telefono: user.telefono,
+          sesion: new_sesion.sessionId
         },
         secretKey,
         {
@@ -316,8 +319,8 @@ module.exports = {
         eventType: "Inicio de sesion exitoso",
         eventDetails: `Se ha iniciado sesion exitosamente en la cuenta del usuario ${user.nombre} ${user.aPaterno} que tiene el correo asociado: ${user.correo}.`,
         eventDate: new Date(),
-        ipAddress: req.ip, // Obtener la dirección IP del cliente
-        deviceType: req.headers["user-agent"], // Obtener el tipo de dispositivo desde el encabezado
+        ipAddress: req.ip,
+        deviceType: req.headers["user-agent"],
         httpStatusCode: res.statusCode, // Obtiene el código de estado HTTP de la respuesta
       });
 

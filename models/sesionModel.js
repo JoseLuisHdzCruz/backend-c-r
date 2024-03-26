@@ -21,7 +21,15 @@ const Session = sequelize.define('Session', {
   sessionId: {
     type: DataTypes.STRING,
     allowNull: false
-  }
+  },
+  ipAddress: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  deviceType: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
 }, {
   // Opciones adicionales del modelo
   tableName: 'sessions',

@@ -1,27 +1,35 @@
-'use strict';
+"use strict";
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('sessions', {
+    await queryInterface.createTable("sessions", {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
-        autoIncrement: true
+        autoIncrement: true,
       },
       userId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-            model: 'usuarios',
-            key: 'customerId'
-          }
+          model: "usuarios",
+          key: "customerId",
+        },
       },
       sessionId: {
         type: Sequelize.STRING,
-        allowNull: false
-      }
+        allowNull: false,
+      },
+      ipAddress: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      deviceType: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('sessions');
-  }
+    await queryInterface.dropTable("sessions");
+  },
 };
