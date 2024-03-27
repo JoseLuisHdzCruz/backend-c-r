@@ -86,12 +86,15 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:5000/users/logoutAllSessions
+POST https://backend-c-r-production.up.railway.app/users/logoutAllSessions
 Content-Type: application/json
 
 {
-  "customerId": "2"
+  "customerId": "1"
 }
+
+###
+GET http://localhost:5000/users/getSession/f58324ce-1a52-4a48-a87a-2aa260d58d6f
 
 
 ###

@@ -10,6 +10,9 @@ router.get('/', userController.getAllUsers);
 // Ruta para obtener un usuario por ID
 router.get('/:id', userController.getUserById);
 
+// Ruta para obtener un usuario por ID
+router.get('/getSession/:id', userController.getSessionBySessionId);
+
 // Ruta para obtener un telefono por correo
 router.get('/findPhone/:correo', userController.findPhoneByEmail);
 

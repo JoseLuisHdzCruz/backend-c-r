@@ -367,17 +367,37 @@ module.exports = {
       // Eliminar todas las sesiones encontradas
       await Session.destroy({ where: { userId: customerId } });
 
-      res
-        .status(200)
-        .json({
-          message:
-            "Todas las sesiones del usuario han sido cerradas exitosamente",
-        });
+      res.status(200).json({
+        message:
+          "Todas las sesiones del usuario han sido cerradas exitosamente",
+      });
     } catch (error) {
       console.error("Error al cerrar todas las sesiones del usuario:", error);
       res
         .status(500)
         .json({ error: "¡Algo salió mal al cerrar las sesiones!" });
+    }
+  },
+
+  getSessionBySessionId: async (req, res, next) => {
+    const { id } = req.params; // Suponiendo que userId viene en los parámetros de la solicitud
+
+    try {
+      // Buscar la sesión en la base de datos por userId
+      const sesion = await Session.findOne({ where: { sessionId: id } });
+
+      if (!sesion) {
+        return res
+          .status(404)
+          .json({ error: "No se encontró ninguna sesión para el usuario" });
+      }
+
+      res.status(200).json({ sesion });
+    } catch (error) {
+      console.error("Error al buscar la sesión por userId:", error);
+      res
+        .status(500)
+        .json({ error: "¡Algo salió mal al buscar la sesión por userId!" });
     }
   },
 
