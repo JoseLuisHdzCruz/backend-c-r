@@ -25,6 +25,12 @@ router.post('/', userController.createUser);
 // Ruta para iniciar sesión
 router.post('/login', userController.loginUser);
 
+// Ruta para cerrar sesión
+router.post('/logout', userController.logoutUser);
+
+// Ruta para cerrar todas las sesiónes de un usuario
+router.post('/logoutAllSessions', userController.logoutAllUsers);
+
 // Ruta para enviar por correo clave de verificacion
 router.post('/forgotPassword', userController.verificarCorreoYEnviarClave);
 

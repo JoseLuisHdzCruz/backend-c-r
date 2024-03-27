@@ -8,7 +8,6 @@ const HistorialContrasenas = require("../../../models/historialContraseñas");
 const UserActivityLog = require("../../../models/logsModel");
 const Session = require("../../../models/sesionModel");
 
-
 const Administrador = require("../../../models/adminModel");
 const Carrito = require("../../../models/carritoModel");
 
@@ -36,7 +35,6 @@ const {
   enviarCorreoIntentoSesionSospechoso,
   enviarCorreoCambioContraseña,
 } = require("../../services/emailService");
-
 
 module.exports = {
   getAllUsers: async (req, res, next) => {
@@ -306,7 +304,7 @@ module.exports = {
           imagen: user.imagen,
           edad: user.fecha_nacimiento,
           telefono: user.telefono,
-          sesion: new_sesion.sessionId
+          sesion: new_sesion.sessionId,
         },
         secretKey,
         {
@@ -329,6 +327,57 @@ module.exports = {
     } catch (error) {
       console.error("Error al iniciar sesión:", error);
       res.status(500).json({ error: "¡Algo salió mal al iniciar sesión!" });
+    }
+  },
+
+  logoutUser: async (req, res, next) => {
+    const { sessionId } = req.body; // Se espera recibir el ID de sesión a cerrar
+
+    try {
+      // Buscar la sesión en la base de datos
+      const session = await Session.findOne({ where: { sessionId } });
+
+      if (!session) {
+        return res.status(404).json({ error: "La sesión no fue encontrada" });
+      }
+
+      // Eliminar la sesión de la base de datos
+      await session.destroy();
+
+      res.status(200).json({ message: "Sesión cerrada exitosamente" });
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+      res.status(500).json({ error: "¡Algo salió mal al cerrar sesión!" });
+    }
+  },
+
+  logoutAllUsers: async (req, res, next) => {
+    const { customerId } = req.body; // Se espera recibir el ID del usuario
+
+    try {
+      // Buscar todas las sesiones asociadas al customerId
+      const sessions = await Session.findAll({ where: { userId: customerId } });
+
+      if (sessions.length === 0) {
+        return res
+          .status(404)
+          .json({ error: "No se encontraron sesiones para el usuario" });
+      }
+
+      // Eliminar todas las sesiones encontradas
+      await Session.destroy({ where: { userId: customerId } });
+
+      res
+        .status(200)
+        .json({
+          message:
+            "Todas las sesiones del usuario han sido cerradas exitosamente",
+        });
+    } catch (error) {
+      console.error("Error al cerrar todas las sesiones del usuario:", error);
+      res
+        .status(500)
+        .json({ error: "¡Algo salió mal al cerrar las sesiones!" });
     }
   },
 
