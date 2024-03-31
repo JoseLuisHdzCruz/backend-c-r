@@ -36,9 +36,17 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      NumInterior: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      NumExterior: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
       Referencias: {
         type: Sequelize.TEXT,
-        allowNull: true
+        allowNull: false
       },
       customerId: {
         type: Sequelize.INTEGER,

@@ -37,9 +37,17 @@ const Domicilio = sequelize.define('Domicilio', {
     type: DataTypes.STRING,
     allowNull: false
   },
+  NumInterior: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  NumExterior: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   Referencias: {
     type: DataTypes.TEXT,
-    allowNull: true
+    allowNull: false
   },
   customerId: {
     type: DataTypes.INTEGER,

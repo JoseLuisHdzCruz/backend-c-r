@@ -1,8 +1,27 @@
 const Domicilio = require("../../../models/domicilioModel");
 const Sucursal = require("../../../models/sucursalesModel");
 const Usuario = require("../../../models/usuarioModel");
+const Colonia = require("../../../models/coloniaModel");
 
 const domicilioController = {
+  getAllColoniasByCP: async (req, res, next) => {
+    const codigo = req.params.cp;
+    try {
+      const colonias = await Colonia.findAll({
+        where: {
+          codigo_postal: codigo // Filtrar por customerId
+        }
+      });
+      const response = colonias.length > 0 ? colonias : ['No se encontarron colonias para este CP'] 
+      res.json(response)
+    } catch (error) {
+      console.error("Error al obtener todas las direcciones:", error);
+      res
+        .status(500)
+        .json({ error: "¡Algo salió mal al obtener todas las direcciones!" });
+    }
+  },
+  
   getAllDomicilios: async (req, res, next) => {
     const UserId = req.params.id;
     try {

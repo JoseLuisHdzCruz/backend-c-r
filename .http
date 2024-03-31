@@ -78,11 +78,11 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:5000/users/logout
+POST https://backend-c-r-production.up.railway.app/users/logout
 Content-Type: application/json
 
 {
-  "sessionId": "f312fd48-58e9-4f8f-a62b-6772b51115e9"
+  "sessionId": "56f733e1-24d2-4bf5-8f6f-aee130ede6ad"
 }
 
 ###
@@ -94,7 +94,7 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:5000/users/getSession/f58324ce-1a52-4a48-a87a-2aa260d58d6f
+GET http://localhost:5000/users/getSession/56f733e1-24d2-4bf5-8f6f-aee130ede6ad
 
 
 ###
@@ -192,3 +192,7 @@ Content-Type: application/json
 
 ###
 GET http://localhost:5000/address/get-sucursal
+
+
+###
+GET http://localhost:5000/address/get-colonias/43000

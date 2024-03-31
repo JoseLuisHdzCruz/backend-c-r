@@ -5,6 +5,8 @@ const router = express.Router();
 const domicilioController = require('../../controllers/public/domicilioController');
 
 // Rutas para Sucursales
+router.get('/get-colonias/:cp', domicilioController.getAllColoniasByCP);
+
 router.get('/get-sucursal', domicilioController.getAllSucursales);
 router.post('/add-sucursal', domicilioController.createSucursal);
 router.put('/update-sucursal/:id', domicilioController.updateSucursal);
