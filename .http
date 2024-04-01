@@ -161,7 +161,7 @@ Content-Type: application/json
 
 
 ###
-POST http://localhost:5000/address/add-domicilio
+POST https://backend-c-r-production.up.railway.app/address/add-domicilio
 Content-Type: application/json
 
 {
@@ -171,7 +171,11 @@ Content-Type: application/json
   "Estado": "Estado Ejemplo",
   "Ciudad": "Ciudad Ejemplo",
   "Referencias": "Referencias Ejemplo",
-  "customerId": 1
+  "customerId": 1,
+  "Nombre": "Jose Luis Hdez",
+  "Telefono": "7658337003",
+  "NumExterior": "833",
+  "NumInterior": ""
 }
 
 ###
@@ -195,4 +199,4 @@ GET http://localhost:5000/address/get-sucursal
 
 
 ###
-GET http://localhost:5000/address/get-colonias/43000
+GET https://backend-c-r-production.up.railway.app/address/get-colonias/43000

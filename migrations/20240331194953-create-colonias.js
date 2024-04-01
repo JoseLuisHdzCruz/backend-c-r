@@ -14,7 +14,14 @@ module.exports = {
       codigo_postal: {
         type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: '43000' // Establecer el valor predeterminado del código postal
+      },
+      estado: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      municipio: {
+        type: Sequelize.STRING,
+        allowNull: false,
       }
     });
   },
