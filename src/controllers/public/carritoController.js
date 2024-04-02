@@ -58,7 +58,7 @@ const carritoController = {
     }
   },
   clearCarrito : async (req, res) => {
-    const { customerId } = req.body;
+    const { customerId } = req.params;
   
     try {
       const deletedRows = await Carrito.destroy({ 
