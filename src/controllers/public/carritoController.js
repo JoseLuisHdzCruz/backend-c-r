@@ -2,7 +2,7 @@ const Carrito = require("../../../models/carritoModel");
 
 const carritoController = {
   getCarrito: async (req, res) => {
-    const { customerId } = req.body;
+    const { customerId } = req.params;
     try {
       const carritoItems = await Carrito.findAll({
         where: {customerId}

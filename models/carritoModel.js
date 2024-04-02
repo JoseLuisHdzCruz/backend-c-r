@@ -36,6 +36,10 @@ const Carrito = sequelize.define('Carrito', {
   precio: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false
+  },
+  IVA: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false
   }
 }, {
   tableName: 'carrito',
