@@ -5,6 +5,8 @@
 /.pnp
 .pnp.js
 /.env
+/.http
+/carrito.http
 
 # testing
 /coverage
