@@ -1,0 +1,33 @@
+### Obtener todos los elementos del carrito asociados a un cliente específico
+GET http://localhost:3000/carrito?customerId=123
+
+### Agregar un nuevo elemento al carrito
+POST http://localhost:3000/carrito
+Content-Type: application/json
+
+{
+  "customerId": 123,
+  "productoId": 456,
+  "producto": "Nombre del producto",
+  "cantidad": 2,
+  "precio": 19.99
+}
+
+### Actualizar un elemento del carrito por su ID
+PUT http://localhost:3000/carrito/1
+Content-Type: application/json
+
+{
+  "cantidad": 3
+}
+
+### Eliminar un elemento del carrito por su ID
+DELETE http://localhost:3000/carrito/1
+
+### Eliminar todos los elementos del carrito asociados a un cliente específico
+DELETE http://localhost:3000/carrito/clear
+Content-Type: application/json
+
+{
+  "customerId": 123
+}

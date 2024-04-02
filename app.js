@@ -6,6 +6,7 @@ const dotenv = require('dotenv');
 const userRoutes = require('./src/routes/public/userRoutes');
 const productRoutes = require('./src/routes/public/productRoutes');
 const addressRoutes = require('./src/routes/public/domicilioRoutes')
+const carritoRoutes = require('./src/routes/public/carritoRoutes');
 const crypto = require('crypto');
 const fs = require('fs');
 
@@ -46,6 +47,7 @@ app.use(express.json());
 app.use('/users', userRoutes);
 app.use('/products', productRoutes);
 app.use('/address', addressRoutes);
+app.use('/cart', carritoRoutes);
 
 
 // Manejo de errores
