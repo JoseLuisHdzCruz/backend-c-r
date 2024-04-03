@@ -23,7 +23,7 @@ Content-Type: application/json
 }
 
 ### Eliminar un elemento del carrito por su ID
-DELETE https://backend-c-r-production.up.railway.app/cart/
+DELETE HTTP/1.1 https://backend-c-r-production.up.railway.app/cart/
 Content-Type: application/json
 
 {
