@@ -41,9 +41,11 @@ const carritoController = {
     }
   },
   deleteCarrito : async (req, res) => {
-    const { carritoId } = req.params;
+    const { productoId, customerId } = req.params;
     try {
-      const deletedRows = await Carrito.destroy({ where: { carritoId } });
+      const deletedRows = await Carrito.destroy({ 
+        where: { carritoId } 
+      });
       if (deletedRows === 0) {
         return res
           .status(404)
