@@ -23,7 +23,7 @@ const carritoController = {
     }
   },
   updateCarrito : async (req, res) => {
-    const { productoId, customerId } = req.params;
+    const { productoId, customerId } = req.query;
     try {
       const [numRowsUpdated, updatedRows] = await Carrito.update(req.body, {
         where: { productoId, customerId },
