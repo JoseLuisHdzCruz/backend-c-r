@@ -23,10 +23,10 @@ const carritoController = {
     }
   },
   updateCarrito : async (req, res) => {
-    const { carritoId } = req.params;
+    const { productoId, customerId } = req.params;
     try {
       const [numRowsUpdated, updatedRows] = await Carrito.update(req.body, {
-        where: { carritoId },
+        where: { productoId, customerId },
         returning: true,
       });
       if (numRowsUpdated === 0) {

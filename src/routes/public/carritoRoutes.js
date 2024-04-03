@@ -5,7 +5,7 @@ const carritoController = require('../../controllers/public/carritoController');
 // Rutas para el carrito
 router.get('/:customerId', carritoController.getCarrito);
 router.post('/', carritoController.addToCarrito);
-router.put('/:carritoId', carritoController.updateCarrito);
+router.put('/:customerId/:productoId', carritoController.updateCarrito);
 router.delete('/', carritoController.deleteCarrito);
 router.delete('/clear/:customerId', carritoController.clearCarrito);
 
