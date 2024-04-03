@@ -38,7 +38,11 @@ module.exports = {
       IVA: {
         type: Sequelize.DECIMAL(10, 2),
         allowNull: false
-      }
+      },
+      imagen: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
     });
   },
   down: async (queryInterface, Sequelize) => {
