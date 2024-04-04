@@ -22,7 +22,11 @@ module.exports = {
       municipio: {
         type: Sequelize.STRING,
         allowNull: false,
-      }
+      },
+      envio: {
+        type: Sequelize.DECIMAL(10, 2),
+        allowNull: false
+      },
     });
   },
   down: async (queryInterface, Sequelize) => {

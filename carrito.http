@@ -15,11 +15,11 @@ Content-Type: application/json
 }
 
 ### Actualizar un elemento del carrito por su ID
-PUT https://backend-c-r-production.up.railway.app/cart/1/364
+PUT https://backend-c-r-production.up.railway.app/cart/1/371
 Content-Type: application/json
 
 {
-  "cantidad": 3
+  "cantidad": 1
 }
 
 ### Eliminar un elemento del carrito por su ID

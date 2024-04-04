@@ -27,6 +27,10 @@ const Colonia = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    envio: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false
+    },
   },
   {
     // Opciones adicionales del modelo

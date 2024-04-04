@@ -20,7 +20,7 @@ const Producto = sequelize.define('Producto', {
     allowNull: false
   },
   precio: {
-    type: DataTypes.DECIMAL(10, 2), // Decimal para manejar precisión de los precios
+    type: DataTypes.DECIMAL(10, 2),
     allowNull: false
   },
   existencia: {
