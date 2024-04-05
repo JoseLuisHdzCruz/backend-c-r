@@ -33,6 +33,18 @@ const Venta = sequelize.define('Venta', {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false
   },
+  totalProductos: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false
+  },
+  totalEnvio: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false
+  },
+  totalIVA: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false
+  },
   fecha: {
     type: DataTypes.DATE,
     allowNull: false

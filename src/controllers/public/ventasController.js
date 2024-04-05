@@ -1,0 +1,110 @@
+const Venta = require("../../../models/ventaModel");
+const DetalleVenta = require("../../../models/detalleVentaModel")
+const { v4: uuidv4 } = require('uuid');
+
+const ventasController = {
+  // Controlador para crear una nueva venta
+  crearVenta: async (req, res) => {
+    try {
+        const { customerId, cantidad, total, totalProductos, totalEnvio, totalIVA, metodoPagoId, sucursalesId, domicilioId, productos } = req.body;
+        
+        // Fecha actual
+        const fecha = new Date();
+
+        // Generar folio manualmente (puedes implementar la lógica que necesites para generar el folio)
+        const folio = uuidv4();
+
+        const statusVentaId = 1;
+        const nuevaVenta = await Venta.create({
+            folio,
+            customerId,
+            cantidad,
+            total,
+            totalProductos,
+            totalEnvio,
+            totalIVA,
+            fecha,
+            statusVentaId,
+            metodoPagoId,
+            sucursalesId,
+            domicilioId
+        });
+      // Crear los registros de detalle de venta
+      const detallesVenta = await Promise.all(productos.map(async producto => {
+        const detalleVenta = await DetalleVenta.create({
+            productoId: producto.productoId,
+            producto: producto.producto,
+            precio: producto.precio,
+            cantidad: producto.cantidad,
+            totalDV: producto.totalDV,
+            ventaId: nuevaVenta.ventaId
+        });
+        return detalleVenta;
+    }));
+
+    // Respuesta exitosa
+    res.status(201).json({ venta: nuevaVenta, detallesVenta });
+    } catch (error) {
+      console.error("Error al crear la venta con detalle:", error);
+      res.status(500).json({ error: "Error al crear la venta con detalle" });
+    }
+  },
+
+  // Controlador para obtener todos los registros de ventas
+  obtenerTodasLasVentas: async (req, res) => {
+    try {
+      const ventas = await Venta.findAll();
+      res.json(ventas);
+    } catch (error) {
+      console.error("Error al obtener las ventas:", error);
+      res.status(500).json({ error: "Error al obtener las ventas" });
+    }
+  },
+
+  // Controlador para obtener una venta por su ID
+  obtenerVentaPorId: async (req, res) => {
+    const ventaId = req.params.id;
+    try {
+      const venta = await Venta.findByPk(ventaId);
+      if (!venta) {
+        return res.status(404).json({ error: "Venta no encontrada" });
+      }
+      res.json(venta);
+    } catch (error) {
+      console.error("Error al obtener la venta por ID:", error);
+      res.status(500).json({ error: "Error al obtener la venta por ID" });
+    }
+  },
+
+
+   // Controlador para obtener una venta por su ID
+   obtenerDetalleVentaPorIdVenta: async (req, res) => {
+    const ventaId = req.params.id;
+    try {
+      const venta = await DetalleVenta.findAll({where: { ventaId }});
+      if (!venta) {
+        return res.status(404).json({ error: "Detalle venta no encontrada" });
+      }
+      res.json(venta);
+    } catch (error) {
+      console.error("Error al obtener el detalle venta por ventaId:", error);
+      res.status(500).json({ error: "Error  el detalle venta por ventaId" });
+    }
+  },
+
+  // Controlador para obtener todas las ventas de un cliente por su ID de cliente
+  obtenerVentasPorCustomerId: async (req, res) => {
+    const customerId = req.params.customerId;
+    try {
+      const ventas = await Venta.findAll({ where: { customerId } });
+      res.json(ventas);
+    } catch (error) {
+      console.error("Error al obtener las ventas por customerId:", error);
+      res
+        .status(500)
+        .json({ error: "Error al obtener las ventas por customerId" });
+    }
+  },
+};
+
+module.exports = ventasController;

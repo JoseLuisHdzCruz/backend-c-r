@@ -27,6 +27,18 @@ module.exports = {
         type: Sequelize.DECIMAL(10, 2),
         allowNull: false
       },
+      totalProductos: {
+        type: Sequelize.DECIMAL(10, 2),
+        allowNull: false
+      },
+      totalEnvio: {
+        type: Sequelize.DECIMAL(10, 2),
+        allowNull: false
+      },
+      totalIVA: {
+        type: Sequelize.DECIMAL(10, 2),
+        allowNull: false
+      },
       fecha: {
         type: Sequelize.DATE,
         allowNull: false
