@@ -1,0 +1,35 @@
+POST https://backend-c-r-production.up.railway.app/ventas/
+Content-Type: application/json
+
+{
+  "customerId": 1,
+  "venta": {
+    "cantidad": 4,
+    "total": "1048.76",
+    "totalProductos": "998.76",
+    "totalEnvio": "50.00",
+    "totalIVA": "137.76",
+    "sucursalesId": null,
+    "domicilioId": "4",
+    "productos": [
+      {
+        "productoId": 367,
+        "producto": "Peluche Capybhara",
+        "precio": "184.44",
+        "cantidad": 1,
+        "totalDV": "184.44",
+        "IVA": "25.44",
+        "imagen": "https://i.pinimg.com/564x/39/85/48/3985485a394bab5dc2c0b1262fcd968a.jpg"
+      },
+      {
+        "productoId": 371,
+        "producto": "Peluche Dragón",
+        "precio": "271.44",
+        "cantidad": 3,
+        "totalDV": "814.32",
+        "IVA": "37.44",
+        "imagen": "https://i.pinimg.com/564x/75/ba/c7/75bac73eb4f27c10ebe350c1f2ec6059.jpg"
+      }
+    ]
+  }
+}

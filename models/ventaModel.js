@@ -67,7 +67,7 @@ const Venta = sequelize.define('Venta', {
   },
   socursalesId: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
     references: {
       model: 'Sucursal',
       key: 'SucursalId'
@@ -75,7 +75,7 @@ const Venta = sequelize.define('Venta', {
   },
   domicilioId: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
     references: {
       model: 'Domicilio',
       key: 'DomicilioId'

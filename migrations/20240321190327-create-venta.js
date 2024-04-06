@@ -61,7 +61,7 @@ module.exports = {
       },
       socursalesId: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: 'sucursales',
           key: 'SucursalId'
@@ -69,7 +69,7 @@ module.exports = {
       },
       domicilioId: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: 'domicilio',
           key: 'DomicilioId'
