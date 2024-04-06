@@ -1,52 +1,49 @@
-const mercadopage = require('mercadopago');
-const access_token = process.env.MERCADOPAGO_API_KEY;
+const { MercadoPagoConfig, Preference } = require("mercadopago");
+const axios = require("axios");
+
+// const { v4: uuidv4 } = require('uuid');
+const accessToken = process.env.MERCADOPAGO_API_KEY;
+
+// Inicializar el cliente de Mercado Pago
+const mercadopagoClient = new MercadoPagoConfig({ accessToken: accessToken });
 
 const paymentController = {
   createOrder: async (req, res) => {
-    mercadopage.configure({
-        access_token,
-      });
-    
-      try {
-        const result = await mercadopage.preferences.create({
-          items: [
-            {
-              title: "Laptop",
-              unit_price: 500,
-              currency_id: "MX",
-              quantity: 1,
-            },
-          ],
-          notification_url: "https://e720-190-237-16-208.sa.ngrok.io/webhook",
-          back_urls: {
-            success: "http://localhost:5000/order/success",
-            // pending: "https://e720-190-237-16-208.sa.ngrok.io/pending",
-            // failure: "https://e720-190-237-16-208.sa.ngrok.io/failure",
-          },
-        });
-    
-        console.log(result);
-    
-        // res.json({ message: "Payment creted" });
-        res.json(result.body);
-      } catch (error) {
-        return res.status(500).json({ message: "Something goes wrong" });
-      }
-  },
-  receiveWebhook : async (req, res) => {
+    const { customerId, items, venta } = req.body;
     try {
-        const payment = req.query;
-        console.log(payment);
-        if (payment.type === "payment") {
-          const data = await mercadopage.payment.findById(payment["data.id"]);
-          console.log(data);
-        }
-    
-        res.sendStatus(204);
-      } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: "Something goes wrong" });
-      }
+      const body = {
+        items: items.map((item) => ({
+          title: item.title,
+          quantity: Number(item.quantity),
+          unit_price: Number(item.price),
+          picture_url: item.imagen,
+          currency_id: "MXN",
+        })),
+        back_urls: {
+          success: "https://chucherias-y-regalos.vercel.app/purchase-history",
+          failure: "https://chucherias-y-regalos.vercel.app/checkup",
+          pending: "https://chucherias-y-regalos.vercel.app/",
+        },
+        auto_return: "approved",
+      };
+
+      // Realizar la solicitud para crear el pago
+      const preference = new Preference(mercadopagoClient);
+      const result = await preference.create({ body });
+      // Enviar la respuesta al cliente
+
+      await axios.post("https://backend-c-r-production.up.railway.app/ventas/", {
+        customerId, venta
+      });
+
+      res.json({
+        id: result.id,
+      });
+    } catch (error) {
+      // Manejar los errores
+      console.error("Error al crear el pago:", error);
+      res.status(500).json({ error: "Error al procesar la solicitud" });
+    }
   },
 };
 

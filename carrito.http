@@ -37,17 +37,6 @@ DELETE https://backend-c-r-production.up.railway.app/cart/clear/1
 
 
 
-### Obtener todos los elementos del carrito asociados a un cliente específico
-GET https://backend-c-r-production.up.railway.app/cart/:customerId
 
 ### Agregar un nuevo elemento al carrito
-POST https://backend-c-r-production.up.railway.app/cart/
-
-### Actualizar un elemento del carrito por su ID
-PUT https://backend-c-r-production.up.railway.app/cart/:carritoId
-
-### Eliminar un elemento del carrito por su ID
-DELETE https://backend-c-r-production.up.railway.app/cart/:carritoId
-
-### Eliminar todos los elementos del carrito asociados a un cliente específico
-DELETE https://backend-c-r-production.up.railway.app/cart/clear/:customerId
+POST http://localhost:5000/order/create-order

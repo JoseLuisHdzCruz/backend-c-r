@@ -8,15 +8,7 @@ const ventasController = {
     try {
         const { 
             customerId, 
-            cantidad, 
-            total, 
-            totalProductos, 
-            totalEnvio, 
-            totalIVA, 
-            metodoPagoId, 
-            sucursalesId, 
-            domicilioId, 
-            productos 
+            venta
         } = req.body;
         
         // Fecha actual
@@ -28,20 +20,20 @@ const ventasController = {
         const statusVentaId = 1;
         const nuevaVenta = await Venta.create({
             folio,
-            customerId,
-            cantidad,
-            total,
-            totalProductos,
-            totalEnvio,
-            totalIVA,
+            customerId: customerId,
+            cantidad: venta.cantidad,
+            total: venta.total,
+            totalProductos: venta.totalProductos,
+            totalEnvio: venta.totalEnvio,
+            totalIVA: venta.totalIVA,
             fecha,
             statusVentaId,
-            metodoPagoId,
-            sucursalesId,
-            domicilioId
+            metodoPagoId: venta.metodoPagoId,
+            sucursalesId: venta.sucursalesId,
+            domicilioId: venta.domicilioId
         });
       // Crear los registros de detalle de venta
-      const detallesVenta = await Promise.all(productos.map(async producto => {
+      const detallesVenta = await Promise.all(venta.productos.map(async producto => {
         const detalleVenta = await DetalleVenta.create({
             productoId: producto.productoId,
             producto: producto.producto,

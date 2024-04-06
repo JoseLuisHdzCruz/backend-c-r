@@ -5,7 +5,7 @@ const paymentController = require('../../controllers/public/paymentController');
 // Rutas para manejar las ventas
 router.post('/create-order', paymentController.createOrder);
 
-router.post("/webhook", paymentController.receiveWebhook);
+// router.post("/webhook", paymentController.receiveWebhook);
 
 router.get("/success", (req, res) => res.send("Success"));
 
