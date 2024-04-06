@@ -49,6 +49,8 @@ const paymentController = {
       if (payment.type === "payment") {
         const data = await mercadopage.payment.findById(payment["data.id"]);
         console.log(data);
+      } else {
+        console.log("no se encontro la venta")
       }
   
       res.sendStatus(204);
