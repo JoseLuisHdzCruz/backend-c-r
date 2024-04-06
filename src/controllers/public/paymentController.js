@@ -9,7 +9,7 @@ const mercadopagoClient = new MercadoPagoConfig({ accessToken: accessToken });
 
 const paymentController = {
   createOrder: async (req, res) => {
-    const { items } = req.body;
+    const { items, venta } = req.body;
     try {
       const body = {
         items: items.map((item) => ({
@@ -25,7 +25,7 @@ const paymentController = {
           pending: "https://chucherias-y-regalos.vercel.app/",
         },
         auto_return: "approved",
-        notification_url: "https://backend-c-r-production.up.railway.app/order/webhook"
+        notification_url: `https://backend-c-r-production.up.railway.app/order/webhook?venta=${encodeURIComponent(JSON.stringify(venta))}`
       };
 
       // Realizar la solicitud para crear el pago
@@ -50,9 +50,8 @@ const paymentController = {
       console.log(payments["data.id"]);
       if (payments.type === "payment") {
         const data = await payment.get({ id: payments["data.id"] });
-        console.log(data);
-        // Renderizar una vista con la respuesta
-        res.render('respuesta', data);
+        const venta = payment.venta;
+        console.log(venta)
       } else {
         console.log("no se encontro la venta")
       }
