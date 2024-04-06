@@ -1,4 +1,4 @@
-const { MercadoPagoConfig, Preference } = require("mercadopago");
+const { MercadoPagoConfig, Preference, Payment } = require("mercadopago");
 const axios = require("axios");
 
 // const { v4: uuidv4 } = require('uuid');
@@ -6,6 +6,7 @@ const accessToken = process.env.MERCADOPAGO_API_KEY;
 
 // Inicializar el cliente de Mercado Pago
 const mercadopagoClient = new MercadoPagoConfig({ accessToken: accessToken });
+const payment = new Payment(mercadopagoClient);
 
 const paymentController = {
   createOrder: async (req, res) => {
@@ -48,7 +49,7 @@ const paymentController = {
 
       console.log(payment);
       if (payment.type === "payment") {
-        const data = await mercadopagoClient.getPayment(payment["data.id"]);
+        const data = await payment.get({id:payment["data.id"]});
         console.log(data);
       } else {
         console.log("no se encontro la venta")
