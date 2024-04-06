@@ -21,7 +21,7 @@ const paymentController = {
         })),
         back_urls: {
           success: "https://chucherias-y-regalos.vercel.app/purchase-history",
-          failure: "https://chucherias-y-regalos.vercel.app/checkup",
+          failure: "https://chucherias-y-regalos.vercel.app/select-payment",
           pending: "https://chucherias-y-regalos.vercel.app/",
         },
         auto_return: "approved",
