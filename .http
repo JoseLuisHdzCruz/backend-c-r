@@ -1,5 +1,5 @@
 ###
-GET http://localhost:5000/users/
+GET https://backend-c-r-production.up.railway.app/users/
 
 ###
 GET http://localhost:5000/users/0ebab22f-8897-4076-828e-2e18e08f93e1

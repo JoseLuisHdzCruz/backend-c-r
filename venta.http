@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
   "metodoPagoId": 2,
-  "customerId": 1,
+  "customerId": 3,
   "venta": {
     "cantidad": 4,
     "total": "1048.76",

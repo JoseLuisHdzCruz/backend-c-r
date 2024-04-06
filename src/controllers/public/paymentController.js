@@ -20,7 +20,9 @@ const paymentController = {
           currency_id: "MXN",
         })),
         back_urls: {
-          success: "https://chucherias-y-regalos.vercel.app/purchase-history",
+          success: await axios.post("https://backend-c-r-production.up.railway.app/ventas/", {
+            metodoPagoId, customerId, venta
+          }),
           failure: "https://chucherias-y-regalos.vercel.app/checkup",
           pending: "https://chucherias-y-regalos.vercel.app/",
         },
@@ -31,10 +33,6 @@ const paymentController = {
       const preference = new Preference(mercadopagoClient);
       const result = await preference.create({ body });
       // Enviar la respuesta al cliente
-
-      await axios.post("https://backend-c-r-production.up.railway.app/ventas/", {
-        metodoPagoId, customerId, venta
-      });
 
       res.json({
         id: result.id,
