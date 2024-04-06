@@ -44,12 +44,14 @@ const paymentController = {
 
   receiveWebhook : async (req, res) => {
     try {
-      const payments = req.query;
+      const {customerId, metodoPagoId, venta} = req.query;
 
-      console.log(payments["data.id"]);
+      console.log(req.query["data.id"]);
       console.log(payments.metodoPagoId);
       console.log(payments.customerId);
       console.log(payments.venta);
+
+      await axios.post(`https://backend-c-r-production.up.railway.app/cart/clear/${customerId}`);
   
       res.sendStatus(204);
     } catch (error) {
