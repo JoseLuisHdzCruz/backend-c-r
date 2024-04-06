@@ -44,17 +44,11 @@ const paymentController = {
 
   receiveWebhook : async (req, res) => {
     try {
-      const payment = new Payment(mercadopagoClient);
       const payments = req.query;
 
       console.log(payments["data.id"]);
-      if (payments.type === "payment") {
-        const data = await payment.get({ id: payments["data.id"] });
         const venta = payments.venta;
         console.log(payments.metodoPagoId, venta, payments.customerId)
-      } else {
-        console.log("no se encontro la venta")
-      }
   
       res.sendStatus(204);
     } catch (error) {
