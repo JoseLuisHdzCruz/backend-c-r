@@ -51,6 +51,7 @@ const paymentController = {
       if (payments.type === "payment") {
         const data = await payment.get({ id: payments["data.id"] });
         console.log(data);
+        console.log("entro")
       } else {
         console.log("no se encontro la venta")
       }
