@@ -8,6 +8,7 @@ const productRoutes = require('./src/routes/public/productRoutes');
 const addressRoutes = require('./src/routes/public/domicilioRoutes')
 const carritoRoutes = require('./src/routes/public/carritoRoutes');
 const ventasRoutes = require('./src/routes/public/ventasRoutes');
+const paymentRoutes = require('./src/routes/public/paymentRoutes')
 const crypto = require('crypto');
 const fs = require('fs');
 
@@ -50,6 +51,7 @@ app.use('/products', productRoutes);
 app.use('/address', addressRoutes);
 app.use('/cart', carritoRoutes);
 app.use('/ventas', ventasRoutes);
+app.use('/order', paymentRoutes);
 
 // Manejo de errores
 app.use((err, req, res, next) => {

@@ -23,6 +23,10 @@ module.exports = {
         type: Sequelize.DECIMAL(10, 2),
         allowNull: false
       },
+      IVA: {
+        type: Sequelize.DECIMAL(10, 2),
+        allowNull: false
+      },
       cantidad: {
         type: Sequelize.INTEGER,
         allowNull: false

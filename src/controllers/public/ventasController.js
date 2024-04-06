@@ -6,7 +6,18 @@ const ventasController = {
   // Controlador para crear una nueva venta
   crearVenta: async (req, res) => {
     try {
-        const { customerId, cantidad, total, totalProductos, totalEnvio, totalIVA, metodoPagoId, sucursalesId, domicilioId, productos } = req.body;
+        const { 
+            customerId, 
+            cantidad, 
+            total, 
+            totalProductos, 
+            totalEnvio, 
+            totalIVA, 
+            metodoPagoId, 
+            sucursalesId, 
+            domicilioId, 
+            productos 
+        } = req.body;
         
         // Fecha actual
         const fecha = new Date();
@@ -35,6 +46,7 @@ const ventasController = {
             productoId: producto.productoId,
             producto: producto.producto,
             precio: producto.precio,
+            IVA: producto.IVA,
             cantidad: producto.cantidad,
             totalDV: producto.totalDV,
             ventaId: nuevaVenta.ventaId

@@ -25,6 +25,10 @@ const DetalleVenta = sequelize.define('DetalleVenta', {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false
   },
+  IVA: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false
+  },
   cantidad: {
     type: DataTypes.INTEGER,
     allowNull: false
