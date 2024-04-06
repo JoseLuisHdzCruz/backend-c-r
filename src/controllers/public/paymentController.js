@@ -47,9 +47,9 @@ const paymentController = {
       const {customerId, metodoPagoId, venta} = req.query;
 
       console.log(req.query["data.id"]);
-      console.log(payments.metodoPagoId);
-      console.log(payments.customerId);
-      console.log(payments.venta);
+      console.log(metodoPagoId);
+      console.log(customerId);
+      console.log(venta);
 
       await axios.delete(`https://backend-c-r-production.up.railway.app/cart/clear/${customerId}`);
   
