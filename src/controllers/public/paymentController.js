@@ -47,8 +47,9 @@ const paymentController = {
       const payments = req.query;
 
       console.log(payments["data.id"]);
-        const venta = payments.venta;
-        console.log(payments.metodoPagoId, venta, payments.customerId)
+      console.log(payments.metodoPagoId);
+      console.log(payments.customerId);
+      console.log(payments.venta);
   
       res.sendStatus(204);
     } catch (error) {
