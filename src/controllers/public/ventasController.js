@@ -46,6 +46,9 @@ const ventasController = {
         return detalleVenta;
     }));
 
+    await axios.delete(`https://backend-c-r-production.up.railway.app/cart/clear/${customerId}`);
+
+
     // Respuesta exitosa
     res.status(201).json({ venta: nuevaVenta, detallesVenta });
     } catch (error) {
