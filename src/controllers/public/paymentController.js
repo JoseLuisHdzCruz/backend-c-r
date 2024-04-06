@@ -9,7 +9,7 @@ const mercadopagoClient = new MercadoPagoConfig({ accessToken: accessToken });
 
 const paymentController = {
   createOrder: async (req, res) => {
-    const { metodoPagoId, customerId, items, venta } = req.body;
+    const { items } = req.body;
     try {
       const body = {
         items: items.map((item) => ({
@@ -25,16 +25,12 @@ const paymentController = {
           pending: "https://chucherias-y-regalos.vercel.app/",
         },
         auto_return: "approved",
+        notification_url: "https://backend-c-r-production.up.railway.app/order/webhook"
       };
 
       // Realizar la solicitud para crear el pago
       const preference = new Preference(mercadopagoClient);
       const result = await preference.create({ body });
-      // Enviar la respuesta al cliente
-
-      // await axios.post("https://backend-c-r-production.up.railway.app/ventas/", {
-      //   metodoPagoId, customerId, venta
-      // });
 
       res.json({
         id: result.id,
@@ -45,6 +41,22 @@ const paymentController = {
       res.status(500).json({ error: "Error al procesar la solicitud" });
     }
   },
+
+  receiveWebhook : async (req, res) => {
+    try {
+      const payment = req.query;
+      console.log(payment);
+      if (payment.type === "payment") {
+        const data = await mercadopage.payment.findById(payment["data.id"]);
+        console.log(data);
+      }
+  
+      res.sendStatus(204);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ message: "Something goes wrong" });
+    }
+  }
 };
 
 module.exports = paymentController;
