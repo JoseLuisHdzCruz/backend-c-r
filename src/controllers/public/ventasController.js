@@ -7,6 +7,7 @@ const ventasController = {
   crearVenta: async (req, res) => {
     try {
         const { 
+            metodoPagoId,
             customerId, 
             venta
         } = req.body;
@@ -28,7 +29,7 @@ const ventasController = {
             totalIVA: venta.totalIVA,
             fecha,
             statusVentaId,
-            metodoPagoId: venta.metodoPagoId,
+            metodoPagoId: metodoPagoId,
             sucursalesId: venta.sucursalesId,
             domicilioId: venta.domicilioId
         });

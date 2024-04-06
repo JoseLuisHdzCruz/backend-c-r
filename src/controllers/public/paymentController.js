@@ -9,7 +9,7 @@ const mercadopagoClient = new MercadoPagoConfig({ accessToken: accessToken });
 
 const paymentController = {
   createOrder: async (req, res) => {
-    const { customerId, items, venta } = req.body;
+    const { metodoPagoId, customerId, items, venta } = req.body;
     try {
       const body = {
         items: items.map((item) => ({
@@ -33,7 +33,7 @@ const paymentController = {
       // Enviar la respuesta al cliente
 
       await axios.post("https://backend-c-r-production.up.railway.app/ventas/", {
-        customerId, venta
+        metodoPagoId, customerId, venta
       });
 
       res.json({

@@ -1,7 +1,8 @@
-POST https://backend-c-r-production.up.railway.app/ventas/
+POST http://localhost:5000/ventas/
 Content-Type: application/json
 
 {
+  "metodoPagoId": 2,
   "customerId": 1,
   "venta": {
     "cantidad": 4,
