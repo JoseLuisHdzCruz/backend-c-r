@@ -1,4 +1,4 @@
-const { MercadoPagoConfig, Preference } = require("mercadopago");
+const { MercadoPagoConfig, Preference, Payment } = require("mercadopago");
 const axios = require("axios");
 
 // const { v4: uuidv4 } = require('uuid');
@@ -45,9 +45,11 @@ const paymentController = {
   receiveWebhook : async (req, res) => {
     try {
       const payment = req.query;
+
+      const paymentM = new Payment(mercadopagoClient);
       console.log(payment);
       if (payment.type === "payment") {
-        const data = await mercadopage.payment.findById(payment["data.id"]);
+        const data = await paymentM.findById(payment["data.id"]);
         console.log(data);
       } else {
         console.log("no se encontro la venta")
