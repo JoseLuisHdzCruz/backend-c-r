@@ -25,7 +25,7 @@ const paymentController = {
           pending: "https://chucherias-y-regalos.vercel.app/",
         },
         auto_return: "approved",
-        notification_url: `https://backend-c-r-production.up.railway.app/order/webhook?venta=${encodeURIComponent(JSON.stringify(venta))}`
+        notification_url: `https://backend-c-r-production.up.railway.app/order/webhook?venta=${venta}`
       };
 
       // Realizar la solicitud para crear el pago
