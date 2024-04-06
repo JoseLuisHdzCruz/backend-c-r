@@ -44,7 +44,7 @@ const paymentController = {
 
   receiveWebhook : async (req, res) => {
     try {
-      const payment = new Payment(client);
+      const payment = new Payment(mercadopagoClient);
       const payments = req.query;
 
       console.log(payments["data.id"]);
