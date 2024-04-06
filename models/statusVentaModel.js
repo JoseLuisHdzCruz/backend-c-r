@@ -18,7 +18,6 @@ const StatusVenta = sequelize.define('StatusVenta', {
 
 (async () => {
   await StatusVenta.sync();
-  console.log("Modelo StatusVenta sincronizado correctamente");
 })();
 
 module.exports = StatusVenta;

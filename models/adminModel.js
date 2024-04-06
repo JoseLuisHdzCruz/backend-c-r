@@ -36,7 +36,6 @@ const Administrador = sequelize.define('Administrador', {
 
 (async () => {
   await Administrador.sync();
-  console.log("Modelo Administrador sincronizado correctamente");
 })();
 
 module.exports = Administrador;

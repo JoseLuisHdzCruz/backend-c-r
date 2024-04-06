@@ -50,7 +50,6 @@ const Sucursal = sequelize.define('Sucursal', {
 
 (async () => {
   await Sucursal.sync();
-  console.log("Modelo Sucursal sincronizado correctamente");
 })();
 
 module.exports = Sucursal;

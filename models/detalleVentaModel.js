@@ -57,7 +57,6 @@ DetalleVenta.belongsTo(Venta, { foreignKey: 'ventaId' });
 
 (async () => {
   await DetalleVenta.sync();
-  console.log("Modelo DetalleVenta sincronizado correctamente");
 })();
 
 module.exports = DetalleVenta;

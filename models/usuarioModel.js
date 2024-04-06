@@ -94,7 +94,6 @@ Usuario.belongsTo(Status, { foreignKey: 'statusId' });
 // Sincronizar el modelo con la base de datos
 (async () => {
   await Usuario.sync();
-  console.log("Modelo Usuario sincronizado correctamente");
 })();
 
 // Exportar el modelo ClavesTemporales

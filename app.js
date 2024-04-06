@@ -28,8 +28,6 @@ if (!envData.includes('JWT_SECRET')) {
   // Escribe el contenido actualizado en el archivo .env
   fs.writeFileSync('.env', envData);
 
-  console.log('Clave secreta generada y almacenada en el archivo .env');
-  console.log('Asegúrate de mantener el archivo .env seguro y no compartirlo públicamente.');
 } else {
   console.log('La variable JWT_SECRET ya está definida en el archivo .env');
 }

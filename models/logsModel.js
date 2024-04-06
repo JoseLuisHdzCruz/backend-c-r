@@ -54,7 +54,6 @@ UserActivityLog.belongsTo(Usuario, { foreignKey: 'userId' });
 // Sincronizar el modelo con la base de datos
 (async () => {
   await UserActivityLog.sync();
-  console.log("Modelo UserActivityLog sincronizado correctamente");
 })();
 
 // Exportar el modelo UserActivityLog

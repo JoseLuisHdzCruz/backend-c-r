@@ -66,7 +66,6 @@ Domicilio.belongsTo(Usuario, { foreignKey: 'customerId' });
 
 (async () => {
   await Domicilio.sync();
-  console.log("Modelo Domicilio sincronizado correctamente");
 })();
 
 module.exports = Domicilio;

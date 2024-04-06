@@ -30,7 +30,6 @@ const ClavesTemporales = sequelize.define('ClavesTemporales', {
 // Sincronizar el modelo con la base de datos
 (async () => {
   await ClavesTemporales.sync();
-  console.log("Modelo ClavesTemporales sincronizado correctamente");
 })();
 
 // Exportar el modelo ClavesTemporales

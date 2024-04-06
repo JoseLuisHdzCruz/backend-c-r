@@ -22,7 +22,6 @@ const Categoria = sequelize.define('Categoria', {
 // Sincronizar el modelo con la base de datos
 (async () => {
   await Categoria.sync();
-  console.log("Modelo Categoria sincronizado correctamente");
 })();
 
 // Exportar el modelo Categoria

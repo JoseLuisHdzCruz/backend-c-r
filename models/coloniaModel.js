@@ -42,7 +42,6 @@ const Colonia = sequelize.define(
 // Sincronizar el modelo con la base de datos
 (async () => {
   await Colonia.sync();
-  console.log("Modelo Colonia sincronizado correctamente");
 })();
 
 // Exportar el modelo Colonia

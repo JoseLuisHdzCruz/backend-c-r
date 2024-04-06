@@ -55,7 +55,6 @@ Carrito.belongsTo(Producto, { foreignKey: 'productoId' });
 
 (async () => {
   await Carrito.sync();
-  console.log("Modelo Carrito sincronizado correctamente");
 })();
 
 module.exports = Carrito;

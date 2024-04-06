@@ -24,7 +24,7 @@ const paymentController = {
           failure: "https://chucherias-y-regalos.vercel.app/select-payment",
           pending: "https://chucherias-y-regalos.vercel.app/",
         },
-        auto_return: "approved",
+        // auto_return: "approved",
         notification_url: "https://backend-c-r-production.up.railway.app/order/webhook"
       };
 

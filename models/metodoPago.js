@@ -18,7 +18,6 @@ const MetodoPago = sequelize.define('MetodoPago', {
 
 (async () => {
   await MetodoPago.sync();
-  console.log("Modelo MetodoPago sincronizado correctamente");
 })();
 
 module.exports = MetodoPago;

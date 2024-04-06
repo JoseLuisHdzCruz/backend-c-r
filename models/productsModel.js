@@ -75,7 +75,6 @@ Producto.belongsTo(Categoria, { foreignKey: 'categoriaId' });
 // Sincronizar el modelo con la base de datos
 (async () => {
   await Producto.sync();
-  console.log("Modelo Producto sincronizado correctamente");
 })();
 
 // Exportar el modelo Producto

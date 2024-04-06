@@ -38,7 +38,6 @@ HistorialContrasenas.belongsTo(Usuario, { foreignKey: 'usuarioId' });
 // Sincronizar el modelo con la base de datos
 (async () => {
   await HistorialContrasenas.sync();
-  console.log("Modelo HistorialContrasenas sincronizado correctamente");
 })();
 
 // Exportar el modelo HistorialContrasenas

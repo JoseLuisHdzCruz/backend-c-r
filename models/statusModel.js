@@ -22,7 +22,6 @@ const Status = sequelize.define('Status', {
 // Sincronizar el modelo con la base de datos
 (async () => {
   await Status.sync();
-  console.log("Modelo Status sincronizado correctamente");
 })();
 
 // Exportar el modelo Status

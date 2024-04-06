@@ -42,7 +42,6 @@ Session.belongsTo(Usuario, { foreignKey: 'userId' });
 
 (async () => {
   await Session.sync();
-  console.log("Modelo Session sincronizado correctamente");
 })();
 
 // Exportar el modelo Session

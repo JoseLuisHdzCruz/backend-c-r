@@ -95,7 +95,6 @@ Venta.hasMany(StatusVenta, { foreignKey: 'statusVentaId' });
 
 (async () => {
   await Venta.sync();
-  console.log("Modelo Venta sincronizado correctamente");
 })();
 
 module.exports = Venta;
