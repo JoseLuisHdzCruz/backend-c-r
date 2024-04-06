@@ -52,7 +52,7 @@ const paymentController = {
         const data = await payment.get({ id: payments["data.id"] });
         console.log(data);
         // Renderizar una vista con la respuesta
-        res.render('respuesta', { data: data });
+        res.render('respuesta', data);
       } else {
         console.log("no se encontro la venta")
       }
