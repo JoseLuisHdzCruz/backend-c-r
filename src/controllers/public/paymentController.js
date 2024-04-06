@@ -6,7 +6,6 @@ const accessToken = process.env.MERCADOPAGO_API_KEY;
 
 // Inicializar el cliente de Mercado Pago
 const mercadopagoClient = new MercadoPagoConfig({ accessToken: accessToken });
-const payment = new Payment(mercadopagoClient);
 
 const paymentController = {
   createOrder: async (req, res) => {
@@ -45,11 +44,12 @@ const paymentController = {
 
   receiveWebhook : async (req, res) => {
     try {
-      const payment = req.query;
+      const payment = new Payment(client);
+      const payments = req.query;
 
-      console.log(payment);
-      if (payment.type === "payment") {
-        const data = await payment.get({id:payment["data.id"]});
+      console.log(payments["data.id"]);
+      if (payments.type === "payment") {
+        const data = await payment.get({ id: payments["data.id"] });
         console.log(data);
       } else {
         console.log("no se encontro la venta")
