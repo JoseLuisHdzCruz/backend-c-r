@@ -42,3 +42,12 @@ GET https://backend-c-r-production.up.railway.app/ventas/cliente/1
 ###
 GET https://backend-c-r-production.up.railway.app/ventas/detalle/5
 
+###
+POST https://backend-c-r-production.up.railway.app/ventas/filtroVentas/
+Content-Type: application/json
+
+{
+  "fechaInicial": "1997-05-06",
+  "fechaFinal": "2024-05-06",
+}
+
