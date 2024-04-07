@@ -116,6 +116,23 @@ const ventasController = {
         .json({ error: "Error al obtener las ventas por customerId" });
     }
   },
+
+  filtrarVentasPorFecha : async (fechaInicial, fechaFinal) => {
+    try {
+      // Consulta las ventas que están dentro del rango de fechas
+      const ventasFiltradas = await Venta.findAll({
+        where: {
+          fecha: {
+            [Op.between]: [fechaInicial, fechaFinal] // Utiliza el operador between para filtrar por rango de fechas
+          }
+        }
+      });
+      return ventasFiltradas;
+    } catch (error) {
+      console.error('Error al filtrar ventas por fecha:', error);
+      throw new Error('Error al filtrar ventas por fecha');
+    }
+  }
 };
 
 module.exports = ventasController;
