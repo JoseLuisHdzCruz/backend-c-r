@@ -130,7 +130,9 @@ const ventasController = {
       res.json(ventasFiltradas);
     } catch (error) {
       console.error('Error al filtrar ventas por fecha:', error);
-      throw new Error('Error al filtrar ventas por fecha');
+      res
+        .status(500)
+        .json({ error: "Error al obtener las ventas filtradas" });
     }
   }
 };
