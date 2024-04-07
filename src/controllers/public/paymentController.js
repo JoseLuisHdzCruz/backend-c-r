@@ -1,4 +1,8 @@
-const { MercadoPagoConfig, Preference, Payment } = require("mercadopago");
+const Venta = require("../../../models/ventaModel");
+const DetalleVenta = require("../../../models/detalleVentaModel");
+const { v4: uuidv4 } = require("uuid");
+const axios = require("axios");
+const { MercadoPagoConfig, Preference } = require("mercadopago");
 const axios = require("axios");
 
 // const { v4: uuidv4 } = require('uuid');
@@ -25,7 +29,7 @@ const paymentController = {
           pending: "https://chucherias-y-regalos.vercel.app/",
         },
         auto_return: "approved",
-        notification_url: `https://backend-c-r-production.up.railway.app/order/webhook?venta=${venta}&customerId=${customerId}&metodoPagoId=${metodoPagoId}`
+        notification_url: `https://backend-c-r-production.up.railway.app/order/webhook?venta=${venta}&customerId=${customerId}&metodoPagoId=${metodoPagoId}`,
       };
 
       // Realizar la solicitud para crear el pago
@@ -42,32 +46,56 @@ const paymentController = {
     }
   },
 
-  receiveWebhook : async (req, res) => {
+  receiveWebhook: async (req, res) => {
     try {
-      const {customerId, metodoPagoId, venta} = req.query;
+      const { customerId, metodoPagoId, venta } = req.query;
 
       console.log(req.query["data.id"]);
-      console.log(metodoPagoId);
-      console.log(customerId);
-      console.log(venta);
+      // Fecha actual
+        const fecha = new Date();
 
-      await axios.post("https://backend-c-r-production.up.railway.app/ventas/", {metodoPagoId, customerId, venta})
-  .then(response => {
-    console.log(response.status); // Verificar el código de estado HTTP
-    console.log(response.data);   // Verificar cualquier mensaje de respuesta
-    // Puedes realizar acciones adicionales según la respuesta recibida
-  })
-  .catch(error => {
-    console.error(error);         // Manejar cualquier error de la solicitud
-  });
+        // Generar folio manualmente (puedes implementar la lógica que necesites para generar el folio)
+        const folio = uuidv4();
 
-  
-      res.sendStatus(204);
+        const statusVentaId = 1;
+        const nuevaVenta = await Venta.create({
+            folio,
+            customerId: customerId,
+            cantidad: venta.cantidad,
+            total: venta.total,
+            totalProductos: venta.totalProductos,
+            totalEnvio: venta.totalEnvio,
+            totalIVA: venta.totalIVA,
+            fecha,
+            statusVentaId,
+            metodoPagoId: metodoPagoId,
+            sucursalesId: venta.sucursalesId,
+            domicilioId: venta.domicilioId
+        });
+      // Crear los registros de detalle de venta
+      const detallesVenta = await Promise.all(venta.productos.map(async producto => {
+        const detalleVenta = await DetalleVenta.create({
+            productoId: producto.productoId,
+            producto: producto.producto,
+            precio: producto.precio,
+            imagen: producto.imagen,
+            IVA: producto.IVA,
+            cantidad: producto.cantidad,
+            totalDV: producto.totalDV,
+            ventaId: nuevaVenta.ventaId
+        });
+        return detalleVenta;
+    }));
+
+    await axios.delete(`https://backend-c-r-production.up.railway.app/cart/clear/${customerId}`);
+
+
+    res.status(201).json({ venta: nuevaVenta, detallesVenta });
     } catch (error) {
       console.log(error);
       return res.status(500).json({ message: "Something goes wrong" });
     }
-  }
+  },
 };
 
 module.exports = paymentController;
