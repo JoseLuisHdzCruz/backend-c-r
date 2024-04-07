@@ -52,6 +52,15 @@ const paymentController = {
       console.log(venta);
 
       await axios.post("https://backend-c-r-production.up.railway.app/ventas/", {metodoPagoId, customerId, venta})
+  .then(response => {
+    console.log(response.status); // Verificar el código de estado HTTP
+    console.log(response.data);   // Verificar cualquier mensaje de respuesta
+    // Puedes realizar acciones adicionales según la respuesta recibida
+  })
+  .catch(error => {
+    console.error(error);         // Manejar cualquier error de la solicitud
+  });
+
   
       res.sendStatus(204);
     } catch (error) {
