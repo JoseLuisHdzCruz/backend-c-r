@@ -28,7 +28,11 @@ const paymentController = {
           pending: "https://chucherias-y-regalos.vercel.app/",
         },
         auto_return: "approved",
-        notification_url: `https://backend-c-r-production.up.railway.app/order/webhook?venta=${encodeURIComponent(JSON.stringify(venta))}&customerId=${customerId}&metodoPagoId=${metodoPagoId}`,
+        // notification_url: `https://backend-c-r-production.up.railway.app/order/webhook?venta=${encodeURIComponent(JSON.stringify(venta))}&customerId=${customerId}&metodoPagoId=${metodoPagoId}`,
+        notification_url: `https://backend-c-r-production.up.railway.app/order/webhook`,
+        venta: venta, // Incluir el objeto venta en el cuerpo de la solicitud
+        customerId: customerId,
+        metodoPagoId: metodoPagoId
       };
 
       // Realizar la solicitud para crear el pago
@@ -47,8 +51,8 @@ const paymentController = {
 
   receiveWebhook: async (req, res) => {
     try {
-      const { customerId, metodoPagoId } = req.query;
-      const venta = JSON.parse(req.query.venta)
+      const { customerId, metodoPagoId, venta } = req.body;
+      // const venta = JSON.parse(req.query.venta)
 
       console.log(req.query["data.id"]);
       console.log("prueba contenuido" ,venta.productos[0].cantidad)
