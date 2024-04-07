@@ -19,6 +19,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      imagen: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
       precio: {
         type: Sequelize.DECIMAL(10, 2),
         allowNull: false

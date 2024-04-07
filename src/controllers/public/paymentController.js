@@ -52,6 +52,8 @@ const paymentController = {
       console.log(venta);
 
       await axios.delete(`https://backend-c-r-production.up.railway.app/cart/clear/${customerId}`);
+
+      await axios.post("https://backend-c-r-production.up.railway.app/ventas/", {metodoPagoId, customerId, venta})
   
       res.sendStatus(204);
     } catch (error) {
