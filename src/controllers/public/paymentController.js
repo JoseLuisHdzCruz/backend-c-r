@@ -47,7 +47,8 @@ const paymentController = {
 
   receiveWebhook: async (req, res) => {
     try {
-      const { customerId, metodoPagoId, venta } = req.query;
+      const { customerId, metodoPagoId } = req.query;
+      const venta = JSON.parse(req.query.venta)
 
       console.log(req.query["data.id"]);
       console.log("prueba contenuido" ,venta.productos[0].cantidad)
