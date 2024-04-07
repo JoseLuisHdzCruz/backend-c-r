@@ -3,7 +3,6 @@ const DetalleVenta = require("../../../models/detalleVentaModel");
 const { v4: uuidv4 } = require("uuid");
 const axios = require("axios");
 const { MercadoPagoConfig, Preference } = require("mercadopago");
-const axios = require("axios");
 
 // const { v4: uuidv4 } = require('uuid');
 const accessToken = process.env.MERCADOPAGO_API_KEY;
