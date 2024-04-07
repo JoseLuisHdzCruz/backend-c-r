@@ -119,7 +119,6 @@ const ventasController = {
 
   filtrarVentasPorFecha : async (fechaInicial, fechaFinal) => {
     try {
-      // Consulta las ventas que están dentro del rango de fechas
       const ventasFiltradas = await Venta.findAll({
         where: {
           fecha: {
