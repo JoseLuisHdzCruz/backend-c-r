@@ -1,5 +1,7 @@
 const Venta = require("../../../models/ventaModel");
 const DetalleVenta = require("../../../models/detalleVentaModel");
+const TempVenta = require("../../../models/tempVentaModel");
+const TempDetalleVenta = require("../../../models/tempDetalleVenta");
 const { v4: uuidv4 } = require("uuid");
 const axios = require("axios");
 const { MercadoPagoConfig, Preference } = require("mercadopago");
@@ -14,6 +16,43 @@ const paymentController = {
   createOrder: async (req, res) => {
     const { items, customerId, metodoPagoId, venta } = req.body;
     try {
+      const fecha = new Date();
+
+      // Generar folio manualmente (puedes implementar la lógica que necesites para generar el folio)
+      const folio = uuidv4();
+
+      const statusVentaId = 1;
+      const nuevaVenta = await TempVenta.create({
+        folio,
+        customerId: customerId,
+        cantidad: venta.cantidad,
+        total: venta.total,
+        totalProductos: venta.totalProductos,
+        totalEnvio: venta.totalEnvio,
+        totalIVA: venta.totalIVA,
+        no_transaccion: null,
+        fecha,
+        statusVentaId,
+        metodoPagoId: metodoPagoId,
+        sucursalesId: venta.sucursalesId,
+        domicilioId: venta.domicilioId,
+      });
+      // Crear los registros de detalle de venta
+      await Promise.all(
+        venta.productos.map(async (producto) => {
+          await TempDetalleVenta.create({
+            productoId: producto.productoId,
+            producto: producto.producto,
+            precio: producto.precio,
+            imagen: producto.imagen,
+            IVA: producto.IVA,
+            cantidad: producto.cantidad,
+            totalDV: producto.totalDV,
+            ventaId: nuevaVenta.ventaId,
+          });
+        })
+      );
+
       const body = {
         items: items.map((item) => ({
           title: item.title,
@@ -28,49 +67,14 @@ const paymentController = {
           pending: "https://chucherias-y-regalos.vercel.app/",
         },
         auto_return: "approved",
-        notification_url: `https://backend-c-r-production.up.railway.app/order/webhook?customerId=${customerId}`,
+        notification_url: `https://backend-c-r-production.up.railway.app/order/webhook?customerId=${customerId}?ventaId=${nuevaVenta.ventaId}`,
       };
 
       // Realizar la solicitud para crear el pago
       const preference = new Preference(mercadopagoClient);
       const result = await preference.create({ body });
 
-      const fecha = new Date();
-
-        // Generar folio manualmente (puedes implementar la lógica que necesites para generar el folio)
-        const folio = uuidv4();
-
-        const statusVentaId = 1;
-        const nuevaVenta = await Venta.create({
-          folio,
-          customerId: customerId,
-          cantidad: venta.cantidad,
-          total: venta.total,
-          totalProductos: venta.totalProductos,
-          totalEnvio: venta.totalEnvio,
-          totalIVA: venta.totalIVA,
-          fecha,
-          statusVentaId,
-          metodoPagoId: metodoPagoId,
-          sucursalesId: venta.sucursalesId,
-          domicilioId: venta.domicilioId,
-        });
-        // Crear los registros de detalle de venta
-        await Promise.all(
-          venta.productos.map(async (producto) => {
-            await DetalleVenta.create({
-              productoId: producto.productoId,
-              producto: producto.producto,
-              precio: producto.precio,
-              imagen: producto.imagen,
-              IVA: producto.IVA,
-              cantidad: producto.cantidad,
-              totalDV: producto.totalDV,
-              ventaId: nuevaVenta.ventaId,
-            });
-          })
-        );
-
+      
 
       res.json({
         id: result.id,
@@ -84,17 +88,57 @@ const paymentController = {
 
   receiveWebhook: async (req, res) => {
     try {
+      const { customerId, ventaId } = req.query;
+      // const venta = JSON.parse(req.query.venta)
+      console.log(req.query["data.id"]);
 
-        const { customerId } = req.query;
-        // const venta = JSON.parse(req.query.venta)
+      const tempVenta = await TempVenta.findByPk(ventaId);
+      if (!tempVenta) {
+        return res.status(404).json({ error: "Venta no encontrada" });
+      }
 
-        console.log(req.query["data.id"]);
-        
-        await axios.delete(
-          `https://backend-c-r-production.up.railway.app/cart/clear/${customerId}`
-        );
+      const nuevaVenta = await Venta.create({
+        folio: tempVenta.folio,
+        customerId: tempVenta.customerId,
+        cantidad: tempVenta.cantidad,
+        total: tempVenta.total,
+        totalProductos: tempVenta.totalProductos,
+        totalEnvio: tempVenta.totalEnvio,
+        totalIVA: tempVenta.totalIVA,
+        no_transaccion: req.query["data.id"],
+        fecha: tempVenta.fecha,
+        statusVentaId: tempVenta.statusVentaId,
+        metodoPagoId: tempVenta.metodoPagoId,
+        sucursalesId: tempVenta.sucursalesId,
+        domicilioId: tempVenta.domicilioId,
+      });
 
-        res.status(201).json({ message: "Success" });
+      const tempDetalleVenta = await TempDetalleVenta.findAll({where: { ventaId }});
+      if (!tempDetalleVenta) {
+        return res.status(404).json({ error: "Detalle venta no encontrada" });
+      }
+
+      // Crear los registros de detalle de venta
+      await Promise.all(
+        tempDetalleVenta.map(async (producto) => {
+          await DetalleVenta.create({
+            productoId: producto.productoId,
+            producto: producto.producto,
+            precio: producto.precio,
+            imagen: producto.imagen,
+            IVA: producto.IVA,
+            cantidad: producto.cantidad,
+            totalDV: producto.totalDV,
+            ventaId: nuevaVenta.ventaId,
+          });
+        })
+      );
+
+      await axios.delete(
+        `https://backend-c-r-production.up.railway.app/cart/clear/${customerId}`
+      );
+
+      res.status(201).json({ message: "Success" });
     } catch (error) {
       console.log(error);
       return res.status(500).json({ message: "Something goes wrong" });
