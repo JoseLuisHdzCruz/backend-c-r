@@ -12,12 +12,8 @@ const mercadopagoClient = new MercadoPagoConfig({ accessToken: accessToken });
 
 const paymentController = {
   createOrder: async (req, res) => {
-    const { items, customerId, metodoPagoId } = req.body;
+    const { items, customerId, metodoPagoId, venta } = req.body;
     try {
-      if (req.body.venta) {
-        req.venta = req.body.venta; // Asociar el objeto venta con la solicitud actual
-        console.log("se guado:", req.venta);
-      }
       const body = {
         items: items.map((item) => ({
           title: item.title,
@@ -32,37 +28,14 @@ const paymentController = {
           pending: "https://chucherias-y-regalos.vercel.app/",
         },
         auto_return: "approved",
-        notification_url: `https://backend-c-r-production.up.railway.app/order/webhook?customerId=${customerId}&metodoPagoId=${metodoPagoId}`,
+        notification_url: `https://backend-c-r-production.up.railway.app/order/webhook?customerId=${customerId}`,
       };
 
       // Realizar la solicitud para crear el pago
       const preference = new Preference(mercadopagoClient);
       const result = await preference.create({ body });
 
-      res.json({
-        id: result.id,
-      });
-    } catch (error) {
-      // Manejar los errores
-      console.error("Error al crear el pago:", error);
-      res.status(500).json({ error: "Error al procesar la solicitud" });
-    }
-  },
-
-  receiveWebhook: async (req, res) => {
-    try {
-      if (req.venta) {
-        console.log("Venta recibida:", req.venta);
-        const venta = req.venta;
-        console.log("objeto venta:", venta);
-
-        const { customerId, metodoPagoId } = req.query;
-        // const venta = JSON.parse(req.query.venta)
-
-        console.log(req.query["data.id"]);
-        console.log("prueba contenuido", venta.productos[0].cantidad);
-        // Fecha actual
-        const fecha = new Date();
+      const fecha = new Date();
 
         // Generar folio manualmente (puedes implementar la lógica que necesites para generar el folio)
         const folio = uuidv4();
@@ -83,9 +56,9 @@ const paymentController = {
           domicilioId: venta.domicilioId,
         });
         // Crear los registros de detalle de venta
-        const detallesVenta = await Promise.all(
+        await Promise.all(
           venta.productos.map(async (producto) => {
-            const detalleVenta = await DetalleVenta.create({
+            await DetalleVenta.create({
               productoId: producto.productoId,
               producto: producto.producto,
               precio: producto.precio,
@@ -95,18 +68,33 @@ const paymentController = {
               totalDV: producto.totalDV,
               ventaId: nuevaVenta.ventaId,
             });
-            return detalleVenta;
           })
         );
 
+
+      res.json({
+        id: result.id,
+      });
+    } catch (error) {
+      // Manejar los errores
+      console.error("Error al crear el pago:", error);
+      res.status(500).json({ error: "Error al procesar la solicitud" });
+    }
+  },
+
+  receiveWebhook: async (req, res) => {
+    try {
+
+        const { customerId } = req.query;
+        // const venta = JSON.parse(req.query.venta)
+
+        console.log(req.query["data.id"]);
+        
         await axios.delete(
           `https://backend-c-r-production.up.railway.app/cart/clear/${customerId}`
         );
 
         res.status(201).json({ venta: nuevaVenta, detallesVenta });
-      } else {
-        console.log("No hay venta pendiente para procesar en este momento");
-      }
     } catch (error) {
       console.log(error);
       return res.status(500).json({ message: "Something goes wrong" });
