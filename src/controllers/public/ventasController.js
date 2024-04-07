@@ -39,6 +39,7 @@ const ventasController = {
             productoId: producto.productoId,
             producto: producto.producto,
             precio: producto.precio,
+            imagen: producto.imagen,
             IVA: producto.IVA,
             cantidad: producto.cantidad,
             totalDV: producto.totalDV,
