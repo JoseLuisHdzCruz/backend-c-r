@@ -94,7 +94,7 @@ const paymentController = {
           `https://backend-c-r-production.up.railway.app/cart/clear/${customerId}`
         );
 
-        res.status(201).json({ venta: nuevaVenta, detallesVenta });
+        res.status(201).json({ message: "Success" });
     } catch (error) {
       console.log(error);
       return res.status(500).json({ message: "Something goes wrong" });
