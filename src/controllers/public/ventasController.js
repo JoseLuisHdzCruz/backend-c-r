@@ -117,7 +117,8 @@ const ventasController = {
     }
   },
 
-  filtrarVentasPorFecha : async (fechaInicial, fechaFinal) => {
+  filtrarVentasPorFecha : async (req, res) => {
+    const {fechaFinal, fechaInicial} = req.body;
     try {
       const ventasFiltradas = await Venta.findAll({
         where: {
