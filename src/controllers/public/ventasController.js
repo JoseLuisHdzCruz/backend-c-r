@@ -1,6 +1,8 @@
 const Venta = require("../../../models/ventaModel");
 const DetalleVenta = require("../../../models/detalleVentaModel")
 const { v4: uuidv4 } = require('uuid');
+const axios = require("axios");
+
 
 const ventasController = {
   // Controlador para crear una nueva venta
