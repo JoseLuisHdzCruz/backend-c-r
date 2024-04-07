@@ -50,6 +50,7 @@ const paymentController = {
       const { customerId, metodoPagoId, venta } = req.query;
 
       console.log(req.query["data.id"]);
+      console.log("prueba contenido" ,venta.productos[0].cantidad)
       // Fecha actual
         const fecha = new Date();
 
