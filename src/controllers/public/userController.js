@@ -8,15 +8,6 @@ const HistorialContrasenas = require("../../../models/historialContraseñas");
 const UserActivityLog = require("../../../models/logsModel");
 const Session = require("../../../models/sesionModel");
 
-const Administrador = require("../../../models/adminModel");
-const Carrito = require("../../../models/carritoModel");
-
-const DetalleVenta = require("../../../models/detalleVentaModel");
-const MetodoPago = require("../../../models/metodoPago");
-
-const Venta = require("../../../models/ventaModel");
-const StatusVenta = require("../../../models/statusVentaModel");
-
 // const db = require("../../config/database");
 // const Yup = require("yup");
 const axios = require("axios");

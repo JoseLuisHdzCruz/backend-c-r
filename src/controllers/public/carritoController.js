@@ -1,4 +1,6 @@
 const Carrito = require("../../../models/carritoModel");
+const secretKey = process.env.JWT_SECRET;
+
 
 const carritoController = {
   getCarrito: async (req, res) => {
@@ -71,6 +73,19 @@ const carritoController = {
       console.error('Error al limpiar el carrito:', error);
       res.status(500).json({ error: 'Error al limpiar el carrito' });
     }
+  },
+  verifyToken: (req, res, next) => {
+    const token = req.headers.authorization;
+    if (!token) {
+      return res.status(401).json({ error: "Token no proporcionado" });
+    }
+    jwt.verify(token, secretKey, (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ error: "Token inválido" });
+      }
+      req.decoded = decoded;
+      next();
+    });
   }
 };
 
