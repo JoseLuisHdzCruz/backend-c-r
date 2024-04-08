@@ -37,6 +37,8 @@ const paymentController = {
         sucursalesId: venta.sucursalesId,
         domicilioId: venta.domicilioId,
       });
+
+      const ventaId = nuevaVenta.ventaId;
       // Crear los registros de detalle de venta
       await Promise.all(
         venta.productos.map(async (producto) => {
@@ -67,7 +69,7 @@ const paymentController = {
           pending: "https://chucherias-y-regalos.vercel.app/",
         },
         auto_return: "approved",
-        notification_url: `https://backend-c-r-production.up.railway.app/order/webhook?customerId=${customerId}?ventaId=${nuevaVenta.ventaId}`,
+        notification_url: `https://backend-c-r-production.up.railway.app/order/webhook?customerId=${customerId}?ventaId=${ventaId}`,
       };
 
       // Realizar la solicitud para crear el pago
