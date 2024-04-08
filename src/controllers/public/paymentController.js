@@ -95,6 +95,8 @@ const paymentController = {
       const payment = req.query["data.id"];
       console.log(ventaId);
       if (payment && payment !== "") {
+
+        console.log(payment);
         const tempVenta = await TempVenta.findByPk(ventaId);
         if (!tempVenta) {
           return res.status(404).json({ error: "Venta no encontrada" });
@@ -108,7 +110,7 @@ const paymentController = {
           totalProductos: tempVenta.totalProductos,
           totalEnvio: tempVenta.totalEnvio,
           totalIVA: tempVenta.totalIVA,
-          no_transaccion: req.query["data.id"],
+          no_transaccion: payment,
           fecha: tempVenta.fecha,
           statusVentaId: tempVenta.statusVentaId,
           metodoPagoId: tempVenta.metodoPagoId,
