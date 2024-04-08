@@ -38,7 +38,7 @@ const paymentController = {
         domicilioId: venta.domicilioId,
       });
 
-      const ventaId = nuevaVenta.ventaId;
+      const ventaId = nuevaVenta.data.ventaId;
       // Crear los registros de detalle de venta
       await Promise.all(
         venta.productos.map(async (producto) => {
