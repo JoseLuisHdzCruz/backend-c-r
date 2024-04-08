@@ -299,7 +299,7 @@ module.exports = {
         },
         secretKey,
         {
-          expiresIn: "10s", // Puedes ajustar la duración del token según tus necesidades
+          expiresIn: "24h", // Puedes ajustar la duración del token según tus necesidades
         }
       );
 
