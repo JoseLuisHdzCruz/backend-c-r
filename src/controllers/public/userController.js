@@ -243,7 +243,7 @@ module.exports = {
           await enviarCorreoIntentoSesionSospechoso(correo); // Enviar correo de intento de inicio de sesión sospechoso
           await UserActivityLog.create({
             userId: user.customerId,
-            eventType: "Inicio de sesion sospechoso",
+            eventType: "Bloqueo de cuenta por intentos fallidos",
             eventDetails: `Se ha exedido el numero de intentos para colocar la contraseña correctamente.`,
             eventDate: new Date(),
             ipAddress: req.ip, // Obtener la dirección IP del cliente
