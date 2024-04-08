@@ -39,7 +39,7 @@ const paymentController = {
       });
 
       const ventaId = nuevaVenta.ventaId;
-      console.log("valor venta",ventaId);
+      console.log("valor venta", ventaId);
       // Crear los registros de detalle de venta
       await Promise.all(
         venta.productos.map(async (producto) => {
@@ -77,8 +77,6 @@ const paymentController = {
       const preference = new Preference(mercadopagoClient);
       const result = await preference.create({ body });
 
-      
-
       res.json({
         id: result.id,
       });
@@ -94,55 +92,59 @@ const paymentController = {
       const { customerId, ventaId } = req.query;
       // const venta = JSON.parse(req.query.venta)
       console.log(req.query["data.id"]);
+      const payment = req.query["data.id"];
       console.log(ventaId);
+      if (payment && payment !== "") {
+        const tempVenta = await TempVenta.findByPk(ventaId);
+        if (!tempVenta) {
+          return res.status(404).json({ error: "Venta no encontrada" });
+        }
 
-      const tempVenta = await TempVenta.findByPk(ventaId);
-      if (!tempVenta) {
-        return res.status(404).json({ error: "Venta no encontrada" });
+        const nuevaVenta = await Venta.create({
+          folio: tempVenta.folio,
+          customerId: tempVenta.customerId,
+          cantidad: tempVenta.cantidad,
+          total: tempVenta.total,
+          totalProductos: tempVenta.totalProductos,
+          totalEnvio: tempVenta.totalEnvio,
+          totalIVA: tempVenta.totalIVA,
+          no_transaccion: req.query["data.id"],
+          fecha: tempVenta.fecha,
+          statusVentaId: tempVenta.statusVentaId,
+          metodoPagoId: tempVenta.metodoPagoId,
+          sucursalesId: tempVenta.sucursalesId,
+          domicilioId: tempVenta.domicilioId,
+        });
+
+        const tempDetalleVenta = await TempDetalleVenta.findAll({
+          where: { ventaId },
+        });
+        if (!tempDetalleVenta) {
+          return res.status(404).json({ error: "Detalle venta no encontrada" });
+        }
+
+        // Crear los registros de detalle de venta
+        await Promise.all(
+          tempDetalleVenta.map(async (producto) => {
+            await DetalleVenta.create({
+              productoId: producto.productoId,
+              producto: producto.producto,
+              precio: producto.precio,
+              imagen: producto.imagen,
+              IVA: producto.IVA,
+              cantidad: producto.cantidad,
+              totalDV: producto.totalDV,
+              ventaId: nuevaVenta.ventaId,
+            });
+          })
+        );
+
+        await axios.delete(
+          `https://backend-c-r-production.up.railway.app/cart/clear/${customerId}`
+        );
+
+        res.status(201).json({ message: "Success" });
       }
-
-      const nuevaVenta = await Venta.create({
-        folio: tempVenta.folio,
-        customerId: tempVenta.customerId,
-        cantidad: tempVenta.cantidad,
-        total: tempVenta.total,
-        totalProductos: tempVenta.totalProductos,
-        totalEnvio: tempVenta.totalEnvio,
-        totalIVA: tempVenta.totalIVA,
-        no_transaccion: req.query["data.id"],
-        fecha: tempVenta.fecha,
-        statusVentaId: tempVenta.statusVentaId,
-        metodoPagoId: tempVenta.metodoPagoId,
-        sucursalesId: tempVenta.sucursalesId,
-        domicilioId: tempVenta.domicilioId,
-      });
-
-      const tempDetalleVenta = await TempDetalleVenta.findAll({where: { ventaId }});
-      if (!tempDetalleVenta) {
-        return res.status(404).json({ error: "Detalle venta no encontrada" });
-      }
-
-      // Crear los registros de detalle de venta
-      await Promise.all(
-        tempDetalleVenta.map(async (producto) => {
-          await DetalleVenta.create({
-            productoId: producto.productoId,
-            producto: producto.producto,
-            precio: producto.precio,
-            imagen: producto.imagen,
-            IVA: producto.IVA,
-            cantidad: producto.cantidad,
-            totalDV: producto.totalDV,
-            ventaId: nuevaVenta.ventaId,
-          });
-        })
-      );
-
-      await axios.delete(
-        `https://backend-c-r-production.up.railway.app/cart/clear/${customerId}`
-      );
-
-      res.status(201).json({ message: "Success" });
     } catch (error) {
       console.log(error);
       return res.status(500).json({ message: "Something goes wrong" });
