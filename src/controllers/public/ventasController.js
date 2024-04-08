@@ -21,7 +21,7 @@ const ventasController = {
         // Generar folio manualmente (puedes implementar la lógica que necesites para generar el folio)
         const folio = uuidv4();
 
-        const statusVentaId = 1;
+        const statusVentaId = 4;
         const nuevaVenta = await Venta.create({
             folio,
             customerId: customerId,

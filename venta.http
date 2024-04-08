@@ -48,6 +48,7 @@ Content-Type: application/json
 
 {
   "fechaInicial": "1997-05-06",
-  "fechaFinal": "2024-04-07"
+  "fechaFinal": "2024-04-07 ",
+  "customerId": 1
 }
 
