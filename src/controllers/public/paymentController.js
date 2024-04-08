@@ -91,6 +91,7 @@ const paymentController = {
       const { customerId, ventaId } = req.query;
       // const venta = JSON.parse(req.query.venta)
       console.log(req.query["data.id"]);
+      console.log(ventaId);
 
       const tempVenta = await TempVenta.findByPk(ventaId);
       if (!tempVenta) {
