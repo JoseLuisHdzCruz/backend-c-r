@@ -297,11 +297,10 @@ module.exports = {
           telefono: user.telefono,
           sesion: new_sesion.sessionId,
         },
-        secretKey
-        // secretKey,
-        // {
-        //   expiresIn: "24h", // Puedes ajustar la duración del token según tus necesidades
-        // }
+        secretKey,
+        {
+          expiresIn: "24h", // Puedes ajustar la duración del token según tus necesidades
+        }
       );
 
       await UserActivityLog.create({
