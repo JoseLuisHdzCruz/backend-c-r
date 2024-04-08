@@ -118,24 +118,32 @@ const ventasController = {
     }
   },
 
-  filtrarVentasPorFecha : async (req, res) => {
-    const {fechaFinal, fechaInicial} = req.body;
+  filtrarVentasPorFecha: async (req, res) => {
+    const { fechaInicial, fechaFinal, customerId } = req.body;
     try {
-      const ventasFiltradas = await Venta.findAll({
-        where: {
-          fecha: {
-            [Op.between]: [fechaInicial, fechaFinal] // Utiliza el operador between para filtrar por rango de fechas
-          }
-        }
-      });
-      res.json(ventasFiltradas);
+        // Convertir la fecha final a un objeto Date
+        const fechaFinalDate = new Date(fechaFinal);
+
+        // Agregar un día a la fecha final
+        fechaFinalDate.setDate(fechaFinalDate.getDate() + 1);
+
+        // Consultar ventas filtradas por rango de fechas y customerId
+        const ventasFiltradas = await Venta.findAll({
+            where: {
+                customerId: customerId,
+                fecha: {
+                    [Op.between]: [fechaInicial, fechaFinalDate]
+                }
+            }
+        });
+
+        res.json(ventasFiltradas);
     } catch (error) {
-      console.error('Error al filtrar ventas por fecha:', error);
-      res
-        .status(500)
-        .json({ error: "Error al obtener las ventas filtradas" });
+        console.error('Error al filtrar ventas por fecha:', error);
+        res.status(500).json({ error: "Error al obtener las ventas filtradas" });
     }
-  }
+}
+
 };
 
 module.exports = ventasController;
