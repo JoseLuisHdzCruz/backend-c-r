@@ -7,6 +7,7 @@ const ClavesTemporales = require("../../../models/clavesTemporalesModels");
 const HistorialContrasenas = require("../../../models/historialContraseñas");
 const UserActivityLog = require("../../../models/logsModel");
 const Session = require("../../../models/sesionModel");
+const cloudinary = require('../../config/cloudinaryConfig');
 
 // const db = require("../../config/database");
 // const Yup = require("yup");
@@ -609,4 +610,32 @@ module.exports = {
       });
     }
   },
+
+  actualizarImagenPerfil : async (req, res) => {
+    const { customerId } = req.params;
+    const imagen = req.file;
+  
+    try {
+      if (!imagen) {
+        return res.status(400).json({ message: 'Debes proporcionar una imagen' });
+      }
+  
+      // Subir la imagen a Cloudinary
+      const result = await cloudinary.uploader.upload(imagen.path);
+  
+      // Guardar la URL de la imagen en la base de datos
+      const usuario = await Usuario.findByPk(customerId);
+      if (!usuario) {
+        return res.status(404).json({ message: 'Usuario no encontrado' });
+      }
+  
+      usuario.imagen = result.secure_url;
+      await usuario.save();
+  
+      return res.status(200).json({ message: 'Imagen de perfil actualizada correctamente' });
+    } catch (error) {
+      console.error('Error al actualizar la imagen de perfil:', error);
+      return res.status(500).json({ message: 'Error interno del servidor' });
+    }
+  }
 };

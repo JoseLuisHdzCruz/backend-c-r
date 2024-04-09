@@ -46,6 +46,8 @@ router.post('/keyCompare', userController.compararClave);
 // Ruta para actualizar la contraseña
 router.post("/changePassword", userController.cambiarContraseña);
 
+// Ruta para actualizar la imagen de perfil
+router.post('/usuario/:customerId/imagen', userController.actualizarImagenPerfil);
 
 
 // Ruta para actualizar un usuario
