@@ -1,6 +1,10 @@
-// middleware/upload.js
+// cloudinaryConfig.js
+
 const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
+const cloud_name = process.env.CLOUD_NAME;
+const api_key = process.env.CLOUD_API_KEY;
+const api_secret= process.env.CLOUD_API_SECRET;
 
 // Configurar Cloudinary
 cloudinary.config({
@@ -35,4 +39,3 @@ const upload = (req, res, next) => {
 };
 
 module.exports = upload;
-
