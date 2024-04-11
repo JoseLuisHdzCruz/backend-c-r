@@ -2,22 +2,17 @@
 
 // Importa tus modelos aquí
 const Usuario = require("../../../models/usuarioModel");
-const Status = require("../../../models/statusModel");
 const ClavesTemporales = require("../../../models/clavesTemporalesModels");
 const HistorialContrasenas = require("../../../models/historialContraseñas");
 const UserActivityLog = require("../../../models/logsModel");
 const Session = require("../../../models/sesionModel");
-const cloudinary = require('../../config/cloudinaryConfig');
 
-// const db = require("../../config/database");
-// const Yup = require("yup");
 const axios = require("axios");
 const twilio = require("twilio");
 const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const secretKey = process.env.JWT_SECRET;
-// Configurar las credenciales de Twilio
 const accountSid = "ACe5e0045ad78466fea29886b336ebcfba";
 const authToken = process.env.TOKEN_TWILIO;
 const twilioClient = twilio(accountSid, authToken);
@@ -614,85 +609,28 @@ module.exports = {
     }
   },
 
-  actualizarImagenPerfil: async (req, res) => {
+  updateSecretQuestionAndAnswer: async (req, res, next) => {
+    const { customerId } = req.params;
+    const { preguntaSecreta, respuestaSecreta } = req.body;
+
     try {
-      const { customerId } = req.params;
-      let imageUrl = ""; // Usaremos let en lugar de const para poder cambiar el valor posteriormente
-  
-      if (!req.file) {
-        return res.status(400).json({ message: 'Debes proporcionar una imagen' });
+      // Buscar al usuario en la base de datos
+      const user = await Usuario.findByPk(customerId);
+
+      // Verificar si se encontró al usuario
+      if (!user) {
+        return res.status(404).json({ success: false, error: "Usuario no encontrado" });
       }
-  
-      // Cargar la imagen a Cloudinary
-      const upload_stream = cloudinary.uploader.upload_stream(
-        { folder: 'profile_img' }, // Opcional: nombre de la carpeta en Cloudinary donde se almacenarán las imágenes
-        (error, result) => {
-          if (error) {
-            console.error('Error al subir la imagen a Cloudinary:', error);
-            return res.status(500).json({ message: 'Error al subir la imagen a Cloudinary' });
-          }
-  
-          // Almacenar la URL de la imagen en imageUrl
-          imageUrl = result.secure_url;
-          
-          // Guardar la URL de la imagen en la base de datos
-          Usuario.findByPk(customerId)
-            .then(usuario => {
-              if (!usuario) {
-                return res.status(404).json({ message: 'Usuario no encontrado' });
-              }
-  
-              usuario.imagen = imageUrl;
-              usuario.save()
-                .then(() => {
-                  return res.status(200).json({ message: 'Imagen de perfil actualizada correctamente' });
-                })
-                .catch(error => {
-                  console.error('Error al guardar la URL de la imagen en la base de datos:', error);
-                  return res.status(500).json({ message: 'Error interno del servidor' });
-                });
-            })
-            .catch(error => {
-              console.error('Error al buscar al usuario en la base de datos:', error);
-              return res.status(500).json({ message: 'Error interno del servidor' });
-            });
-        }
-      );
-  
-      // Convertir el stream de la imagen a un buffer y pasarlo al stream de carga de Cloudinary
-      streamifier.createReadStream(req.file.buffer).pipe(upload_stream);
+
+      // Actualizar la pregunta y respuesta secreta del usuario
+      await user.update({ preguntaSecreta, respuestaSecreta });
+
+      // Responder con un mensaje de éxito
+      res.status(200).json({ success: true, message: "Pregunta y respuesta secretas actualizadas exitosamente" });
     } catch (error) {
-      console.error('Error al actualizar la imagen de perfil:', error);
-      return res.status(500).json({ message: 'Error interno del servidor' });
+      console.error("Error al actualizar pregunta y respuesta secreta:", error);
+      res.status(500).json({ success: false, error: "¡Algo salió mal al actualizar pregunta y respuesta secreta!" });
     }
   },
 
-  actualizarUsuario : async (req, res) => {
-    const { customerId } = req.params; // Obtener el customerId de la URL
-    const updatedFields = req.body; // Campos a actualizar enviados en el cuerpo de la solicitud
-  
-    try {
-      // Buscar el usuario por customerId`
-      const usuario = await Usuario.findByPk(customerId);
-  
-      if (!usuario) {
-        return res.status(404).json({ error: 'Usuario no encontrado' });
-      }
-  
-      // Actualizar los campos recibidos
-      Object.keys(updatedFields).forEach((key) => {
-        if (usuario.hasOwnProperty(key)) {
-          usuario[key] = updatedFields[key];
-        }
-      });
-  
-      // Guardar los cambios en la base de datos
-      await usuario.save();
-  
-      return res.status(200).json(usuario);
-    } catch (error) {
-      console.error('Error al actualizar usuario:', error);
-      return res.status(500).json({ error: 'Error interno del servidor' });
-    }
-  }
 };

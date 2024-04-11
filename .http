@@ -6,6 +6,9 @@ PUT https://backend-c-r-production.up.railway.app/users/update/1
 
 ###
 GET http://localhost:5000/users/
+
+###
+GET https://backend-c-r-production.up.railway.app/users/1
 ###
 GET http://localhost:5000/users/findPhone/dareckluis@gmail.com
 

@@ -49,10 +49,8 @@ router.post("/changePassword", userController.cambiarContraseña);
 // Ruta para actualizar la imagen de perfil
 router.post('/usuario/:customerId/imagen', userController.actualizarImagenPerfil);
 
-router.put('/update/:customerId', userController.actualizarUsuario);
-
-// Ruta para actualizar un usuario
-// router.put('/:id', userController.updateUser);
+// Ruta para actualizar la pregunta y respuesta de un usuario
+router.put('/updateUser/:customerId', userController.updateSecretQuestionAndAnswer);
 
 // // Ruta para eliminar un usuario
 // router.delete('/:id', userController.deleteUser);
