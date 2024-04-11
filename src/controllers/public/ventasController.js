@@ -155,21 +155,25 @@ obtenerDetalleVentasPorProductoIdYFecha : async (req, res) => {
         fecha: {
           [Op.between]: [fechaInicial, fechaFinal]
         }
-      },
-      include: {
-        model: DetalleVenta, // Incluir detalles de venta en la consulta
-        where: { productoId: productoId } // Filtrar por productoId
       }
     });
 
-    // Paso 2: Calcular el total de productos comprados
+    // Paso 2: Para cada venta, obtener todos sus detalles de venta
     let totalProductosComprados = 0;
 
-    ventas.forEach(venta => {
-      venta.DetalleVentas.forEach(detalleVenta => {
+    for (const venta of ventas) {
+      const detallesVenta = await DetalleVenta.findAll({
+        where: {
+          ventaId: venta.ventaId,
+          productoId: productoId
+        }
+      });
+
+      // Paso 3: Contar la cantidad de productos específicos para cada detalle de venta
+      detallesVenta.forEach(detalleVenta => {
         totalProductosComprados += detalleVenta.cantidad;
       });
-    });
+    }
 
     // Enviar el total de productos comprados como respuesta
     res.status(200).json({ totalProductosComprados });
