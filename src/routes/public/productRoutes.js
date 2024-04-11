@@ -8,6 +8,9 @@ const productController = require('../../controllers/public/productController');
 router.get('/', productController.getAllProducts);
 
 // Ruta para obtener todos los productos
+router.get('/categoriaId', productController.getAllProductsCategories);
+
+// Ruta para obtener todos los productos
 router.get('/randomProducts', productController.getRandomProducts);
 
 // Ruta para obtener un producto por ID

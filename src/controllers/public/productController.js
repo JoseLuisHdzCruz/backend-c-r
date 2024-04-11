@@ -35,6 +35,20 @@ module.exports = {
     }
   },
 
+  getAllProductsCategories: async (req, res, next) => {
+    const categoriaId = req.params;
+
+    try {
+      const products = await Producto.findAll({
+        where : { categoriaId }
+      });
+      res.json(products);
+    } catch (error) {
+      console.error("Error al obtener productos:", error);
+      res.status(500).json({ error: "¡Algo salió mal al obtener productos!" });
+    }
+  },
+
   getRandomProducts: async (req, res, next) => {
     try {
       const products = await Producto.findAll();
