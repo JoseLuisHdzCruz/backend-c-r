@@ -35,6 +35,16 @@ Content-Type: application/json
   }
 }
 
+
+###
+POST https://backend-c-r-production.up.railway.app/ventas/mate/1
+
+Content-Type: application/json
+
+{
+  "fechaInicial": "1997-05-06",
+  "fechaFinal": "2024-04-07 ",
+}
 ###
 
 GET https://backend-c-r-production.up.railway.app/ventas/cliente/1
