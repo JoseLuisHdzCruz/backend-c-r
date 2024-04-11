@@ -296,6 +296,8 @@ module.exports = {
           imagen: user.imagen,
           edad: user.fecha_nacimiento,
           telefono: user.telefono,
+          respuestaPSecreta: user.respuestaPSecreta,
+          preguntaSecreta: user.preguntaSecreta,
           sesion: new_sesion.sessionId,
         },
         secretKey,
