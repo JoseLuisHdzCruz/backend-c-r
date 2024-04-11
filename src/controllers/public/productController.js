@@ -36,7 +36,7 @@ module.exports = {
   },
 
   getAllProductsCategories: async (req, res, next) => {
-    const categoriaId = req.params;
+    const categoriaId = req.params.categoriaId;
 
     try {
       const products = await Producto.findAll({
