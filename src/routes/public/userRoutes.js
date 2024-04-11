@@ -49,7 +49,7 @@ router.post("/changePassword", userController.cambiarContraseña);
 // Ruta para actualizar la imagen de perfil
 router.post('/usuario/:customerId/imagen', userController.actualizarImagenPerfil);
 
-router.put('/usuarios/:customerId', userController.actualizarUsuario);
+router.put('/update/:customerId', userController.actualizarUsuario);
 
 // Ruta para actualizar un usuario
 // router.put('/:id', userController.updateUser);
