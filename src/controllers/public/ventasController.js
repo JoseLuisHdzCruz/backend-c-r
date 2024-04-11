@@ -142,7 +142,58 @@ const ventasController = {
         console.error('Error al filtrar ventas por fecha:', error);
         res.status(500).json({ error: "Error al obtener las ventas filtradas" });
     }
+},
+
+obtenerVentasPorCategoriaYFecha : async (req, res) => {
+  const {categoriaId} = req.params;
+  const { fechaInicial, fechaFinal } = req.body;
+
+  try {
+    // Paso 1: Obtener las ventas en el rango de fechas
+    const ventas = await Venta.findAll({
+      where: {
+        fecha: {
+          [Op.between]: [fechaInicial, fechaFinal]
+        }
+      },
+      include: {
+        model: DetalleVenta,
+        include: Producto // Incluir productos en los detalles de la venta
+      }
+    });
+
+    // Paso 2: Filtrar productos por categoría y contar cantidades
+    const productosVendidos = {}; // Objeto para almacenar el número de productos vendidos por productoId
+
+    ventas.forEach(venta => {
+      venta.DetalleVentas.forEach(detalleVenta => {
+        const producto = detalleVenta.Producto;
+        if (producto.categoriaId === categoriaId) {
+          if (!productosVendidos[producto.productoId]) {
+            productosVendidos[producto.productoId] = detalleVenta.cantidad;
+          } else {
+            productosVendidos[producto.productoId] += detalleVenta.cantidad;
+          }
+        }
+      });
+    });
+
+    // Paso 3: Actualizar el número total de ventas para customerId
+    for (const productoId in productosVendidos) {
+      const cantidadVendida = productosVendidos[productoId];
+      await Producto.increment('totalVentas', {
+        by: cantidadVendida,
+        where: { productoId: productoId }
+      });
+    }
+
+    req.productosVendidos = productosVendidos; // Almacenar los productos vendidos en el objeto de solicitud
+  } catch (error) {
+    console.error('Error al obtener ventas por categoría y fecha:', error);
+    res.status(500).json({ error: 'Ocurrió un error al obtener ventas por categoría y fecha' });
+  }
 }
+
 
 };
 
