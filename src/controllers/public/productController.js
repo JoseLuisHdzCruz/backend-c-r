@@ -1,6 +1,7 @@
 // /src/controllers/productController.js
 // Importa tus modelos aquí
 const Producto = require("../../../models/productsModel");
+const Categoria = require("../../../models/categoriaModel")
 
 const Yup = require("yup");
 const { Op } = require('sequelize');
@@ -25,13 +26,23 @@ function getRandomElements(array, numElements) {
 }
 
 module.exports = {
-  getAllProducts: async (req, res, next) => {
+  getAllCategorias: async (req, res, next) => {
     try {
       const products = await Producto.findAll();
       res.json(products);
     } catch (error) {
       console.error("Error al obtener productos:", error);
       res.status(500).json({ error: "¡Algo salió mal al obtener productos!" });
+    }
+  },
+
+  getAllProducts: async (req, res, next) => {
+    try {
+      const categorias = await Categoria.findAll();
+      res.json(categorias);
+    } catch (error) {
+      console.error("Error al obtener las categorias:", error);
+      res.status(500).json({ error: "¡Algo salió mal al obtener las categorias!" });
     }
   },
 
