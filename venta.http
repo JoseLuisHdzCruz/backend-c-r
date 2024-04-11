@@ -37,13 +37,14 @@ Content-Type: application/json
 
 
 ###
-POST https://backend-c-r-production.up.railway.app/ventas/mate/367
+post https://backend-c-r-production.up.railway.app/ventas/mate/
 
 Content-Type: application/json
 
 {
   "fechaInicial": "2023-05-06",
   "fechaFinal": "2024-04-11 ",
+  "productoId": 367
 }
 ###
 

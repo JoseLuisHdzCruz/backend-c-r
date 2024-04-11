@@ -145,8 +145,7 @@ const ventasController = {
 },
 
 obtenerDetalleVentasPorProductoIdYFecha : async (req, res) => {
-  const { productoId } = req.params;
-  const { fechaInicial, fechaFinal } = req.body;
+  const { fechaInicial, fechaFinal, productoId } = req.body;
 
   try {
     // Paso 1: Obtener las ventas en el rango de fechas
