@@ -26,7 +26,7 @@ function getRandomElements(array, numElements) {
 }
 
 module.exports = {
-  getAllCategorias: async (req, res, next) => {
+  getAllProducts: async (req, res, next) => {
     try {
       const products = await Producto.findAll();
       res.json(products);
@@ -36,7 +36,7 @@ module.exports = {
     }
   },
 
-  getAllProducts: async (req, res, next) => {
+  getAllCategorias: async (req, res, next) => {
     try {
       const categorias = await Categoria.findAll();
       res.json(categorias);
