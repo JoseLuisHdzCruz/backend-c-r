@@ -42,8 +42,8 @@ POST https://backend-c-r-production.up.railway.app/ventas/mate/367
 Content-Type: application/json
 
 {
-  "fechaInicial": "1997-05-06",
-  "fechaFinal": "2024-04-07 ",
+  "fechaInicial": "2023-05-06",
+  "fechaFinal": "2024-04-11 ",
 }
 ###
 

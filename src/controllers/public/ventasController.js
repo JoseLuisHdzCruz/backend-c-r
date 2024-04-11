@@ -150,12 +150,19 @@ obtenerDetalleVentasPorProductoIdYFecha : async (req, res) => {
 
   try {
     // Paso 1: Obtener las ventas en el rango de fechas
+    // Convertir la fecha final a un objeto Date
+    const fechaFinalDate = new Date(fechaFinal);
+
+    // Agregar un día a la fecha final
+    fechaFinalDate.setDate(fechaFinalDate.getDate() + 1);
+
+    // Consultar ventas filtradas por rango de fechas y customerId
     const ventas = await Venta.findAll({
-      where: {
-        fecha: {
-          [Op.between]: [fechaInicial, fechaFinal]
+        where: {
+            fecha: {
+                [Op.between]: [fechaInicial, fechaFinalDate]
+            }
         }
-      }
     });
     console.log(ventas)
 
