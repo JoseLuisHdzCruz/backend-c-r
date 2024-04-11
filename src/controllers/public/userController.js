@@ -27,6 +27,7 @@ const {
   enviarCorreoIntentoSesionSospechoso,
   enviarCorreoCambioContraseña,
 } = require("../../services/emailService");
+const Sync = require("twilio/lib/rest/Sync");
 
 module.exports = {
   getAllUsers: async (req, res, next) => {
@@ -663,6 +664,35 @@ module.exports = {
     } catch (error) {
       console.error('Error al actualizar la imagen de perfil:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
+    }
+  },
+
+  actualizarUsuario : async (req, res) => {
+    const { customerId } = req.params; // Obtener el customerId de la URL
+    const updatedFields = req.body; // Campos a actualizar enviados en el cuerpo de la solicitud
+  
+    try {
+      // Buscar el usuario por customerId`
+      const usuario = await Usuario.findByPk(customerId);
+  
+      if (!usuario) {
+        return res.status(404).json({ error: 'Usuario no encontrado' });
+      }
+  
+      // Actualizar los campos recibidos
+      Object.keys(updatedFields).forEach((key) => {
+        if (usuario.hasOwnProperty(key)) {
+          usuario[key] = updatedFields[key];
+        }
+      });
+  
+      // Guardar los cambios en la base de datos
+      await usuario.save();
+  
+      return res.status(200).json(usuario);
+    } catch (error) {
+      console.error('Error al actualizar usuario:', error);
+      return res.status(500).json({ error: 'Error interno del servidor' });
     }
   }
 };
