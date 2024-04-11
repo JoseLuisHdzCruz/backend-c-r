@@ -144,7 +144,7 @@ const ventasController = {
     }
 },
 
-obtenerDetalleVentasPorProductoIdYFecha: async(req, res) => {
+obtenerDetalleVentasPorProductoIdYFecha : async (req, res) => {
   const { productoId } = req.params;
   const { fechaInicial, fechaFinal } = req.body;
 
@@ -156,17 +156,18 @@ obtenerDetalleVentasPorProductoIdYFecha: async(req, res) => {
           [Op.between]: [fechaInicial, fechaFinal]
         }
       },
-      include: DetalleVenta // Incluir detalles de venta
+      include: {
+        model: DetalleVenta, // Incluir detalles de venta en la consulta
+        where: { productoId: productoId } // Filtrar por productoId
+      }
     });
 
-    // Paso 2: Filtrar detalles de venta por productoId y contar cantidades
+    // Paso 2: Calcular el total de productos comprados
     let totalProductosComprados = 0;
 
     ventas.forEach(venta => {
       venta.DetalleVentas.forEach(detalleVenta => {
-        if (detalleVenta.productoId === productoId) {
-          totalProductosComprados += detalleVenta.cantidad;
-        }
+        totalProductosComprados += detalleVenta.cantidad;
       });
     });
 

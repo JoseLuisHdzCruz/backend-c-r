@@ -37,7 +37,7 @@ Content-Type: application/json
 
 
 ###
-POST https://backend-c-r-production.up.railway.app/ventas/mate/1
+POST https://backend-c-r-production.up.railway.app/ventas/mate/364
 
 Content-Type: application/json
 
