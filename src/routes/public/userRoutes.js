@@ -3,7 +3,6 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../../controllers/public/userController');
-const upload = require('../../config/cloudinaryConfig');
 
 // Ruta para obtener todos los usuarios
 router.get('/', userController.getAllUsers);
@@ -48,7 +47,7 @@ router.post('/keyCompare', userController.compararClave);
 router.post("/changePassword", userController.cambiarContraseña);
 
 // Ruta para actualizar la imagen de perfil
-router.post('/usuario/:customerId/imagen', upload, userController.actualizarImagenPerfil);
+router.post('/usuario/:customerId/imagen', userController.actualizarImagenPerfil);
 
 
 // Ruta para actualizar un usuario

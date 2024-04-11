@@ -17,6 +17,6 @@ router.get('/get-domicilio/:id', domicilioController.getAllDomicilios);
 router.post('/add-domicilio', domicilioController.createDomicilio);
 router.put('/update-domicilio/:id', domicilioController.updateDomicilio);
 router.delete('/delete-domicilio/:id', domicilioController.deleteDomicilio);
-router.get('/get-domicilio/:id', domicilioController.getDomicilioById);
+router.get('/get-domicilioById/:id', domicilioController.getDomicilioById);
 
 module.exports = router;

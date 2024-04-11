@@ -611,24 +611,56 @@ module.exports = {
     }
   },
 
-  actualizarImagenPerfil : async (req, res) => {
-    const { customerId } = req.params;
-  const imageUrl = req.body.imageUrl;
-
-  try {
-    // Guardar la URL de la imagen en la base de datos
-    const usuario = await Usuario.findByPk(customerId);
-    if (!usuario) {
-      return res.status(404).json({ message: 'Usuario no encontrado' });
+  actualizarImagenPerfil: async (req, res) => {
+    try {
+      const { customerId } = req.params;
+      let imageUrl = ""; // Usaremos let en lugar de const para poder cambiar el valor posteriormente
+  
+      if (!req.file) {
+        return res.status(400).json({ message: 'Debes proporcionar una imagen' });
+      }
+  
+      // Cargar la imagen a Cloudinary
+      const upload_stream = cloudinary.uploader.upload_stream(
+        { folder: 'profile_img' }, // Opcional: nombre de la carpeta en Cloudinary donde se almacenarán las imágenes
+        (error, result) => {
+          if (error) {
+            console.error('Error al subir la imagen a Cloudinary:', error);
+            return res.status(500).json({ message: 'Error al subir la imagen a Cloudinary' });
+          }
+  
+          // Almacenar la URL de la imagen en imageUrl
+          imageUrl = result.secure_url;
+          
+          // Guardar la URL de la imagen en la base de datos
+          Usuario.findByPk(customerId)
+            .then(usuario => {
+              if (!usuario) {
+                return res.status(404).json({ message: 'Usuario no encontrado' });
+              }
+  
+              usuario.imagen = imageUrl;
+              usuario.save()
+                .then(() => {
+                  return res.status(200).json({ message: 'Imagen de perfil actualizada correctamente' });
+                })
+                .catch(error => {
+                  console.error('Error al guardar la URL de la imagen en la base de datos:', error);
+                  return res.status(500).json({ message: 'Error interno del servidor' });
+                });
+            })
+            .catch(error => {
+              console.error('Error al buscar al usuario en la base de datos:', error);
+              return res.status(500).json({ message: 'Error interno del servidor' });
+            });
+        }
+      );
+  
+      // Convertir el stream de la imagen a un buffer y pasarlo al stream de carga de Cloudinary
+      streamifier.createReadStream(req.file.buffer).pipe(upload_stream);
+    } catch (error) {
+      console.error('Error al actualizar la imagen de perfil:', error);
+      return res.status(500).json({ message: 'Error interno del servidor' });
     }
-
-    usuario.imagen = imageUrl;
-    await usuario.save();
-
-    return res.status(200).json({ message: 'Imagen de perfil actualizada correctamente' });
-  } catch (error) {
-    console.error('Error al actualizar la imagen de perfil:', error);
-    return res.status(500).json({ message: 'Error interno del servidor' });
-  }
   }
 };
