@@ -611,7 +611,7 @@ module.exports = {
 
   updateSecretQuestionAndAnswer: async (req, res, next) => {
     const { customerId } = req.params;
-    const { preguntaSecreta, respuestaSecreta } = req.body;
+    const { preguntaSecreta, respuestaPSecreta } = req.body;
 
     try {
       // Buscar al usuario en la base de datos
@@ -623,7 +623,7 @@ module.exports = {
       }
 
       // Actualizar la pregunta y respuesta secreta del usuario
-      await user.update({ preguntaSecreta, respuestaSecreta });
+      await user.update({ preguntaSecreta, respuestaPSecreta });
 
       // Responder con un mensaje de éxito
       res.status(200).json({ success: true, message: "Pregunta y respuesta secretas actualizadas exitosamente" });
