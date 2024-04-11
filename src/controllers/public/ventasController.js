@@ -157,6 +157,7 @@ obtenerDetalleVentasPorProductoIdYFecha : async (req, res) => {
         }
       }
     });
+    console.log(ventas)
 
     // Paso 2: Para cada venta, obtener todos sus detalles de venta
     let totalProductosComprados = 0;
