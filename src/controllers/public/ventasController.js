@@ -144,8 +144,8 @@ const ventasController = {
     }
 },
 
-obtenerVentasPorCategoriaYFecha : async (req, res) => {
-  const {categoriaId} = req.params;
+obtenerDetalleVentasPorProductoIdYFecha: async(req, res) => {
+  const { productoId } = req.params;
   const { fechaInicial, fechaFinal } = req.body;
 
   try {
@@ -156,41 +156,25 @@ obtenerVentasPorCategoriaYFecha : async (req, res) => {
           [Op.between]: [fechaInicial, fechaFinal]
         }
       },
-      include: {
-        model: DetalleVenta,
-        include: Producto // Incluir productos en los detalles de la venta
-      }
+      include: DetalleVenta // Incluir detalles de venta
     });
 
-    // Paso 2: Filtrar productos por categoría y contar cantidades
-    const productosVendidos = {}; // Objeto para almacenar el número de productos vendidos por productoId
+    // Paso 2: Filtrar detalles de venta por productoId y contar cantidades
+    let totalProductosComprados = 0;
 
     ventas.forEach(venta => {
       venta.DetalleVentas.forEach(detalleVenta => {
-        const producto = detalleVenta.Producto;
-        if (producto.categoriaId === categoriaId) {
-          if (!productosVendidos[producto.productoId]) {
-            productosVendidos[producto.productoId] = detalleVenta.cantidad;
-          } else {
-            productosVendidos[producto.productoId] += detalleVenta.cantidad;
-          }
+        if (detalleVenta.productoId === productoId) {
+          totalProductosComprados += detalleVenta.cantidad;
         }
       });
     });
 
-    // Paso 3: Actualizar el número total de ventas para customerId
-    for (const productoId in productosVendidos) {
-      const cantidadVendida = productosVendidos[productoId];
-      await Producto.increment('totalVentas', {
-        by: cantidadVendida,
-        where: { productoId: productoId }
-      });
-    }
-
-    req.productosVendidos = productosVendidos; // Almacenar los productos vendidos en el objeto de solicitud
+    // Enviar el total de productos comprados como respuesta
+    res.status(200).json({ totalProductosComprados });
   } catch (error) {
-    console.error('Error al obtener ventas por categoría y fecha:', error);
-    res.status(500).json({ error: 'Ocurrió un error al obtener ventas por categoría y fecha' });
+    console.error('Error al obtener detalles de ventas por productoId y fecha:', error);
+    res.status(500).json({ error: 'Ocurrió un error al obtener detalles de ventas por productoId y fecha' });
   }
 }
 
