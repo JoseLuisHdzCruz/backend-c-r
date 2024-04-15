@@ -18,6 +18,10 @@ module.exports = {
       fecha_final: {
         type: Sequelize.DATE,
         allowNull: false,
+      },
+      descuento: {
+        type: Sequelize.NUMBER,
+        allowNull: false,
       }
     });
   },

@@ -20,6 +20,10 @@ const Promociones = sequelize.define(
       fecha_final: {
         type: DataTypes.DATE,
         allowNull: false,
+      },
+      descuento: {
+        type: DataTypes.NUMBER,
+        allowNull: false,
       }
   },
   {

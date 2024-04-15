@@ -39,6 +39,10 @@ module.exports = {
         type: Sequelize.DECIMAL(10, 2),
         allowNull: false
       },
+      descuentoPromocion: {
+        type: Sequelize.DECIMAL(10, 2), // Decimal para manejar precisión de los impuestos
+        allowNull: true
+      },
       fecha: {
         type: Sequelize.DATE,
         allowNull: false

@@ -49,6 +49,10 @@ const Venta = sequelize.define('Venta', {
     type: DataTypes.DATE,
     allowNull: false
   },
+  descuentoPromocion: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: true
+  },
   motivoCancelacion: {
     type: DataTypes.TEXT,
     allowNull: true
