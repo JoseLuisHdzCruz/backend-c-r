@@ -49,6 +49,9 @@ router.post("/changePassword", userController.cambiarContraseña);
 // Ruta para actualizar la pregunta y respuesta de un usuario
 router.put('/updateUser/:customerId', userController.updateSecretQuestionAndAnswer);
 
+// Ruta para obtener todas la notificaciones
+router.get('/getAllNotifications/:customerId', userController.getAllNotifications);
+
 // // Ruta para eliminar un usuario
 // router.delete('/:id', userController.deleteUser);
 
