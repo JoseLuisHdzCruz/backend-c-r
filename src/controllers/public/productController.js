@@ -182,7 +182,7 @@ module.exports = {
       const productosMasVendidos = await DetalleVenta.findAll({
         attributes: ['productoId', [sequelize.literal('SUM(cantidad)'), 'totalVentas']],
         group: ['productoId'],
-        order: [[sequelize.literal('totalVentas'), 'DESC']],
+        order: [[sequelize.literal('SUM(cantidad)'), 'DESC']],
         limit: 20,
       });
   
