@@ -1,12 +1,11 @@
 // /src/controllers/productController.js
 // Importa tus modelos aquí
-const { sequelize } = require('../../config/database');
 const Producto = require("../../../models/productsModel");
 const Categoria = require("../../../models/categoriaModel");
 const DetalleVenta = require("../../../models/detalleVentaModel")
 
 const Yup = require("yup");
-const { Op } = require('sequelize');
+const { Op, Sequelize } = require('sequelize');
 
 
 
@@ -180,11 +179,12 @@ module.exports = {
   obtenerProductosMasVendidos : async (req, res, next) => {
     try {
       // Paso 1: Consultar los IDs de los productos más vendidos
-      const productosMasVendidos = await DetalleVenta.aggregate([
-        { $group: { _id: "$productoId", totalVentas: { $sum: "$cantidad" } } },
-        { $sort: { totalVentas: -1 } },
-        { $limit: 20 }
-      ]);
+      const productosMasVendidos = await DetalleVenta.findAll({
+        attributes: ['productoId', [Sequelize.literal('SUM(cantidad)'), 'totalVentas']],
+        group: ['productoId'],
+        order: [[Sequelize.literal('totalVentas'), 'DESC']],
+        limit: 20,
+      });
   
       // Obtener los IDs de los productos más vendidos
       const idsProductosMasVendidos = productosMasVendidos.map((detalleVenta) => detalleVenta._id);
