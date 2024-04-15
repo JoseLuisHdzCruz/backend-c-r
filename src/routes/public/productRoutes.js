@@ -29,7 +29,7 @@ router.post('/search', productController.searchProducts);
 router.put('/:id', productController.updateProduct);
 
 // Ruta para obtener los 20 productos más vendidos
-router.get('/mas-vendidos', productController.obtenerProductosMasVendidos);
+router.get('/productos/mas-vendidos', productController.obtenerProductosMasVendidos);
 
 
 module.exports = router;
