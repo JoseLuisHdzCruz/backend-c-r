@@ -185,6 +185,8 @@ module.exports = {
         order: [[sequelize.literal('totalVentas'), 'DESC']],
         limit: 20,
       });
+
+      console.log(productosMasVendidos)
   
       // Obtener los IDs de los productos más vendidos
       const idsProductosMasVendidos = productosMasVendidos.map((producto) => producto.productoId);
