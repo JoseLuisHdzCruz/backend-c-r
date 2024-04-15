@@ -186,6 +186,8 @@ module.exports = {
         limit: 20,
       });
   
+      console.log("consola: ",productosMasVendidos)
+
       // Obtener los IDs de los productos más vendidos
       const idsProductosMasVendidos = productosMasVendidos.map((detalleVenta) => detalleVenta._id);
   
