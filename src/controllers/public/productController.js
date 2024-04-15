@@ -180,13 +180,11 @@ module.exports = {
     try {
       // Consultar los 20 productos con más ventas
       const productosMasVendidos = await DetalleVenta.findAll({
-        attributes: ['productoId', [sequelize.fn('SUM', sequelize.col('cantidad')), 'totalVentas']],
+        attributes: ['productoId', [sequelize.literal('SUM(cantidad)'), 'totalVentas']],
         group: ['productoId'],
         order: [[sequelize.literal('totalVentas'), 'DESC']],
         limit: 20,
       });
-
-      console.log(productosMasVendidos)
   
       // Obtener los IDs de los productos más vendidos
       const idsProductosMasVendidos = productosMasVendidos.map((producto) => producto.productoId);
