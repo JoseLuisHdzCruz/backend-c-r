@@ -179,29 +179,34 @@ module.exports = {
 
   obtenerProductosMasVendidos : async (req, res, next) => {
     try {
-      const top20DetailSales = await DetalleVenta.findAll({
-        order: [['cantidad', 'DESC']],
+      // Paso 1: Consultar los IDs de los productos más vendidos
+      const productosMasVendidos = await DetalleVenta.findAll({
+        attributes: ['productoId', [sequelize.fn('SUM', sequelize.col('cantidad')), 'totalVentas']],
+        group: ['productoId'],
+        order: [[sequelize.literal('totalVentas'), 'DESC']],
         limit: 20,
-        include: [
-          {
-            model: Producto,
-            attributes: ['productoId', 'nombre', 'descripcion', 'precio', 'imagen'],
-          },
-        ],
-      });
-    
-      const top20Products = top20DetailSales.map((detailSale) => {
-        const product = detailSale.producto;
-        return {
-          productoId: product.productoId,
-          nombre: product.nombre,
-          descripcion: product.descripcion,
-          precio: product.precio,
-          imagen: product.imagen,
-        };
       });
   
-      res.json(top20Products);
+      // Obtener los IDs de los productos más vendidos
+      const idsProductosMasVendidos = productosMasVendidos.map((detalleVenta) => detalleVenta.productoId);
+  
+      // Paso 2: Consultar la información detallada de los productos
+      const informacionProductos = await Producto.findAll({
+        where: {
+          productoId: idsProductosMasVendidos,
+        },
+      });
+  
+      // Formatear la respuesta
+      const respuesta = informacionProductos.map((producto) => ({
+        productoId: producto.productoId,
+        nombre: producto.nombre,
+        descripcion: producto.descripcion,
+        precio: producto.precio,
+        imagen: producto.imagen,
+      }));
+  
+      res.json(respuesta);
     } catch (error) {
       console.error('Error al obtener los productos más vendidos:', error);
       res.status(500).json({ error: "¡Algo salió mal al obtener los productos más vendidos!" });
