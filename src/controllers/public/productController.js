@@ -1,7 +1,8 @@
 // /src/controllers/productController.js
 // Importa tus modelos aquí
 const Producto = require("../../../models/productsModel");
-const Categoria = require("../../../models/categoriaModel")
+const Categoria = require("../../../models/categoriaModel");
+const DetalleVenta = require("../../../models/detalleVentaModel")
 
 const Yup = require("yup");
 const { Op } = require('sequelize');
@@ -174,4 +175,31 @@ module.exports = {
       res.status(500).json({ error: "¡Algo salió mal al actualizar producto!" });
     }
   },
+
+  obtenerProductosMasVendidos : async (req, res, next) => {
+    try {
+      // Consultar los 20 productos con más ventas
+      const productosMasVendidos = await DetalleVenta.findAll({
+        attributes: ['productoId', [sequelize.fn('SUM', sequelize.col('cantidad')), 'totalVentas']],
+        group: ['productoId'],
+        order: [[sequelize.literal('totalVentas'), 'DESC']],
+        limit: 20,
+      });
+  
+      // Obtener los IDs de los productos más vendidos
+      const idsProductosMasVendidos = productosMasVendidos.map((producto) => producto.productoId);
+  
+      // Consultar la información de los productos en base a los IDs obtenidos
+      const informacionProductos = await Producto.findAll({
+        where: {
+          productoId: idsProductosMasVendidos,
+        },
+      });
+  
+      res.json(informacionProductos);
+    } catch (error) {
+      console.error('Error al obtener los productos más vendidos:', error);
+      res.status(500).json({ error: "¡Algo salió mal al obtener los productos más vendidos!" });
+    }
+  }
 };

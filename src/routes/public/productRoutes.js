@@ -28,4 +28,8 @@ router.post('/search', productController.searchProducts);
 // Ruta para actualizar un producto
 router.put('/:id', productController.updateProduct);
 
+// Ruta para obtener los 20 productos más vendidos
+router.get('/mas-vendidos', productController.obtenerProductosMasVendidos);
+
+
 module.exports = router;

@@ -43,6 +43,10 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false
       },
+      descuentoPromocion: {
+        type: Sequelize.DECIMAL(10, 2), // Decimal para manejar precisión de los impuestos
+        allowNull: true
+      },
       statusVentaId: {
         type: Sequelize.INTEGER,
         allowNull: false
