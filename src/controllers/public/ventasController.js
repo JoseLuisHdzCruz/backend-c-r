@@ -1,44 +1,40 @@
 const Venta = require("../../../models/ventaModel");
 const { Op } = require("sequelize"); // Importa Op de Sequelize
-const DetalleVenta = require("../../../models/detalleVentaModel")
-const { v4: uuidv4 } = require('uuid');
+const DetalleVenta = require("../../../models/detalleVentaModel");
+const { v4: uuidv4 } = require("uuid");
 const axios = require("axios");
-
 
 const ventasController = {
   // Controlador para crear una nueva venta
   crearVenta: async (req, res) => {
     try {
-        const { 
-            metodoPagoId,
-            customerId, 
-            venta
-        } = req.body;
-        
-        // Fecha actual
-        const fecha = new Date();
+      const { metodoPagoId, customerId, venta } = req.body;
 
-        // Generar folio manualmente (puedes implementar la lógica que necesites para generar el folio)
-        const folio = uuidv4();
+      // Fecha actual
+      const fecha = new Date();
 
-        const statusVentaId = 4;
-        const nuevaVenta = await Venta.create({
-            folio,
-            customerId: customerId,
-            cantidad: venta.cantidad,
-            total: venta.total,
-            totalProductos: venta.totalProductos,
-            totalEnvio: venta.totalEnvio,
-            totalIVA: venta.totalIVA,
-            fecha,
-            statusVentaId,
-            metodoPagoId: metodoPagoId,
-            sucursalesId: venta.sucursalesId,
-            domicilioId: venta.domicilioId
-        });
+      // Generar folio manualmente (puedes implementar la lógica que necesites para generar el folio)
+      const folio = uuidv4();
+
+      const statusVentaId = 4;
+      const nuevaVenta = await Venta.create({
+        folio,
+        customerId: customerId,
+        cantidad: venta.cantidad,
+        total: venta.total,
+        totalProductos: venta.totalProductos,
+        totalEnvio: venta.totalEnvio,
+        totalIVA: venta.totalIVA,
+        fecha,
+        statusVentaId,
+        metodoPagoId: metodoPagoId,
+        sucursalesId: venta.sucursalesId,
+        domicilioId: venta.domicilioId,
+      });
       // Crear los registros de detalle de venta
-      const detallesVenta = await Promise.all(venta.productos.map(async producto => {
-        const detalleVenta = await DetalleVenta.create({
+      const detallesVenta = await Promise.all(
+        venta.productos.map(async (producto) => {
+          const detalleVenta = await DetalleVenta.create({
             productoId: producto.productoId,
             producto: producto.producto,
             precio: producto.precio,
@@ -46,16 +42,18 @@ const ventasController = {
             IVA: producto.IVA,
             cantidad: producto.cantidad,
             totalDV: producto.totalDV,
-            ventaId: nuevaVenta.ventaId
-        });
-        return detalleVenta;
-    }));
+            ventaId: nuevaVenta.ventaId,
+          });
+          return detalleVenta;
+        })
+      );
 
-    await axios.delete(`https://backend-c-r-production.up.railway.app/cart/clear/${customerId}`);
+      await axios.delete(
+        `https://backend-c-r-production.up.railway.app/cart/clear/${customerId}`
+      );
 
-
-    // Respuesta exitosa
-    res.status(201).json({ venta: nuevaVenta, detallesVenta });
+      // Respuesta exitosa
+      res.status(201).json({ venta: nuevaVenta, detallesVenta });
     } catch (error) {
       console.error("Error al crear la venta con detalle:", error);
       res.status(500).json({ error: "Error al crear la venta con detalle" });
@@ -88,12 +86,11 @@ const ventasController = {
     }
   },
 
-
-   // Controlador para obtener una venta por su ID
-   obtenerDetalleVentaPorIdVenta: async (req, res) => {
+  // Controlador para obtener una venta por su ID
+  obtenerDetalleVentaPorIdVenta: async (req, res) => {
     const ventaId = req.params.id;
     try {
-      const venta = await DetalleVenta.findAll({where: { ventaId }});
+      const venta = await DetalleVenta.findAll({ where: { ventaId } });
       if (!venta) {
         return res.status(404).json({ error: "Detalle venta no encontrada" });
       }
@@ -121,75 +118,112 @@ const ventasController = {
   filtrarVentasPorFecha: async (req, res) => {
     const { fechaInicial, fechaFinal, customerId } = req.body;
     try {
-        // Convertir la fecha final a un objeto Date
-        const fechaFinalDate = new Date(fechaFinal);
+      // Convertir la fecha final a un objeto Date
+      const fechaFinalDate = new Date(fechaFinal);
 
-        // Agregar un día a la fecha final
-        fechaFinalDate.setDate(fechaFinalDate.getDate() + 1);
+      // Agregar un día a la fecha final
+      fechaFinalDate.setDate(fechaFinalDate.getDate() + 1);
 
-        // Consultar ventas filtradas por rango de fechas y customerId
-        const ventasFiltradas = await Venta.findAll({
-            where: {
-                customerId: customerId,
-                fecha: {
-                    [Op.between]: [fechaInicial, fechaFinalDate]
-                }
-            }
+      // Consultar ventas filtradas por rango de fechas y customerId
+      const ventasFiltradas = await Venta.findAll({
+        where: {
+          customerId: customerId,
+          fecha: {
+            [Op.between]: [fechaInicial, fechaFinalDate],
+          },
+        },
+      });
+
+      res.json(ventasFiltradas);
+    } catch (error) {
+      console.error("Error al filtrar ventas por fecha:", error);
+      res.status(500).json({ error: "Error al obtener las ventas filtradas" });
+    }
+  },
+
+  obtenerDetalleVentasPorProductoIdYFecha: async (req, res) => {
+    const { fechaInicial, fechaFinal, productoId } = req.body;
+
+    try {
+      // Paso 1: Obtener las ventas en el rango de fechas
+      // Convertir la fecha final a un objeto Date
+      const fechaFinalDate = new Date(fechaFinal);
+
+      // Agregar un día a la fecha final
+      fechaFinalDate.setDate(fechaFinalDate.getDate() + 1);
+
+      // Consultar ventas filtradas por rango de fechas y customerId
+      const ventas = await Venta.findAll({
+        where: {
+          fecha: {
+            [Op.between]: [fechaInicial, fechaFinalDate],
+          },
+        },
+      });
+      console.log(ventas);
+
+      // Paso 2: Para cada venta, obtener todos sus detalles de venta
+      let totalProductosComprados = 0;
+
+      for (const venta of ventas) {
+        const detallesVenta = await DetalleVenta.findAll({
+          where: {
+            ventaId: venta.ventaId,
+            productoId: productoId,
+          },
         });
 
-        res.json(ventasFiltradas);
+        // Paso 3: Contar la cantidad de productos específicos para cada detalle de venta
+        detallesVenta.forEach((detalleVenta) => {
+          totalProductosComprados += detalleVenta.cantidad;
+        });
+      }
+
+      // Enviar el total de productos comprados como respuesta
+      res.status(200).json({ totalProductosComprados });
     } catch (error) {
-        console.error('Error al filtrar ventas por fecha:', error);
-        res.status(500).json({ error: "Error al obtener las ventas filtradas" });
+      console.error(
+        "Error al obtener detalles de ventas por productoId y fecha:",
+        error
+      );
+      res
+        .status(500)
+        .json({
+          error:
+            "Ocurrió un error al obtener detalles de ventas por productoId y fecha",
+        });
     }
-},
+  },
 
-obtenerDetalleVentasPorProductoIdYFecha : async (req, res) => {
-  const { fechaInicial, fechaFinal, productoId } = req.body;
+  cancelarVenta: async (req, res) => {
+    const { folio, reason } = req.body;
 
-  try {
-    // Paso 1: Obtener las ventas en el rango de fechas
-    // Convertir la fecha final a un objeto Date
-    const fechaFinalDate = new Date(fechaFinal);
+    try {
+      // Buscar la venta por su folio
+      const venta = await Venta.findOne({ where: { folio } });
 
-    // Agregar un día a la fecha final
-    fechaFinalDate.setDate(fechaFinalDate.getDate() + 1);
+      // Verificar si la venta existe
+      if (!venta) {
+        return res.status(404).json({ error: "Venta no encontrada" });
+      }
 
-    // Consultar ventas filtradas por rango de fechas y customerId
-    const ventas = await Venta.findAll({
-        where: {
-            fecha: {
-                [Op.between]: [fechaInicial, fechaFinalDate]
-            }
-        }
-    });
-    console.log(ventas)
+      // Verificar si la venta ya está cancelada
+      if (venta.statusVentaId === 5) { // Supongamos que el estado 5 representa "cancelado"
+        return res.status(400).json({ error: "La venta ya está cancelada" });
+      }
 
-    // Paso 2: Para cada venta, obtener todos sus detalles de venta
-    let totalProductosComprados = 0;
+      // Actualizar el estado de la venta a cancelado y agregar el motivo de cancelación
+      venta.statusVentaId = 5; // Supongamos que el estado 5 representa "cancelado"
+      venta.motivoCancelacion = reason;
+      await venta.save();
 
-    for (const venta of ventas) {
-      const detallesVenta = await DetalleVenta.findAll({
-        where: {
-          ventaId: venta.ventaId,
-          productoId: productoId
-        }
-      });
-
-      // Paso 3: Contar la cantidad de productos específicos para cada detalle de venta
-      detallesVenta.forEach(detalleVenta => {
-        totalProductosComprados += detalleVenta.cantidad;
-      });
+      // Respuesta exitosa
+      res.json({ message: "La venta ha sido cancelada exitosamente" });
+    } catch (error) {
+      console.error("Error al cancelar la venta:", error);
+      res.status(500).json({ error: "Error al cancelar la venta" });
     }
-
-    // Enviar el total de productos comprados como respuesta
-    res.status(200).json({ totalProductosComprados });
-  } catch (error) {
-    console.error('Error al obtener detalles de ventas por productoId y fecha:', error);
-    res.status(500).json({ error: 'Ocurrió un error al obtener detalles de ventas por productoId y fecha' });
-  }
-}
-
+  },
 
 };
 

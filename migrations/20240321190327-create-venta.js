@@ -43,6 +43,10 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false
       },
+      motivoCancelacion: {
+        type: Sequelize.TEXT,
+        allowNull: true
+      },
       statusVentaId: {
         type: Sequelize.INTEGER,
         allowNull: false,

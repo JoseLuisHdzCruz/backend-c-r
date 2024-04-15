@@ -8,6 +8,7 @@ router.get('/', ventasController.obtenerTodasLasVentas);
 router.get('/:id', ventasController.obtenerVentaPorId);
 router.get('/cliente/:customerId', ventasController.obtenerVentasPorCustomerId);
 router.post('/filtroVentas', ventasController.filtrarVentasPorFecha);
+router.post("/cancelar-venta", ventasController.cancelarVenta);
 router.post('/mate', ventasController.obtenerDetalleVentasPorProductoIdYFecha);
 
 // Rutas para manejar los detalles de venta

@@ -138,6 +138,9 @@ GET http://localhost:5000/products/
 GET https://backend-c-r-production.up.railway.app/products/categoria/4
 
 ###
+GET https://backend-c-r-production.up.railway.app/products/categorias
+
+###
 GET http://localhost:5000/products/randomProducts
 
 ###
