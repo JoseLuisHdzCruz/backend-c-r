@@ -180,22 +180,17 @@ module.exports = {
   obtenerProductosMasVendidos : async (req, res, next) => {
     try {
       // Paso 1: Consultar los IDs de los productos más vendidos
-      const productosMasVendidos = await DetalleVenta.findAll({
-        attributes: ['productoId', [sequelize.fn('SUM', sequelize.col('cantidad')), 'totalVentas']],
-        group: ['productoId'],
-        order: [[sequelize.literal('totalVentas'), 'DESC']],
-        limit: 20,
-      });
+      const productosMasVendidos = await DetalleVenta.aggregate([
+        { $group: { _id: "$productoId", totalVentas: { $sum: "$cantidad" } } },
+        { $sort: { totalVentas: -1 } },
+        { $limit: 20 }
+      ]);
   
       // Obtener los IDs de los productos más vendidos
-      const idsProductosMasVendidos = productosMasVendidos.map((detalleVenta) => detalleVenta.productoId);
+      const idsProductosMasVendidos = productosMasVendidos.map((detalleVenta) => detalleVenta._id);
   
       // Paso 2: Consultar la información detallada de los productos
-      const informacionProductos = await Producto.findAll({
-        where: {
-          productoId: idsProductosMasVendidos,
-        },
-      });
+      const informacionProductos = await Producto.find({ productoId: { $in: idsProductosMasVendidos } });
   
       // Formatear la respuesta
       const respuesta = informacionProductos.map((producto) => ({
