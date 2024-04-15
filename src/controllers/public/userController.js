@@ -6,6 +6,7 @@ const ClavesTemporales = require("../../../models/clavesTemporalesModels");
 const HistorialContrasenas = require("../../../models/historialContraseñas");
 const UserActivityLog = require("../../../models/logsModel");
 const Session = require("../../../models/sesionModel");
+const Notificaciones = require("../../../models/notificacionesModel");
 
 const axios = require("axios");
 const twilio = require("twilio");
@@ -630,6 +631,23 @@ module.exports = {
     } catch (error) {
       console.error("Error al actualizar pregunta y respuesta secreta:", error);
       res.status(500).json({ success: false, error: "¡Algo salió mal al actualizar pregunta y respuesta secreta!" });
+    }
+  },
+
+  getAllNotifications: async (req, res, next) => {
+    const customerId = req.params.id;
+    try {
+      const notificaciones = await Notificaciones.findAll({
+        where: {
+          customerId // Filtrar por customerId
+        }
+      });
+      res.json(notificaciones);
+    } catch (error) {
+      console.error("Error al obtener todas las notificaciones:", error);
+      res
+        .status(500)
+        .json({ error: "¡Algo salió mal al obtener todas las notificaciones!" });
     }
   },
 

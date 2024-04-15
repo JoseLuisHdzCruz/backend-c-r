@@ -2,18 +2,21 @@
 // Importa tus modelos aquí
 const Producto = require("../../../models/productsModel");
 const Categoria = require("../../../models/categoriaModel");
-const DetalleVenta = require("../../../models/detalleVentaModel")
+const DetalleVenta = require("../../../models/detalleVentaModel");
 
 const Yup = require("yup");
-const { Op, Sequelize } = require('sequelize');
-
-
+const { Op, Sequelize } = require("sequelize");
 
 const validationSchema = Yup.object().shape({
   nombre: Yup.string().required("El nombre es obligatorio"),
   descripcion: Yup.string().required("La descripción es obligatoria"),
-  precio: Yup.number().required("El precio es obligatorio").positive("El precio debe ser positivo"),
-  existencia: Yup.number().required("La existencia es obligatoria").integer("La existencia debe ser un número entero").min(0, "La existencia no puede ser negativa"),
+  precio: Yup.number()
+    .required("El precio es obligatorio")
+    .positive("El precio debe ser positivo"),
+  existencia: Yup.number()
+    .required("La existencia es obligatoria")
+    .integer("La existencia debe ser un número entero")
+    .min(0, "La existencia no puede ser negativa"),
   categoriaId: Yup.number().required("La categoría es obligatoria"),
   statusId: Yup.number().required("El estado es obligatorio"),
   imagen: Yup.string().nullable(),
@@ -43,7 +46,9 @@ module.exports = {
       res.json(categorias);
     } catch (error) {
       console.error("Error al obtener las categorias:", error);
-      res.status(500).json({ error: "¡Algo salió mal al obtener las categorias!" });
+      res
+        .status(500)
+        .json({ error: "¡Algo salió mal al obtener las categorias!" });
     }
   },
 
@@ -52,7 +57,7 @@ module.exports = {
 
     try {
       const products = await Producto.findAll({
-        where : { categoriaId }
+        where: { categoriaId },
       });
       res.json(products);
     } catch (error) {
@@ -68,7 +73,9 @@ module.exports = {
       res.json(randomProducts);
     } catch (error) {
       console.error("Error al obtener productos aleatorios:", error);
-      res.status(500).json({ error: "¡Algo salió mal al obtener productos aleatorios!" });
+      res
+        .status(500)
+        .json({ error: "¡Algo salió mal al obtener productos aleatorios!" });
     }
   },
 
@@ -83,26 +90,28 @@ module.exports = {
       }
     } catch (error) {
       console.error("Error al obtener producto por ID:", error);
-      res.status(500).json({ error: "¡Algo salió mal al obtener producto por ID!" });
+      res
+        .status(500)
+        .json({ error: "¡Algo salió mal al obtener producto por ID!" });
     }
   },
 
   searchProducts: async (req, res, next) => {
     const { search } = req.body;
-  
+
     try {
       // Convertir la cadena de búsqueda a minúsculas para hacer la búsqueda insensible a mayúsculas y minúsculas
       const searchTerm = search.toLowerCase();
-  
+
       // Realizar la búsqueda de productos que contengan el término de búsqueda en el nombre
       const products = await Producto.findAll({
         where: {
           nombre: {
-            [Op.like]: `%${searchTerm}%`
-          }
-        }
+            [Op.like]: `%${searchTerm}%`,
+          },
+        },
       });
-  
+
       // Responder con los productos encontrados
       res.json(products);
     } catch (error) {
@@ -161,7 +170,7 @@ module.exports = {
         categoriaId: productData.categoriaId,
         statusId: productData.statusId,
         imagen: productData.imagen || null,
-        IVA: productData.IVA || null
+        IVA: productData.IVA || null,
       });
 
       res.json(existingProduct);
@@ -172,56 +181,52 @@ module.exports = {
       }
 
       console.error("Error al actualizar producto:", error);
-      res.status(500).json({ error: "¡Algo salió mal al actualizar producto!" });
+      res
+        .status(500)
+        .json({ error: "¡Algo salió mal al actualizar producto!" });
     }
   },
 
-  obtenerProductosMasVendidos : async (req, res, next) => {
+  obtenerProductosMasVendidos: async (req, res, next) => {
     try {
       // Paso 1: Consultar los IDs de los productos más vendidos
       const productosMasVendidos = await DetalleVenta.findAll({
-        attributes: ['productoId', [Sequelize.literal('SUM(cantidad)'), 'totalVentas']],
-        group: ['productoId'],
-        order: [[Sequelize.literal('totalVentas'), 'DESC']],
+        attributes: [
+          "productoId",
+          [Sequelize.literal("SUM(cantidad)"), "totalVentas"],
+        ],
+        group: ["productoId"],
+        order: [[Sequelize.literal("totalVentas"), "DESC"]],
         limit: 20,
       });
-      // DetalleVenta {
-      //   dataValues: { productoId: 364, totalVentas: '30' },
-      //   _previousDataValues: { productoId: 364, totalVentas: '30' },
-      //   uniqno: 1,
-      //   _changed: Set(0) {},
-      //   _options: {
-      //   isNewRecord: false,
-      //   _schema: null,
-      //   _schemaDelimiter: '',
-      //   raw: true,
-      //   attributes: [Array]
-      //   },
-      //   isNewRecord: false
-      //   }
-  
-      console.log("consola: ",productosMasVendidos)
 
       // Obtener los IDs de los productos más vendidos
-const idsProductosMasVendidos = productosMasVendidos.map((detalleVenta) => detalleVenta.dataValues.productoId);
+      const idsProductosMasVendidos = productosMasVendidos.map(
+        (detalleVenta) => detalleVenta.dataValues.productoId
+      );
 
-// Paso 2: Consultar la información detallada de los productos
-const informacionProductos = await Producto.findAll({ where: { productoId: idsProductosMasVendidos } });
+      // Paso 2: Consultar la información detallada de los productos
+      const informacionProductos = await Producto.findAll({
+        where: { productoId: idsProductosMasVendidos },
+      });
 
-// Formatear la respuesta
-const respuesta = informacionProductos.map((producto) => ({
-  productoId: producto.productoId,
-  nombre: producto.nombre,
-  descripcion: producto.descripcion,
-  precio: producto.precio,
-  imagen: producto.imagen,
-}));
+      // Formatear la respuesta
+      const respuesta = informacionProductos.map((producto) => ({
+        productoId: producto.productoId,
+        nombre: producto.nombre,
+        descripcion: producto.descripcion,
+        precio: producto.precio,
+        imagen: producto.imagen,
+      }));
 
-res.json(respuesta);
-
+      res.json(respuesta);
     } catch (error) {
-      console.error('Error al obtener los productos más vendidos:', error);
-      res.status(500).json({ error: "¡Algo salió mal al obtener los productos más vendidos!" });
+      console.error("Error al obtener los productos más vendidos:", error);
+      res
+        .status(500)
+        .json({
+          error: "¡Algo salió mal al obtener los productos más vendidos!",
+        });
     }
-  }
+  },
 };
