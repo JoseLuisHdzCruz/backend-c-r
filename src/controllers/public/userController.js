@@ -635,7 +635,7 @@ module.exports = {
   },
 
   getAllNotifications: async (req, res, next) => {
-    const customerId = req.params.id;
+    const customerId = req.params.customerId;
     try {
       const notificaciones = await Notificaciones.findAll({
         where: {
