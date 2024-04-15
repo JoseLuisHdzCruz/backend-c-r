@@ -22,7 +22,7 @@ const Promociones = sequelize.define(
         allowNull: false,
       },
       descuento: {
-        type: DataTypes.NUMBER,
+        type: DataTypes.INTEGER,
         allowNull: false,
       }
   },

@@ -20,7 +20,7 @@ module.exports = {
         allowNull: false,
       },
       descuento: {
-        type: Sequelize.NUMBER,
+        type: Sequelize.INTEGER,
         allowNull: false,
       }
     });
