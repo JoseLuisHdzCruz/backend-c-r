@@ -185,11 +185,25 @@ module.exports = {
         order: [[Sequelize.literal('totalVentas'), 'DESC']],
         limit: 20,
       });
+      // DetalleVenta {
+      //   dataValues: { productoId: 364, totalVentas: '30' },
+      //   _previousDataValues: { productoId: 364, totalVentas: '30' },
+      //   uniqno: 1,
+      //   _changed: Set(0) {},
+      //   _options: {
+      //   isNewRecord: false,
+      //   _schema: null,
+      //   _schemaDelimiter: '',
+      //   raw: true,
+      //   attributes: [Array]
+      //   },
+      //   isNewRecord: false
+      //   }
   
-      console.log("consola: ",productosMasVendidos)
+      console.log("consola: ",productosMasVendidos.DetalleVenta[0].dataValues.productoId)
 
       // Obtener los IDs de los productos más vendidos
-      const idsProductosMasVendidos = productosMasVendidos.map((detalleVenta) => detalleVenta._id);
+      const idsProductosMasVendidos = productosMasVendidos.map((DetalleVenta) => DetalleVenta._id);
   
       // Paso 2: Consultar la información detallada de los productos
       const informacionProductos = await Producto.find({ productoId: { $in: idsProductosMasVendidos } });
