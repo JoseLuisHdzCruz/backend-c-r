@@ -46,6 +46,29 @@ Content-Type: application/json
   "fechaFinal": "2024-04-11 ",
   "productoId": 367
 }
+
+
+###
+post https://backend-c-r-production.up.railway.app/ventas/cancelar-venta/
+
+Content-Type: application/json
+
+{
+  "folio": "59a29212-9673-485e-971b-34f3dedaf8e5",
+  "reason": "Prueba cancelacion"
+}
+
+
+###
+post https://backend-c-r-production.up.railway.app/ventas/cancelar-venta
+
+Content-Type: application/json
+
+{
+  "fechaInicial": "2023-05-06",
+  "fechaFinal": "2024-04-11 ",
+  "productoId": 367
+}
 ###
 
 GET https://backend-c-r-production.up.railway.app/ventas/cliente/1
