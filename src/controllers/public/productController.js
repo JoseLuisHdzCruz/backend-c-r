@@ -1,6 +1,6 @@
 // /src/controllers/productController.js
 // Importa tus modelos aquí
-const { sequelize } = require('../../../src/config/database');
+const { sequelize } = require('../../config/database');
 const Producto = require("../../../models/productsModel");
 const Categoria = require("../../../models/categoriaModel");
 const DetalleVenta = require("../../../models/detalleVentaModel")
