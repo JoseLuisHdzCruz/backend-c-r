@@ -200,24 +200,25 @@ module.exports = {
       //   isNewRecord: false
       //   }
   
-      console.log("consola: ",productosMasVendidos.DetalleVenta[0].dataValues.productoId)
+      console.log("consola: ",productosMasVendidos)
 
       // Obtener los IDs de los productos más vendidos
-      const idsProductosMasVendidos = productosMasVendidos.map((DetalleVenta) => DetalleVenta._id);
-  
-      // Paso 2: Consultar la información detallada de los productos
-      const informacionProductos = await Producto.find({ productoId: { $in: idsProductosMasVendidos } });
-  
-      // Formatear la respuesta
-      const respuesta = informacionProductos.map((producto) => ({
-        productoId: producto.productoId,
-        nombre: producto.nombre,
-        descripcion: producto.descripcion,
-        precio: producto.precio,
-        imagen: producto.imagen,
-      }));
-  
-      res.json(respuesta);
+const idsProductosMasVendidos = productosMasVendidos.map((detalleVenta) => detalleVenta.dataValues.productoId);
+
+// Paso 2: Consultar la información detallada de los productos
+const informacionProductos = await Producto.findAll({ where: { productoId: idsProductosMasVendidos } });
+
+// Formatear la respuesta
+const respuesta = informacionProductos.map((producto) => ({
+  productoId: producto.productoId,
+  nombre: producto.nombre,
+  descripcion: producto.descripcion,
+  precio: producto.precio,
+  imagen: producto.imagen,
+}));
+
+res.json(respuesta);
+
     } catch (error) {
       console.error('Error al obtener los productos más vendidos:', error);
       res.status(500).json({ error: "¡Algo salió mal al obtener los productos más vendidos!" });
