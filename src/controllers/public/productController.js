@@ -179,25 +179,29 @@ module.exports = {
 
   obtenerProductosMasVendidos : async (req, res, next) => {
     try {
-      // Consultar los 20 productos con más ventas
-      const productosMasVendidos = await DetalleVenta.findAll({
-        attributes: ['productoId', [sequelize.fn('SUM', sequelize.col('cantidad')), 'totalVentas']],
-        group: ['productoId'],
-        order: [[sequelize.literal('totalVentas'), 'DESC']],
+      const top20DetailSales = await DetalleVenta.findAll({
+        order: [['cantidad', 'DESC']],
         limit: 20,
+        include: [
+          {
+            model: Producto,
+            attributes: ['productoId', 'nombre', 'descripcion', 'precio', 'imagen'],
+          },
+        ],
+      });
+    
+      const top20Products = top20DetailSales.map((detailSale) => {
+        const product = detailSale.producto;
+        return {
+          productoId: product.productoId,
+          nombre: product.nombre,
+          descripcion: product.descripcion,
+          precio: product.precio,
+          imagen: product.imagen,
+        };
       });
   
-      // Obtener los IDs de los productos más vendidos
-      const idsProductosMasVendidos = productosMasVendidos.map((producto) => producto.productoId);
-  
-      // Consultar la información de los productos en base a los IDs obtenidos
-      const informacionProductos = await Producto.findAll({
-        where: {
-          productoId: idsProductosMasVendidos,
-        },
-      });
-  
-      res.json(informacionProductos);
+      res.json(top20Products);
     } catch (error) {
       console.error('Error al obtener los productos más vendidos:', error);
       res.status(500).json({ error: "¡Algo salió mal al obtener los productos más vendidos!" });
