@@ -3,6 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const productController = require('../../controllers/public/productController');
+const promocionesController = require('../../controllers/public/promocionesController');
 
 // Ruta para obtener todos los productos
 router.get('/', productController.getAllProducts);
@@ -30,6 +31,9 @@ router.put('/:id', productController.updateProduct);
 
 // Ruta para obtener los 20 productos más vendidos
 router.get('/productos/mas-vendidos', productController.obtenerProductosMasVendidos);
+
+// Ruta para obtener las promociones
+router.get('/promos/:fecha', promocionesController.obtenerPromocionesPorFecha);
 
 
 module.exports = router;
