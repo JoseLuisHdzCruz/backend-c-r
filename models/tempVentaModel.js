@@ -44,10 +44,6 @@ const TempVenta = sequelize.define('TempVenta', {
     type: DataTypes.DATE,
     allowNull: false
   },
-  descuentoPromocion: {
-    type: DataTypes.DECIMAL(10, 2), // Decimal para manejar precisión de los impuestos
-    allowNull: true
-  },
   statusVentaId: {
     type: DataTypes.INTEGER,
     allowNull: false
