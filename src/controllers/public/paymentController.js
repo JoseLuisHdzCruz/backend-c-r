@@ -35,8 +35,7 @@ const paymentController = {
         statusVentaId,
         metodoPagoId: metodoPagoId,
         sucursalesId: venta.sucursalesId,
-        domicilioId: venta.domicilioId,
-        descuentoPromocion: venta.descuentoPromocion
+        domicilioId: venta.domicilioId
       });
 
       const ventaId = nuevaVenta.ventaId;
