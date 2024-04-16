@@ -30,7 +30,7 @@ const ventasController = {
         metodoPagoId: metodoPagoId,
         sucursalesId: venta.sucursalesId,
         domicilioId: venta.domicilioId,
-        descuentoPromocion: venta.descuentoPromocion
+        descuentoPromocion: null
       });
       // Crear los registros de detalle de venta
       const detallesVenta = await Promise.all(
