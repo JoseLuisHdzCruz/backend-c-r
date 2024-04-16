@@ -8,6 +8,9 @@ PUT https://backend-c-r-production.up.railway.app/users/update/1
 GET https://backend-c-r-production.up.railway.app/users/getAllNotifications/1
 
 ###
+PUT https://backend-c-r-production.up.railway.app/users/notificaciones/1
+
+###
 GET http://localhost:5000/users/
 
 ###

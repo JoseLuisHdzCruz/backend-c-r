@@ -651,4 +651,26 @@ module.exports = {
     }
   },
 
+  actualizarEstadoNotificacion: async (req, res) => {
+    const notificationId = req.params.notificationId;
+  
+    try {
+      // Buscar la notificación por su id
+      const notificacion = await Notificaciones.findByPk(notificationId);
+  
+      // Verificar si la notificación existe
+      if (!notificacion) {
+        return res.status(404).json({ message: 'Notificación no encontrada' });
+      }
+  
+      // Actualizar el estado de la notificación
+      await notificacion.update({ estado: 'Leido' }); // Cambiar 'leido' por el estado deseado
+  
+      return res.status(200).json({ message: 'Estado de notificación actualizado correctamente' });
+    } catch (error) {
+      console.error('Error al actualizar estado de notificación:', error);
+      return res.status(500).json({ message: 'Error interno del servidor' });
+    }
+  }
+
 };

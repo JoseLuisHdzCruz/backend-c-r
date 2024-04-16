@@ -52,6 +52,9 @@ router.put('/updateUser/:customerId', userController.updateSecretQuestionAndAnsw
 // Ruta para obtener todas la notificaciones
 router.get('/getAllNotifications/:customerId', userController.getAllNotifications);
 
+// Ruta para actualizar el estado de una notificación por su id
+router.put('/notificaciones/:notificationId', userController.actualizarEstadoNotificacion);
+
 // // Ruta para eliminar un usuario
 // router.delete('/:id', userController.deleteUser);
 
