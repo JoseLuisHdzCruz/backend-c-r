@@ -139,6 +139,9 @@ Content-Type: application/json
 ###
 GET https://backend-c-r-production.up.railway.app/products/
 
+###
+GET https://backend-c-r-production.up.railway.app/products/promos/2024-04-16
+
 
 ###
 GET https://backend-c-r-production.up.railway.app/products/categoria/2

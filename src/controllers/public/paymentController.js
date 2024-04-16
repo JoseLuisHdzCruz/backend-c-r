@@ -117,7 +117,7 @@ const paymentController = {
           metodoPagoId: tempVenta.metodoPagoId,
           sucursalesId: tempVenta.sucursalesId,
           domicilioId: tempVenta.domicilioId,
-          descuentoPromocion: venta.descuentoPromocion
+          descuentoPromocion: null
         });
 
         const tempDetalleVenta = await TempDetalleVenta.findAll({
