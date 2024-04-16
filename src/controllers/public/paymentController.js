@@ -115,8 +115,7 @@ const paymentController = {
           statusVentaId: tempVenta.statusVentaId,
           metodoPagoId: tempVenta.metodoPagoId,
           sucursalesId: tempVenta.sucursalesId,
-          domicilioId: tempVenta.domicilioId,
-          descuentoPromocion: null
+          domicilioId: tempVenta.domicilioId
         });
 
         const tempDetalleVenta = await TempDetalleVenta.findAll({
