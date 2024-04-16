@@ -93,7 +93,7 @@ const paymentController = {
       // const venta = JSON.parse(req.query.venta)
       console.log(req.query["data.id"]);
       const payment = req.query["data.id"];
-      console.log(ventaId);
+      console.log("Id de la venta: " ,ventaId);
       if (payment && payment !== "") {
 
         console.log(payment);
@@ -115,7 +115,8 @@ const paymentController = {
           statusVentaId: tempVenta.statusVentaId,
           metodoPagoId: tempVenta.metodoPagoId,
           sucursalesId: tempVenta.sucursalesId,
-          domicilioId: tempVenta.domicilioId
+          domicilioId: tempVenta.domicilioId,
+          descuentoPromocion: null
         });
 
         const tempDetalleVenta = await TempDetalleVenta.findAll({
