@@ -1,4 +1,5 @@
 const { DataTypes } = require("sequelize");
+const Categoria = require("./categoriaModel");
 const sequelize = require("../src/config/database");
 
 const Promociones = sequelize.define(
@@ -24,13 +25,24 @@ const Promociones = sequelize.define(
       descuento: {
         type: DataTypes.INTEGER,
         allowNull: false,
-      }
+      },
+      categoriaId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: Categoria, // Asegúrate de reemplazar 'Categoria' con el modelo de categoría adecuado si existe
+          key: 'categoriaId'
+        } 
+      },
   },
   {
     tableName: "promociones",
     timestamps: false,
   }
 );
+
+Promociones.belongsTo(Categoria, { foreignKey: 'categoriaId' });
+
 
 (async () => {
   await Promociones.sync();

@@ -22,7 +22,15 @@ module.exports = {
       descuento: {
         type: Sequelize.INTEGER,
         allowNull: false,
-      }
+      },
+      categoriaId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "categoria", // Asegúrate de reemplazar 'Categoria' con el modelo de categoría adecuado si existe
+          key: 'categoriaId'
+        } 
+      },
     });
   },
   down: async (queryInterface, Sequelize) => {
