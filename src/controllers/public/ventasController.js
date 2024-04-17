@@ -1,6 +1,8 @@
 const Venta = require("../../../models/ventaModel");
 const { Op } = require("sequelize"); // Importa Op de Sequelize
 const DetalleVenta = require("../../../models/detalleVentaModel");
+const Notificaciones = require("../../../models/notificacionesModel");
+const NotificacionesAdmin = require("../../../models//notificacionesAdminModel");
 const { v4: uuidv4 } = require("uuid");
 const axios = require("axios");
 
@@ -30,7 +32,7 @@ const ventasController = {
         metodoPagoId: metodoPagoId,
         sucursalesId: venta.sucursalesId,
         domicilioId: venta.domicilioId,
-        descuentoPromocion: null
+        descuentoPromocion: null,
       });
       // Crear los registros de detalle de venta
       const detallesVenta = await Promise.all(
@@ -187,12 +189,10 @@ const ventasController = {
         "Error al obtener detalles de ventas por productoId y fecha:",
         error
       );
-      res
-        .status(500)
-        .json({
-          error:
-            "Ocurrió un error al obtener detalles de ventas por productoId y fecha",
-        });
+      res.status(500).json({
+        error:
+          "Ocurrió un error al obtener detalles de ventas por productoId y fecha",
+      });
     }
   },
 
@@ -209,8 +209,35 @@ const ventasController = {
       }
 
       // Verificar si la venta ya está cancelada
-      if (venta.statusVentaId === 5) { // Supongamos que el estado 5 representa "cancelado"
+      if (venta.statusVentaId === 5) {
+        // Supongamos que el estado 5 representa "cancelado"
         return res.status(400).json({ error: "La venta ya está cancelada" });
+      }
+
+      if (venta.statusVentaId === 4) {
+        await Notificaciones.create({
+          evento: "Cancelacion de venta",
+          descripcion: `Se cancelado la compra con el folio: ${venta.folio}`,
+          fecha: new Date(),
+          estado: "No leído",
+          customerId: venta.customerId,
+        });
+      } else if (venta.statusVentaId === 1) {
+        await Notificaciones.create({
+          evento: "Cancelacion de venta",
+          descripcion: `Se cancelado la compra con el folio: ${venta.folio},  su reembolso se vera reflejado en los proximos 5 dias habiles`,
+          fecha: new Date(),
+          estado: "No leído",
+          customerId: venta.customerId,
+        });
+
+        await NotificacionesAdmin.create({
+          evento: "Reembolso pendiente",
+          descripcion: `Se cancelado la compra con el folio: ${venta.folio},  se debe reembolsar la cantidad: ${venta.total}`,
+          fecha: new Date(),
+          estado: "No leído",
+          admonId: 1,
+        });
       }
 
       // Actualizar el estado de la venta a cancelado y agregar el motivo de cancelación
@@ -225,7 +252,6 @@ const ventasController = {
       res.status(500).json({ error: "Error al cancelar la venta" });
     }
   },
-
 };
 
 module.exports = ventasController;
