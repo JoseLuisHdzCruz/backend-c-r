@@ -233,7 +233,7 @@ const ventasController = {
 
         await NotificacionesAdmin.create({
           evento: "Reembolso pendiente",
-          descripcion: `Se cancelado la compra con el folio: ${venta.folio},  se debe reembolsar la cantidad: ${venta.total}`,
+          descripcion: `Se cancelado la compra con el folio: ${venta.folio},  se debe reembolsar la cantidad: ${venta.total} al usuario: ${venta.customerId}`,
           fecha: new Date(),
           estado: "No leído",
           admonId: 1,

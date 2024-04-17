@@ -18,7 +18,7 @@ const NotificacionesAdmin = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "administrador",
+        model: "Administrador",
         key: "admonId",
       },
     },
