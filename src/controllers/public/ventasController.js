@@ -1,9 +1,9 @@
 const Venta = require("../../../models/ventaModel");
-const { Op } = require("sequelize"); // Importa Op de Sequelize
 const DetalleVenta = require("../../../models/detalleVentaModel");
 const Notificaciones = require("../../../models/notificacionesModel");
 const NotificacionesAdmin = require("../../../models/notificacionesAdminModel");
 const { v4: uuidv4 } = require("uuid");
+const { Op } = require("sequelize");
 const axios = require("axios");
 
 const ventasController = {
@@ -241,7 +241,7 @@ const ventasController = {
       }
 
       // Actualizar el estado de la venta a cancelado y agregar el motivo de cancelación
-      venta.statusVentaId = 5; // Supongamos que el estado 5 representa "cancelado"
+      venta.statusVentaId = 5;
       venta.motivoCancelacion = reason;
       await venta.save();
 

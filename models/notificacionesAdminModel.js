@@ -36,7 +36,7 @@ const NotificacionesAdmin = sequelize.define(
     },
   },
   {
-    tableName: "notificaciones",
+    tableName: "notificaciones_admon",
     timestamps: false,
   }
 );
