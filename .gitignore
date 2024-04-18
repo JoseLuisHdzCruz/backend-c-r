@@ -8,6 +8,7 @@
 /.http
 /carrito.http
 /venta.http
+/admon.http
 
 # testing
 /coverage
