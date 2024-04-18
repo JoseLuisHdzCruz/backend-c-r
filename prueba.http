@@ -1,6 +1,13 @@
 POST https://backend-c-r-production.up.railway.app/order/webhook?data.id=1317747908&type=payment
 
 
+###
+PUT https://backend-c-r-production.up.railway.app/address/colonias/60
+Content-Type: application/json
+
+{
+  "nuevoEnvio": "70"
+}
 
 ###
 GET https://backend-c-r-production.up.railway.app/address/get-domicilio/1

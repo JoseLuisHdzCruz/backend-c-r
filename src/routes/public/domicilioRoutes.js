@@ -6,6 +6,8 @@ const domicilioController = require('../../controllers/public/domicilioControlle
 
 // Rutas para Sucursales
 router.get('/get-colonias/:cp', domicilioController.getAllColoniasByCP);
+// Ruta para actualizar el envío de una colonia
+router.put('/colonias/:id', domicilioController.actualizarEnvioColonia);
 
 router.get('/get-sucursal', domicilioController.getAllSucursales);
 router.post('/add-sucursal', domicilioController.createSucursal);

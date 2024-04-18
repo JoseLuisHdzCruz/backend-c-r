@@ -39,6 +39,30 @@ const domicilioController = {
     }
   },
 
+  actualizarEnvioColonia: async (req, res, next) => {
+    try {
+      // Obtener el ID de la colonia y el nuevo valor de envío desde el cuerpo de la solicitud
+      const { id } = req.params;
+      const { nuevoEnvio } = req.body;
+  
+      // Verificar si la colonia existe
+      const colonia = await Colonia.findByPk(id);
+  
+      if (!colonia) {
+        return res.status(404).json({ error: 'Colonia no encontrada' });
+      }
+  
+      // Actualizar el valor de envío de la colonia
+      await colonia.update({ envio: nuevoEnvio });
+  
+      // Responder con el nuevo valor de envío actualizado
+      return res.status(200).json({ message: 'Envío actualizado correctamente', nuevoEnvio });
+    } catch (error) {
+      console.error('Error al actualizar el envío de la colonia:', error);
+      return res.status(500).json({ error: 'Error interno del servidor' });
+    }
+  },
+
   createDomicilio: async (req, res, next) => {
     const domicilioData = req.body;
 
