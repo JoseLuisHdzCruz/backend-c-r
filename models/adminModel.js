@@ -23,11 +23,6 @@ const Administrador = sequelize.define('Administrador', {
   contraseña: {
     type: DataTypes.STRING,
     allowNull: false
-  },
-  usuario: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true
   }
 }, {
   tableName: 'administrador',

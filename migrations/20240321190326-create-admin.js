@@ -23,11 +23,6 @@ module.exports = {
       contraseña: {
         type: Sequelize.STRING,
         allowNull: false
-      },
-      usuario: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true
       }
     });
   },
