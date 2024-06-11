@@ -82,6 +82,10 @@ const Usuario = sequelize.define('Usuario', {
   respuestaPSecreta: {
     type: DataTypes.STRING,
     allowNull: false
+  },
+  fcmToken: {
+    type: DataTypes.STRING,
+    allowNull: true,
   }
 }, {
   // Opciones adicionales del modelo

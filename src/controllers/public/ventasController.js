@@ -2,6 +2,7 @@ const Venta = require("../../../models/ventaModel");
 const DetalleVenta = require("../../../models/detalleVentaModel");
 const Notificaciones = require("../../../models/notificacionesModel");
 const NotificacionesAdmin = require("../../../models/notificacionesAdminModel");
+const admin = require("../../config/firebaseConfig");
 const { v4: uuidv4 } = require("uuid");
 const { Op } = require("sequelize");
 const axios = require("axios");
@@ -54,6 +55,25 @@ const ventasController = {
       await axios.delete(
         `https://backend-c-r-production.up.railway.app/cart/clear/${customerId}`
       );
+
+      // Enviar notificación a Firebase
+      const message = {
+        notification: {
+          title: "Nueva venta",
+          body: `Se ha generado una nueva venta con folio: ${folio}`,
+        },
+        token: "USER_FCM_TOKEN", // Reemplaza 'USER_FCM_TOKEN' con el token de dispositivo del usuario
+      };
+
+      admin
+        .messaging()
+        .send(message)
+        .then((response) => {
+          console.log("Successfully sent message:", response);
+        })
+        .catch((error) => {
+          console.error("Error sending message:", error);
+        });
 
       // Respuesta exitosa
       res.status(201).json({ venta: nuevaVenta, detallesVenta });

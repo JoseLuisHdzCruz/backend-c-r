@@ -79,7 +79,11 @@ module.exports = {
       respuestaPSecreta: {
         type: Sequelize.STRING,
         allowNull: false
-      }
+      },
+      fcmToken: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
     });
   },
   down: async (queryInterface, Sequelize) => {
