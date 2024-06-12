@@ -215,6 +215,19 @@ module.exports = {
     }
   },
 
+  fcmToken: async (req, res) => {
+    const { token, customerId } = req.body;
+  
+    try {
+      // Actualizar el token FCM del usuario
+      await Usuario.update({ fcmToken: token }, { where: { customerId: customerId } });
+      res.status(200).send({ message: 'Token successfully stored' });
+    } catch (error) {
+      console.error('Error storing token:', error);
+      res.status(500).send({ message: 'Error storing token' });
+    }
+  },
+
   loginUser: async (req, res, next) => {
     const { correo, contraseña } = req.body;
 

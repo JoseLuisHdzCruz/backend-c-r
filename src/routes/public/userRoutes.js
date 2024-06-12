@@ -55,6 +55,8 @@ router.get('/getAllNotifications/:customerId', userController.getAllNotification
 // Ruta para actualizar el estado de una notificación por su id
 router.put('/notificaciones/:notificationId', userController.actualizarEstadoNotificacion);
 
+router.post('/api/store-fcm-token', userController.fcmToken);
+
 // // Ruta para eliminar un usuario
 // router.delete('/:id', userController.deleteUser);
 

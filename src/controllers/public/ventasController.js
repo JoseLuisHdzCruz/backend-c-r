@@ -3,9 +3,11 @@ const DetalleVenta = require("../../../models/detalleVentaModel");
 const Notificaciones = require("../../../models/notificacionesModel");
 const NotificacionesAdmin = require("../../../models/notificacionesAdminModel");
 const admin = require("../../config/firebaseConfig");
+const fcmServerKey = process.env.FCM_SERVER_KEY;
 const { v4: uuidv4 } = require("uuid");
 const { Op } = require("sequelize");
 const axios = require("axios");
+const Usuario = require("../../../models/usuarioModel");
 
 const ventasController = {
   // Controlador para crear una nueva venta
@@ -56,24 +58,27 @@ const ventasController = {
         `https://backend-c-r-production.up.railway.app/cart/clear/${customerId}`
       );
 
-      // Enviar notificación a Firebase
+      // Obtener el token FCM del usuario
+    const user = await Usuario.findOne({ where: { customerId: customerId } });
+    const fcmToken = user.fcmToken;
+
+    // Enviar la notificación push si el usuario tiene un token FCM
+    if (fcmToken) {
       const message = {
+        to: fcmToken,
         notification: {
-          title: "Nueva venta",
-          body: `Se ha generado una nueva venta con folio: ${folio}`,
+          title: 'Nueva venta',
+          body: 'Tu compra ha sido realizada con éxito',
         },
-        token: "USER_FCM_TOKEN", // Reemplaza 'USER_FCM_TOKEN' con el token de dispositivo del usuario
       };
 
-      admin
-        .messaging()
-        .send(message)
-        .then((response) => {
-          console.log("Successfully sent message:", response);
-        })
-        .catch((error) => {
-          console.error("Error sending message:", error);
-        });
+      await axios.post('https://fcm.googleapis.com/fcm/send', message, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `key=${fcmServerKey}`,
+        },
+      });
+    }
 
       // Respuesta exitosa
       res.status(201).json({ venta: nuevaVenta, detallesVenta });
