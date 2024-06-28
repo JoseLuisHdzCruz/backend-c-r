@@ -132,8 +132,8 @@ module.exports = {
         precio: productData.precio,
         existencia: productData.existencia,
         categoriaId: productData.categoriaId,
-        statusId: productData.statusId,
-        imagen: productData.imagen,
+        statusId: 1,
+        imagen: null,
         IVA: productData.precio * 0.16,
         precioFinal: productData.precio + productData.precio * 0.16,
       });
