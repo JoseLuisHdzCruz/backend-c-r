@@ -21,7 +21,7 @@ router.get('/randomProducts', productController.getRandomProducts);
 router.get('/:id', productController.getProductById);
 
 // Ruta para crear un nuevo producto
-router.post('/', productController.createProduct);
+router.post('/add', productController.createProduct);
 
 // Ruta para buscar productos
 router.post('/search', productController.searchProducts);

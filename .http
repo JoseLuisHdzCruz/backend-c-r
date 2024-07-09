@@ -156,21 +156,25 @@ GET https://backend-c-r-production.up.railway.app/products/productos/mas-vendido
 GET http://localhost:5000/products/randomProducts
 
 ###
-POST https://backend-c-r-production.up.railway.app/products/
+POST http://localhost:5000/products/add
 Content-Type: application/json
 
 {
-  "nombre": "Set 82 Juguetes Pastel Cumpleaños",
-  "descripcion": "Juguete de 82 piezas de simulación de pastel de cumpleaños para postres y manualidades.",
+  "nombre": "Balón Futbol Gaser Termoformado Amateur No. 4 Color Rojo",
+  "descripcion": "Balon de futbol con camara de hule",
   "precio": 520,
   "existencia": 12,
-  "categoriaId": 2,
-  "statusId": 1,
-  "imagen": "https://res.cloudinary.com/drvcma1kk/image/upload/v1709424362/Icono-producto_hsmag2.png"
+  "categoriaId": 5,
+  "imagen": null
 }
 
 ###
-GET http://localhost:5000/products/13
+GET http://localhost:5000/products/364
+
+###
+GET http://localhost:5000/admin/get-employee
+
+
 
 
 ###

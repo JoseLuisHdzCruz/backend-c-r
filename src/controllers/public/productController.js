@@ -124,8 +124,6 @@ module.exports = {
     const productData = req.body;
 
     try {
-      await validationSchema.validate(productData, { abortEarly: false });
-
       const newProduct = await Producto.create({
         nombre: productData.nombre,
         descripcion: productData.descripcion,
@@ -133,17 +131,13 @@ module.exports = {
         existencia: productData.existencia,
         categoriaId: productData.categoriaId,
         statusId: 1,
-        imagen: null,
+        imagen: productData.imagen,
         IVA: productData.precio * 0.16,
         precioFinal: productData.precio + productData.precio * 0.16,
       });
 
       res.status(201).json(newProduct);
     } catch (error) {
-      if (error.name === "ValidationError") {
-        const errors = error.errors.map((err) => err.message);
-        return res.status(400).json({ errors });
-      }
 
       console.error("Error al crear producto:", error);
       res.status(500).json({ error: "¡Algo salió mal al crear producto!" });
@@ -162,15 +156,19 @@ module.exports = {
         return res.status(404).json({ error: "Producto no encontrado" });
       }
 
+      // Convertir el precio a un número
+      const precio = parseFloat(productData.precio);
+
       await existingProduct.update({
         nombre: productData.nombre,
         descripcion: productData.descripcion,
-        precio: productData.precio,
+        precio: precio,
         existencia: productData.existencia,
         categoriaId: productData.categoriaId,
         statusId: productData.statusId,
-        imagen: productData.imagen || null,
-        IVA: productData.IVA || null,
+        imagen: productData.imagen,
+        IVA: precio * 0.16,
+        precioFinal: precio + (precio * 0.16),
       });
 
       res.json(existingProduct);

@@ -8,6 +8,8 @@ const { v4: uuidv4 } = require("uuid");
 const { Op } = require("sequelize");
 const axios = require("axios");
 const Usuario = require("../../../models/usuarioModel");
+// deberías almacenar y gestionar este valor de forma persistente.
+let folioCounter = 0;
 
 const ventasController = {
   // Controlador para crear una nueva venta
@@ -18,8 +20,13 @@ const ventasController = {
       // Fecha actual
       const fecha = new Date();
 
-      // Generar folio manualmente (puedes implementar la lógica que necesites para generar el folio)
-      const folio = uuidv4();
+       // Fecha actual
+       const year = fecha.getFullYear();
+       const month = String(fecha.getMonth() + 1).padStart(2, '0'); // getMonth() returns 0-based month
+
+       // Incrementar el contador de folios y generar el folio
+       folioCounter += 1;
+       const folio = `${year}${month}${String(folioCounter).padStart(7, '0')}`;
 
       const statusVentaId = 4;
       const nuevaVenta = await Venta.create({
