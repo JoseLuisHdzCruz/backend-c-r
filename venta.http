@@ -86,3 +86,17 @@ Content-Type: application/json
   "customerId": 1
 }
 
+###
+GET http://localhost:5000/ventas/status/venta/ed4441a8-315b-46e0-bd68-ddcd52732873
+
+
+###
+POST http://localhost:5000/products/search
+Content-Type: application/json
+
+{
+  "search": "Peluche"
+}
+
+###
+GET https://backend-c-r-production.up.railway.app/products/randomProducts

@@ -2,6 +2,7 @@ const Venta = require("../../../models/ventaModel");
 const DetalleVenta = require("../../../models/detalleVentaModel");
 const Notificaciones = require("../../../models/notificacionesModel");
 const NotificacionesAdmin = require("../../../models/notificacionesAdminModel");
+const StatusVenta = require("../../../models/statusVentaModel");
 const admin = require("../../config/firebaseConfig");
 const fcmServerKey = process.env.FCM_SERVER_KEY;
 const { v4: uuidv4 } = require("uuid");
@@ -92,6 +93,34 @@ const ventasController = {
     } catch (error) {
       console.error("Error al crear la venta con detalle:", error);
       res.status(500).json({ error: "Error al crear la venta con detalle" });
+    }
+  },
+
+  // Controlador para obtener el estado detallado de una venta por su folio
+  obtenerDetalleStatusPorFolio: async (req, res) => {
+    const { folio } = req.params;
+
+    try {
+      // Buscar la venta por su folio
+      const venta = await Venta.findOne({ where: { folio } });
+
+      // Verificar si la venta existe
+      if (!venta) {
+        return res.status(404).json({ error: "Venta no encontrada" });
+      }
+
+      // Obtener el estado de la venta
+      const statusVenta = await StatusVenta.findByPk(venta.statusVentaId);
+
+      if (!statusVenta) {
+        return res.status(404).json({ error: "Estado de venta no encontrado" });
+      }
+
+      // Responder con el estado de la venta
+      res.json({ folio: venta.folio, estado: statusVenta.statusVenta });
+    } catch (error) {
+      console.error("Error al obtener el estado de la venta por folio:", error);
+      res.status(500).json({ error: "Error al obtener el estado de la venta por folio" });
     }
   },
 
