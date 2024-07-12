@@ -26,6 +26,9 @@ router.post('/add', productController.createProduct);
 // Ruta para buscar productos
 router.post('/search', productController.searchProducts);
 
+// Ruta de busqueda avanzada
+router.post('/search-advance', productController.searchProductsAdvance);
+
 // Ruta para actualizar un producto
 router.put('/:id', productController.updateProduct);
 

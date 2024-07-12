@@ -120,6 +120,34 @@ module.exports = {
     }
   },
 
+  searchProductsAdvance : async (req, res, next) => {
+    const { nombre, categoriaId } = req.body;
+  
+    try {
+      // Crear el objeto de condiciones
+      const conditions = {};
+  
+      // Convertir las cadenas de búsqueda a minúsculas para hacer la búsqueda insensible a mayúsculas y minúsculas
+      if (nombre) {
+        conditions.nombre = { [Op.like]: `%${nombre.toLowerCase()}%` };
+      }
+      if (categoriaId) {
+        conditions.categoriaId = categoriaId;
+      }
+  
+      // Realizar la búsqueda de productos con las condiciones construidas
+      const products = await Producto.findAll({
+        where: conditions,
+      });
+  
+      // Responder con los productos encontrados
+      res.json(products);
+    } catch (error) {
+      console.error("Error al buscar productos:", error);
+      res.status(500).json({ error: "¡Algo salió mal al buscar productos!" });
+    }
+  },
+
   createProduct: async (req, res, next) => {
     const productData = req.body;
 

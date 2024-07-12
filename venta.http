@@ -87,11 +87,11 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:5000/ventas/status/venta/ed4441a8-315b-46e0-bd68-ddcd52732873
+GET https://backend-c-r-production.up.railway.app/ventas/status/venta/ed4441a8-315b-46e0-bd68-ddcd52732873
 
 
 ###
-POST http://localhost:5000/products/search
+POST https://backend-c-r-production.up.railway.app/products/search
 Content-Type: application/json
 
 {
@@ -100,3 +100,14 @@ Content-Type: application/json
 
 ###
 GET https://backend-c-r-production.up.railway.app/products/randomProducts
+
+
+
+###
+POST http:///localhost:5000/products/search-advance
+Content-Type: application/json
+
+{
+  "nombre": "stich",
+  "categoriaId": 1
+}
