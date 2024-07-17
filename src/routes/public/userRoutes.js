@@ -57,7 +57,8 @@ router.put('/notificaciones/:notificationId', userController.actualizarEstadoNot
 
 router.post('/api/store-fcm-token', userController.fcmToken);
 
-// // Ruta para eliminar un usuario
-// router.delete('/:id', userController.deleteUser);
+router.post('/searchAdvance', userController.searchUsersAdvance);
+
+
 
 module.exports = router;

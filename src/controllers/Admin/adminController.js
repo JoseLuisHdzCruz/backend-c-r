@@ -1,8 +1,12 @@
 const NotificacionesAdmin = require("../../../models/notificacionesAdminModel");
 const Empleado = require('../../../models/empleadoModel');
 const Administrador = require('../../../models/adminModel');
+const Nosotros = require('../../../models/nosotrosModel');
+const Promociones = require('../../../models/promocionesModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { Op } = require("sequelize");
+
 
 const adminController = {
 
@@ -15,6 +19,87 @@ const adminController = {
       res
         .status(500)
         .json({ error: "¡Algo salió mal al obtener los empleados!" });
+    }
+  },
+
+  getAllPromociones: async (req, res, next) => {
+    try {
+      const offerts = await Promociones.findAll();
+      res.json(offerts);
+    } catch (error) {
+      console.error("Error al obtener los empleados:", error);
+      res
+        .status(500)
+        .json({ error: "¡Algo salió mal al obtener los empleados!" });
+    }
+  },
+
+  // Obtener un registro de Nosotros por ID
+  getNosotrosById : async (req, res) => {
+    const { id } = req.params;
+    try {
+      const nosotros = await Nosotros.findByPk(id);
+      if (!nosotros) {
+        return res.status(404).json({ message: 'No se encontró el registro de Nosotros' });
+      }
+      res.status(200).json(nosotros);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
+
+  // Actualizar un registro de Nosotros por ID
+  updateNosotrosById: async (req, res) => {
+    const { id } = req.params;
+    const { descripcion, quienesSomos, mision, vision, facebook, correo, telefono } = req.body;
+
+    try {
+      const nosotros = await Nosotros.findByPk(id);
+      if (!nosotros) {
+        return res.status(404).json({ message: 'No se encontró el registro de Nosotros' });
+      }
+
+      nosotros.descripcion = descripcion;
+      nosotros.quienesSomos = quienesSomos;
+      nosotros.mision = mision;
+      nosotros.vision = vision;
+      nosotros.facebook = facebook;
+      nosotros.correo = correo;
+      nosotros.telefono = telefono;
+
+      await nosotros.save();
+
+      res.status(200).json({ message: 'Registro de Nosotros actualizado exitosamente', nosotros });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
+
+  searchUsersAdvance : async (req, res, next) => {
+    const { correo, statusId } = req.body;
+  
+    try {
+      // Crear el objeto de condiciones
+      const conditions = {};
+  
+      // Convertir las cadenas de búsqueda a minúsculas para hacer la búsqueda insensible a mayúsculas y minúsculas
+      if (correo) {
+        conditions.correo = { [Op.like]: `%${correo.toLowerCase()}%` };
+      }
+      if (statusId) {
+        conditions.statusId = statusId;
+      }
+  
+      // Realizar la búsqueda de usuarios con las condiciones construidas
+      const users = await Empleado.findAll({
+        where: conditions,
+      });
+  
+      // Responder con los usuarios encontrados
+      res.json(users);
+    } catch (error) {
+      console.error("Error al buscar usuarios:", error);
+      res.status(500).json({ error: "¡Algo salió mal al buscar usuarios!" });
     }
   },
 

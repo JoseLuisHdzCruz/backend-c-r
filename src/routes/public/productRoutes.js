@@ -8,9 +8,6 @@ const promocionesController = require('../../controllers/public/promocionesContr
 // Ruta para obtener todos los productos
 router.get('/', productController.getAllProducts);
 
-// Ruta para obtener todas las categorias
-router.get('/categorias/', productController.getAllCategorias);
-
 // Ruta para obtener todos los productos
 router.get('/categoria/:categoriaId', productController.getAllProductsCategories);
 
@@ -37,6 +34,10 @@ router.get('/productos/mas-vendidos', productController.obtenerProductosMasVendi
 
 // Ruta para obtener las promociones
 router.get('/promos/:fecha', promocionesController.obtenerPromocionesPorFecha);
+router.get('/categories/getAll', productController.getAllCategories);
+router.get('/status/getAll', productController.getAllStatus);
+router.put('/update/:id', productController.updateProductAttribute);
+router.get('/getSearchTerm/:term', productController.getProductBySearchTerm);
 
 
 module.exports = router;

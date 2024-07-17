@@ -227,3 +227,42 @@ GET http://localhost:5000/address/get-sucursal
 
 ###
 GET https://backend-c-r-production.up.railway.app/address/get-colonias/43000
+
+###
+POST http://localhost:5000/users/searchAdvance
+Content-Type: application/json
+
+{
+  "correo": "dareck",
+  "statusId": 1
+}
+
+###
+POST http://localhost:5000/admin/searchEmployee
+Content-Type: application/json
+
+{
+  "correo": "dareck",
+  "statusId": 1
+}
+
+###
+get http://localhost:5000/products/
+
+###
+get http://localhost:5000/admin/getNosotros/1
+###
+PUT http://localhost:5000/products/update/366
+Content-Type: application/json
+
+{
+  "precio": 110
+}
+
+
+###
+GET http://localhost:5000/products/
+
+###
+GET http://localhost:5000/products/getSearchTerm/peluche stich
+

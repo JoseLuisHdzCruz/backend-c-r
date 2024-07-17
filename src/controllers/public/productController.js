@@ -3,6 +3,8 @@
 const Producto = require("../../../models/productsModel");
 const Categoria = require("../../../models/categoriaModel");
 const DetalleVenta = require("../../../models/detalleVentaModel");
+const Status = require("../../../models/statusModel");
+
 
 const Yup = require("yup");
 const { Op, Sequelize } = require("sequelize");
@@ -40,15 +42,23 @@ module.exports = {
     }
   },
 
-  getAllCategorias: async (req, res, next) => {
+  getAllCategories: async (req, res, next) => {
     try {
-      const categorias = await Categoria.findAll();
-      res.json(categorias);
+      const categories = await Categoria.findAll();
+      res.json(categories);
     } catch (error) {
-      console.error("Error al obtener las categorias:", error);
-      res
-        .status(500)
-        .json({ error: "¡Algo salió mal al obtener las categorias!" });
+      console.error("Error al obtener productos:", error);
+      res.status(500).json({ error: "¡Algo salió mal al obtener productos!" });
+    }
+  },
+
+  getAllStatus: async (req, res, next) => {
+    try {
+      const status = await Status.findAll();
+      res.json(status);
+    } catch (error) {
+      console.error("Error al obtener productos:", error);
+      res.status(500).json({ error: "¡Algo salió mal al obtener productos!" });
     }
   },
 
@@ -96,6 +106,29 @@ module.exports = {
     }
   },
 
+  getProductBySearchTerm: async (req, res, next) => {
+    const searchTerm = req.params.term;
+    try {
+      const product = await Producto.findOne({
+        where: {
+          nombre: {
+            [Op.like]: `%${searchTerm}%`
+          }
+        }
+      });
+      if (product) {
+        res.json(product);
+      } else {
+        res.status(404).json({ message: "Producto no encontrado" });
+      }
+    } catch (error) {
+      console.error("Error al buscar producto:", error);
+      res
+        .status(500)
+        .json({ error: "¡Algo salió mal al buscar producto!" });
+    }
+  },
+
   searchProducts: async (req, res, next) => {
     const { search } = req.body;
 
@@ -121,7 +154,7 @@ module.exports = {
   },
 
   searchProductsAdvance : async (req, res, next) => {
-    const { nombre, categoriaId } = req.body;
+    const { nombre, categoriaId, statusId } = req.body;
   
     try {
       // Crear el objeto de condiciones
@@ -133,6 +166,9 @@ module.exports = {
       }
       if (categoriaId) {
         conditions.categoriaId = categoriaId;
+      }
+      if (statusId) {
+        conditions.statusId = statusId;
       }
   
       // Realizar la búsqueda de productos con las condiciones construidas
@@ -210,6 +246,41 @@ module.exports = {
       res
         .status(500)
         .json({ error: "¡Algo salió mal al actualizar producto!" });
+    }
+  },
+
+  updateProductAttribute: async (req, res, next) => {
+    const productId = req.params.id;
+    const { precio, existencia } = req.body;
+  
+    try {
+      const existingProduct = await Producto.findByPk(productId);
+      if (!existingProduct) {
+        return res.status(404).json({ error: "Producto no encontrado" });
+      }
+  
+      const updateData = {};
+  
+      if (precio !== undefined) {
+        const parsedPrecio = parseFloat(precio);
+        updateData.precio = parsedPrecio;
+        updateData.IVA = parsedPrecio * 0.16;
+        updateData.precioFinal = parsedPrecio + (parsedPrecio * 0.16);
+      }
+  
+      if (existencia !== undefined) {
+        const parsedExistencia = parseInt(existencia, 10);
+        updateData.existencia = parsedExistencia;
+      }
+  
+      await existingProduct.update(updateData);
+  
+      res.json(existingProduct);
+    } catch (error) {
+      console.error("Error al actualizar producto:", error);
+      res
+        .status(500)
+        .json({ error: "¡Algo salió mal al actualizar el producto!" });
     }
   },
 

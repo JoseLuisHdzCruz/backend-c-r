@@ -9,6 +9,7 @@ const Session = require("../../../models/sesionModel");
 const Notificaciones = require("../../../models/notificacionesModel");
 
 const axios = require("axios");
+const { Op } = require("sequelize");
 const twilio = require("twilio");
 const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcryptjs");
@@ -683,6 +684,34 @@ module.exports = {
     } catch (error) {
       console.error('Error al actualizar estado de notificación:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
+    }
+  },
+
+  searchUsersAdvance : async (req, res, next) => {
+    const { correo, statusId } = req.body;
+  
+    try {
+      // Crear el objeto de condiciones
+      const conditions = {};
+  
+      // Convertir las cadenas de búsqueda a minúsculas para hacer la búsqueda insensible a mayúsculas y minúsculas
+      if (correo) {
+        conditions.correo = { [Op.like]: `%${correo.toLowerCase()}%` };
+      }
+      if (statusId) {
+        conditions.statusId = statusId;
+      }
+  
+      // Realizar la búsqueda de usuarios con las condiciones construidas
+      const users = await Usuario.findAll({
+        where: conditions,
+      });
+  
+      // Responder con los usuarios encontrados
+      res.json(users);
+    } catch (error) {
+      console.error("Error al buscar usuarios:", error);
+      res.status(500).json({ error: "¡Algo salió mal al buscar usuarios!" });
     }
   }
 

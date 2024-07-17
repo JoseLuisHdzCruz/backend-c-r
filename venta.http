@@ -104,10 +104,16 @@ GET https://backend-c-r-production.up.railway.app/products/randomProducts
 
 
 ###
-POST http:///localhost:5000/products/search-advance
+POST http://localhost:5000/products/search-advance
 Content-Type: application/json
 
 {
   "nombre": "stich",
   "categoriaId": 1
 }
+
+###
+GET http://localhost:5000/products/status/getAll
+
+###
+GET http://localhost:5000/products/categories/getAll
