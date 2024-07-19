@@ -350,8 +350,6 @@ const ventasController = {
         return res.status(404).json({ error: "Cliente no encontrado" });
       }
 
-      // Información del cliente
-      const { nombre, correo } = cliente;
 
 
       if (venta.statusVentaId === 4) {
@@ -373,7 +371,7 @@ const ventasController = {
 
         await NotificacionesAdmin.create({
           evento: "Reembolso pendiente",
-          descripcion: `Se cancelado la compra con el folio: ${venta.folio},  se debe reembolsar la cantidad: ${venta.total} al usuario: ${nombre},  que cuenta con el correo: ${correo}`,
+          descripcion: `Se cancelado la compra con el folio: ${venta.folio},  se debe reembolsar la cantidad: ${venta.total} al usuario: ${cliente.nombre},  que cuenta con el correo: ${cliente.correo}`,
           fecha: new Date(),
           estado: "No leído",
           admonId: 1,
