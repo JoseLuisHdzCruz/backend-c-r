@@ -4,6 +4,7 @@ const express = require('express');
 const router = express.Router();
 const productController = require('../../controllers/public/productController');
 const promocionesController = require('../../controllers/public/promocionesController');
+const upload = require('../../config/multerConfig');
 
 // Ruta para obtener todos los productos
 router.get('/', productController.getAllProducts);
@@ -18,7 +19,7 @@ router.get('/randomProducts', productController.getRandomProducts);
 router.get('/:id', productController.getProductById);
 
 // Ruta para crear un nuevo producto
-router.post('/add', productController.createProduct);
+router.post('/add', upload.single('imagen'), productController.createProduct);
 
 // Ruta para buscar productos
 router.post('/search', productController.searchProducts);
@@ -27,7 +28,7 @@ router.post('/search', productController.searchProducts);
 router.post('/search-advance', productController.searchProductsAdvance);
 
 // Ruta para actualizar un producto
-router.put('/:id', productController.updateProduct);
+router.put('/:id', upload.single('imagen'), productController.updateProduct);
 
 // Ruta para obtener los 20 productos más vendidos
 router.get('/productos/mas-vendidos', productController.obtenerProductosMasVendidos);

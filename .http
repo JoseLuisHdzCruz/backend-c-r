@@ -247,7 +247,7 @@ Content-Type: application/json
 }
 
 ###
-get http://localhost:5000/products/
+get http://localhost:5000/products/364
 
 ###
 get http://localhost:5000/admin/getNosotros/1
@@ -261,8 +261,18 @@ Content-Type: application/json
 
 
 ###
-GET http://localhost:5000/products/
+GET http://localhost:5000/ventas/detalle/5
 
 ###
-GET http://localhost:5000/products/getSearchTerm/peluche stich
+GET http://localhost:5000/products/getSearchTerm/Peluche stich
 
+###
+PUT http://localhost:5000/admin/status/105
+Content-Type: application/json
+
+{
+  "statusId": 1
+}
+
+###
+PUT http://localhost:5000/admin/updatePromociones/

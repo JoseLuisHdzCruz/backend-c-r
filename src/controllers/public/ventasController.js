@@ -126,8 +126,49 @@ const ventasController = {
 
   // Controlador para obtener todos los registros de ventas
   obtenerTodasLasVentas: async (req, res) => {
+    const { startDate, endDate } = req.query;
+  
+    let filter = {};
+  
+    if (startDate && endDate) {
+      filter = {
+        where: {
+          fecha: {
+            [Op.between]: [new Date(startDate), new Date(endDate)],
+          },
+        },
+      };
+    } else if (startDate) {
+      filter = {
+        where: {
+          fecha: {
+            [Op.gte]: new Date(startDate),
+          },
+        },
+      };
+    } else if (endDate) {
+      filter = {
+        where: {
+          fecha: {
+            [Op.lte]: new Date(endDate),
+          },
+        },
+      };
+    }
+  
     try {
-      const ventas = await Venta.findAll();
+      const ventas = await Venta.findAll(filter);
+      res.json(ventas);
+    } catch (error) {
+      console.error("Error al obtener las ventas:", error);
+      res.status(500).json({ error: "Error al obtener las ventas" });
+    }
+  },
+
+  // Controlador para obtener todos los registros de ventas
+  getAllDetailsSales: async (req, res) => {
+    try {
+      const ventas = await DetalleVenta.findAll();
       res.json(ventas);
     } catch (error) {
       console.error("Error al obtener las ventas:", error);
@@ -194,6 +235,32 @@ const ventasController = {
           customerId: customerId,
           fecha: {
             [Op.between]: [fechaInicial, fechaFinalDate],
+          },
+        },
+      });
+
+      res.json(ventasFiltradas);
+    } catch (error) {
+      console.error("Error al filtrar ventas por fecha:", error);
+      res.status(500).json({ error: "Error al obtener las ventas filtradas" });
+    }
+  },
+
+
+  filtrarTodasVentasPorFecha: async (req, res) => {
+    const { startDate, endDate } = req.body;
+    try {
+      // Convertir la fecha final a un objeto Date
+      const fechaFinalDate = new Date(endDate);
+
+      // Agregar un día a la fecha final
+      fechaFinalDate.setDate(fechaFinalDate.getDate() + 1);
+
+      // Consultar ventas filtradas por rango de fechas y customerId
+      const ventasFiltradas = await Venta.findAll({
+        where: {
+          fecha: {
+            [Op.between]: [startDate, fechaFinalDate],
           },
         },
       });
@@ -275,6 +342,18 @@ const ventasController = {
         return res.status(400).json({ error: "La venta ya está cancelada" });
       }
 
+      // Obtener el cliente asociado a la venta
+      const cliente = await Usuario.findOne({ where: { customerId: venta.customerId } });
+
+      // Verificar si el cliente existe
+      if (!cliente) {
+        return res.status(404).json({ error: "Cliente no encontrado" });
+      }
+
+      // Información del cliente
+      const { nombre, correo } = cliente;
+
+
       if (venta.statusVentaId === 4) {
         await Notificaciones.create({
           evento: "Cancelacion de venta",
@@ -294,12 +373,14 @@ const ventasController = {
 
         await NotificacionesAdmin.create({
           evento: "Reembolso pendiente",
-          descripcion: `Se cancelado la compra con el folio: ${venta.folio},  se debe reembolsar la cantidad: ${venta.total} al usuario: ${venta.customerId}`,
+          descripcion: `Se cancelado la compra con el folio: ${venta.folio},  se debe reembolsar la cantidad: ${venta.total} al usuario: ${nombre},  que cuenta con el correo: ${correo}`,
           fecha: new Date(),
           estado: "No leído",
           admonId: 1,
         });
       }
+
+      
 
       // Actualizar el estado de la venta a cancelado y agregar el motivo de cancelación
       venta.statusVentaId = 5;

@@ -5,7 +5,8 @@ const Categoria = require("../../../models/categoriaModel");
 const DetalleVenta = require("../../../models/detalleVentaModel");
 const Status = require("../../../models/statusModel");
 
-
+const cloudinary = require('../../config/cloudinaryConfig');
+const streamifier = require('streamifier');
 const Yup = require("yup");
 const { Op, Sequelize } = require("sequelize");
 
@@ -186,43 +187,93 @@ module.exports = {
 
   createProduct: async (req, res, next) => {
     const productData = req.body;
-
+  
     try {
+      let imagenUrl = '';
+  
+      // Si hay una imagen en el request, subirla a Cloudinary
+      if (req.file) {
+        const imageFile = req.file;
+  
+        // Subir la imagen a Cloudinary
+        imagenUrl = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { resource_type: 'image' },
+            (error, result) => {
+              if (error) {
+                reject(error);
+              } else {
+                resolve(result.secure_url);
+              }
+            }
+          );
+  
+          streamifier.createReadStream(imageFile.buffer).pipe(stream);
+        });
+      }
+  
+      const precio = parseFloat(productData.precio);
+  
       const newProduct = await Producto.create({
         nombre: productData.nombre,
         descripcion: productData.descripcion,
-        precio: productData.precio,
+        precio: precio,
         existencia: productData.existencia,
         categoriaId: productData.categoriaId,
         statusId: 1,
-        imagen: productData.imagen,
-        IVA: productData.precio * 0.16,
-        precioFinal: productData.precio + productData.precio * 0.16,
+        imagen: imagenUrl,
+        IVA: precio * 0.16,
+        precioFinal: precio + (precio * 0.16),
       });
-
+  
       res.status(201).json(newProduct);
     } catch (error) {
-
       console.error("Error al crear producto:", error);
       res.status(500).json({ error: "¡Algo salió mal al crear producto!" });
     }
   },
+  
 
   updateProduct: async (req, res, next) => {
     const productId = req.params.id;
     const productData = req.body;
-
+  
     try {
       await validationSchema.validate(productData, { abortEarly: false });
-
+  
       const existingProduct = await Producto.findByPk(productId);
       if (!existingProduct) {
-        return res.status(404).json({ error: "Producto no encontrado" });
+        return res.status(404).json({ error: 'Producto no encontrado' });
       }
-
+  
+      let imagenUrl = existingProduct.imagen;
+  
+      // Si hay una nueva imagen en el request, subirla a Cloudinary
+      if (req.file) {
+        const imageFile = req.file;
+  
+        // Subir la imagen a Cloudinary
+        const resultUrl = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { resource_type: 'image' },
+            (error, result) => {
+              if (error) {
+                reject(error);
+              } else {
+                resolve(result.secure_url);
+              }
+            }
+          );
+  
+          streamifier.createReadStream(imageFile.buffer).pipe(stream);
+        });
+  
+        imagenUrl = resultUrl;
+      }
+  
       // Convertir el precio a un número
       const precio = parseFloat(productData.precio);
-
+  
       await existingProduct.update({
         nombre: productData.nombre,
         descripcion: productData.descripcion,
@@ -230,22 +281,20 @@ module.exports = {
         existencia: productData.existencia,
         categoriaId: productData.categoriaId,
         statusId: productData.statusId,
-        imagen: productData.imagen,
+        imagen: imagenUrl,
         IVA: precio * 0.16,
         precioFinal: precio + (precio * 0.16),
       });
-
+  
       res.json(existingProduct);
     } catch (error) {
-      if (error.name === "ValidationError") {
+      if (error.name === 'ValidationError') {
         const errors = error.errors.map((err) => err.message);
         return res.status(400).json({ errors });
       }
-
-      console.error("Error al actualizar producto:", error);
-      res
-        .status(500)
-        .json({ error: "¡Algo salió mal al actualizar producto!" });
+  
+      console.error('Error al actualizar producto:', error);
+      res.status(500).json({ error: '¡Algo salió mal al actualizar producto!' });
     }
   },
 
