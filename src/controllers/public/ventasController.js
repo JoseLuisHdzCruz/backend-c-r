@@ -3,9 +3,7 @@ const DetalleVenta = require("../../../models/detalleVentaModel");
 const Notificaciones = require("../../../models/notificacionesModel");
 const NotificacionesAdmin = require("../../../models/notificacionesAdminModel");
 const StatusVenta = require("../../../models/statusVentaModel");
-const admin = require("../../config/firebaseConfig");
 const fcmServerKey = process.env.FCM_SERVER_KEY;
-const { v4: uuidv4 } = require("uuid");
 const { Op } = require("sequelize");
 const axios = require("axios");
 const Usuario = require("../../../models/usuarioModel");
@@ -27,7 +25,7 @@ const ventasController = {
 
        // Incrementar el contador de folios y generar el folio
        folioCounter += 1;
-       const folio = `${year}${month}${String(folioCounter).padStart(7, '0')}`;
+       const folio = `${year}${month}${String(folioCounter).padStart(3, '0')}`;
 
       const statusVentaId = 4;
       const nuevaVenta = await Venta.create({

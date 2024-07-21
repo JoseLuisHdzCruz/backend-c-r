@@ -477,9 +477,6 @@ const adminController = {
   login: async (req, res) => {
     const { role, correo, contraseña } = req.body;
     const secretKey = process.env.JWT_SECRET;
-    console.log(
-      "rol: " + role + ", correo: " + correo + ", contraseña: " + contraseña
-    );
     try {
       let user;
 
