@@ -342,15 +342,6 @@ const ventasController = {
         return res.status(400).json({ error: "La venta ya está cancelada" });
       }
 
-      // Obtener el cliente asociado a la venta
-      const cliente = await Usuario.findOne({ where: { customerId: venta.customerId } });
-
-      // Verificar si el cliente existe
-      if (!cliente) {
-        return res.status(404).json({ error: "Cliente no encontrado" });
-      }
-
-
 
       if (venta.statusVentaId === 4) {
         await Notificaciones.create({
@@ -371,7 +362,7 @@ const ventasController = {
 
         await NotificacionesAdmin.create({
           evento: "Reembolso pendiente",
-          descripcion: `Se cancelado la compra con el folio: ${venta.folio},  se debe reembolsar la cantidad: ${venta.total} al usuario: ${cliente.nombre},  que cuenta con el correo: ${cliente.correo}`,
+          descripcion: `Se cancelado la compra con el folio: ${venta.folio},  se debe reembolsar la cantidad: ${venta.total} al usuario: ${venta.customerId}`,
           fecha: new Date(),
           estado: "No leído",
           admonId: 1,
