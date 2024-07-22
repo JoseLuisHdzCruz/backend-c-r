@@ -6,6 +6,8 @@ const DetalleVenta = require("../../../models/detalleVentaModel");
 const stripe = require("stripe")(
   "sk_test_51Pf8IA2NI1ZNadeOuyF3F0Maonkrfcy5iN7LdgJFvslXY8gWof16cLI4L1kj9Q5yNynMrcU2OTgLidxQ2Oxc0tgK00qpJdKqVv"
 );
+let folioCounter = 0;
+
 
 const endpointSecret = "whsec_b380248ff75fb60c902e0bb91658d61b743f6f88c79ae0620e1b0df134c5d652";
 
@@ -78,13 +80,12 @@ router.post(
     folioCounter += 1;
     const folio = `${year}${month}${String(folioCounter).padStart(3, '0')}`;
 
-    const customerId = session.customer;
-    const metodoPagoId = 3; // Asegúrate de usar el método de pago correcto
+    const metodoPagoId = 4; // Asegúrate de usar el método de pago correcto
 
     // Crear la nueva venta
     const nuevaVenta = await Venta.create({
       folio,
-      customerId: customerId,
+      customerId: venta.customerId,
       cantidad: venta.cantidad,
       total: venta.total,
       totalProductos: venta.totalProductos,
@@ -100,15 +101,15 @@ router.post(
 
     // Crear los registros de detalle de venta
     await Promise.all(
-      venta.productos.map(async (producto) => {
+      venta.productos.map(async (item) => {
         await DetalleVenta.create({
-          productoId: producto.productoId,
-          producto: producto.producto,
-          precio: producto.precio,
-          imagen: producto.imagen,
-          IVA: producto.IVA,
-          cantidad: producto.cantidad,
-          totalDV: producto.totalDV,
+          productoId: item.productoId,
+          producto: item.producto,
+          precio: item.precio,
+          imagen: item.imagen,
+          IVA: item.IVA,
+          cantidad: item.cantidad,
+          totalDV: item.totalDV,
           ventaId: nuevaVenta.ventaId,
         });
       })
