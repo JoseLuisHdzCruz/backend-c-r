@@ -9,7 +9,7 @@ const stripe = require("stripe")(
 let folioCounter = 0;
 
 
-const endpointSecret = "whsec_Q5Rd0u3j7Hw1iTeOO9Kh88Cp3pqgsgds";
+const endpointSecret = "whsec_Q5Rd0u3j7Hw1iTeOO9Kh88Cp3pqgsgdswhsec_b380248ff75fb60c902e0bb91658d61b743f6f88c79ae0620e1b0df134c5d652";
 
 // Rutas para manejar las ventas
 router.post("/", ventasController.crearVenta);
