@@ -405,8 +405,8 @@ const ventasController = {
           quantity: item.quantity,
         })),
         mode: 'payment',
-        success_url: 'http://localhost:3000/purchase-history',
-        cancel_url: 'http://localhost:3000/select-payment',
+        success_url: 'https://chucherias-y-regalos.vercel.app/purchase-history',
+        cancel_url: 'https://chucherias-y-regalos.vercel.app/select-payment',
         shipping_options: shipping ? [
           {
             shipping_rate_data: {
