@@ -384,7 +384,7 @@ const ventasController = {
   },
 
   crateVentaStripe: async (req, res) => {
-    const { items, shipping, venta } = req.body;
+    const { items, shipping, venta, customerId, metodoPagoId } = req.body;
   
     try {
       // Imprime para verificar la solicitud
@@ -430,10 +430,56 @@ const ventasController = {
           },
         ] : [],
         metadata: {
-          // Convertir `venta` a un JSON stringificado si es necesario
-          venta: JSON.stringify(venta),
         },
       });
+
+      // Fecha actual
+      const fecha = new Date();
+
+       // Fecha actual
+       const year = fecha.getFullYear();
+       const month = String(fecha.getMonth() + 1).padStart(2, '0'); // getMonth() returns 0-based month
+
+       // Incrementar el contador de folios y generar el folio
+       folioCounter += 1;
+       const folio = `${year}${month}${String(folioCounter).padStart(3, '0')}`;
+
+      const statusVentaId = 4;
+      const nuevaVenta = await Venta.create({
+        folio,
+        customerId: customerId,
+        cantidad: venta.cantidad,
+        total: venta.total,
+        totalProductos: venta.totalProductos,
+        totalEnvio: venta.totalEnvio,
+        totalIVA: venta.totalIVA,
+        fecha,
+        statusVentaId,
+        metodoPagoId: metodoPagoId,
+        sucursalesId: venta.sucursalesId,
+        domicilioId: venta.domicilioId,
+        descuentoPromocion: null,
+      });
+      // Crear los registros de detalle de venta
+      const detallesVenta = await Promise.all(
+        venta.productos.map(async (producto) => {
+          const detalleVenta = await DetalleVenta.create({
+            productoId: producto.productoId,
+            producto: producto.producto,
+            precio: producto.precio,
+            imagen: producto.imagen,
+            IVA: producto.IVA,
+            cantidad: producto.cantidad,
+            totalDV: producto.totalDV,
+            ventaId: nuevaVenta.ventaId,
+          });
+          return detalleVenta;
+        })
+      );
+
+      await axios.delete(
+        `https://backend-c-r-production.up.railway.app/cart/clear/${customerId}`
+      );
   
       res.json({ id: session.id });
     } catch (error) {
