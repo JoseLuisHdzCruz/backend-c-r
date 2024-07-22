@@ -7,6 +7,7 @@ const fcmServerKey = process.env.FCM_SERVER_KEY;
 const { Op } = require("sequelize");
 const axios = require("axios");
 const Usuario = require("../../../models/usuarioModel");
+const stripe = require('stripe')('sk_test_51Pf8IA2NI1ZNadeOuyF3F0Maonkrfcy5iN7LdgJFvslXY8gWof16cLI4L1kj9Q5yNynMrcU2OTgLidxQ2Oxc0tgK00qpJdKqVv');
 // deberías almacenar y gestionar este valor de forma persistente.
 let folioCounter = 0;
 
@@ -379,6 +380,65 @@ const ventasController = {
     } catch (error) {
       console.error("Error al cancelar la venta:", error);
       res.status(500).json({ error: "Error al cancelar la venta" });
+    }
+  },
+
+  crateVentaStripe: async (req, res) => {
+    const { items, shipping, venta } = req.body;
+  
+    try {
+      // Imprime para verificar la solicitud
+      console.log('Datos recibidos:', req.body);
+  
+      // Crea una sesión de Checkout
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: items.map(item => ({
+          price_data: {
+            currency: 'mxn',
+            product_data: {
+              name: item.title,
+              images: [item.imagen],
+            },
+            unit_amount: Math.round(item.price), // Convertir a centavos y redondear a entero
+          },
+          quantity: item.quantity,
+        })),
+        mode: 'payment',
+        success_url: 'http://localhost:3000/purchase-history',
+        cancel_url: 'http://localhost:3000/select-payment',
+        shipping_options: shipping ? [
+          {
+            shipping_rate_data: {
+              type: 'fixed_amount',
+              fixed_amount: {
+                amount: Math.round(shipping.price), // Convertir a centavos y redondear a entero
+                currency: 'mxn',
+              },
+              display_name: 'Envío',
+              delivery_estimate: {
+                minimum: {
+                  unit: 'hour',
+                  value: 24,
+                },
+                maximum: {
+                  unit: 'hour',
+                  value: 72,
+                },
+              },
+            },
+          },
+        ] : [],
+        metadata: {
+          // Convertir `venta` a un JSON stringificado si es necesario
+          venta: JSON.stringify(venta),
+        },
+      });
+  
+      res.json({ id: session.id });
+    } catch (error) {
+      console.error('Error al crear la sesión de Checkout:', error);
+      res.status(500).send('Error al crear la sesión de Checkout');
     }
   },
 };
