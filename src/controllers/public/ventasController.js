@@ -164,6 +164,35 @@ const ventasController = {
     }
   },
 
+  actualizarStatusPorFolio: async (req, res) => {
+    const { folio } = req.params;
+    const { statusVentaId } = req.body;
+  
+    try {
+      // Buscar la venta por su folio
+      const venta = await Venta.findOne({ where: { folio } });
+  
+      // Verificar si la venta existe
+      if (!venta) {
+        return res.status(404).json({ error: "Venta no encontrada" });
+      }
+  
+      // Actualizar el estado de la venta
+      venta.statusVentaId = statusVentaId;
+      await venta.save();
+  
+      // Obtener el nuevo estado de la venta
+      const nuevoStatusVenta = await StatusVenta.findByPk(statusVentaId);
+  
+      // Responder con el estado actualizado de la venta
+      res.json({ folio: venta.folio, estado: nuevoStatusVenta.statusVenta });
+    } catch (error) {
+      console.error("Error al actualizar el estado de la venta por folio:", error);
+      res.status(500).json({ error: "Error al actualizar el estado de la venta por folio" });
+    }
+  },
+  
+
   // Controlador para obtener todos los registros de ventas
   getAllDetailsSales: async (req, res) => {
     try {
@@ -242,6 +271,16 @@ const ventasController = {
     } catch (error) {
       console.error("Error al filtrar ventas por fecha:", error);
       res.status(500).json({ error: "Error al obtener las ventas filtradas" });
+    }
+  },
+
+  getAllStatusVenta: async (req, res, next) => {
+    try {
+      const status = await StatusVenta.findAll();
+      res.json(status);
+    } catch (error) {
+      console.error("Error al obtener los status de ventas:", error);
+      res.status(500).json({ error: "¡Algo salió mal al obtener los status de ventas!" });
     }
   },
 
