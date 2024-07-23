@@ -7,7 +7,9 @@ const fcmServerKey = process.env.FCM_SERVER_KEY;
 const { Op } = require("sequelize");
 const axios = require("axios");
 const Usuario = require("../../../models/usuarioModel");
-const stripe = require('stripe')('sk_test_51Pf8IA2NI1ZNadeOuyF3F0Maonkrfcy5iN7LdgJFvslXY8gWof16cLI4L1kj9Q5yNynMrcU2OTgLidxQ2Oxc0tgK00qpJdKqVv');
+const stripe = require("stripe")(
+  "sk_test_51Pf8IA2NI1ZNadeOuyF3F0Maonkrfcy5iN7LdgJFvslXY8gWof16cLI4L1kj9Q5yNynMrcU2OTgLidxQ2Oxc0tgK00qpJdKqVv"
+);
 // deberías almacenar y gestionar este valor de forma persistente.
 let folioCounter = 0;
 
@@ -20,13 +22,23 @@ const ventasController = {
       // Fecha actual
       const fecha = new Date();
 
-       // Fecha actual
-       const year = fecha.getFullYear();
-       const month = String(fecha.getMonth() + 1).padStart(2, '0'); // getMonth() returns 0-based month
+      // Fecha actual
+      const year = fecha.getFullYear();
+      const month = String(fecha.getMonth() + 1).padStart(2, "0"); // getMonth() returns 0-based month
 
-       // Incrementar el contador de folios y generar el folio
-       folioCounter += 1;
-       const folio = `${year}${month}${String(folioCounter).padStart(3, '0')}`;
+      // Función para generar un folio único
+      let folio;
+      let folioExists = true;
+      while (folioExists) {
+        folioCounter += 1;
+        folio = `${year}${month}${String(folioCounter).padStart(3, "0")}`;
+
+        // Verificar si el folio ya existe en la base de datos
+        const existingVenta = await Venta.findOne({ where: { folio } });
+        if (!existingVenta) {
+          folioExists = false;
+        }
+      }
 
       const statusVentaId = 4;
       const nuevaVenta = await Venta.create({
@@ -66,26 +78,26 @@ const ventasController = {
       );
 
       // Obtener el token FCM del usuario
-    const user = await Usuario.findOne({ where: { customerId: customerId } });
-    const fcmToken = user.fcmToken;
+      const user = await Usuario.findOne({ where: { customerId: customerId } });
+      const fcmToken = user.fcmToken;
 
-    // Enviar la notificación push si el usuario tiene un token FCM
-    if (fcmToken) {
-      const message = {
-        to: fcmToken,
-        notification: {
-          title: 'Nueva venta',
-          body: 'Tu compra ha sido realizada con éxito',
-        },
-      };
+      // Enviar la notificación push si el usuario tiene un token FCM
+      if (fcmToken) {
+        const message = {
+          to: fcmToken,
+          notification: {
+            title: "Nueva venta",
+            body: "Tu compra ha sido realizada con éxito",
+          },
+        };
 
-      await axios.post('https://fcm.googleapis.com/fcm/send', message, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `key=${fcmServerKey}`,
-        },
-      });
-    }
+        await axios.post("https://fcm.googleapis.com/fcm/send", message, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `key=${fcmServerKey}`,
+          },
+        });
+      }
 
       // Respuesta exitosa
       res.status(201).json({ venta: nuevaVenta, detallesVenta });
@@ -119,16 +131,18 @@ const ventasController = {
       res.json({ folio: venta.folio, estado: statusVenta.statusVenta });
     } catch (error) {
       console.error("Error al obtener el estado de la venta por folio:", error);
-      res.status(500).json({ error: "Error al obtener el estado de la venta por folio" });
+      res
+        .status(500)
+        .json({ error: "Error al obtener el estado de la venta por folio" });
     }
   },
 
   // Controlador para obtener todos los registros de ventas
   obtenerTodasLasVentas: async (req, res) => {
     const { startDate, endDate } = req.query;
-  
+
     let filter = {};
-  
+
     if (startDate && endDate) {
       filter = {
         where: {
@@ -154,7 +168,7 @@ const ventasController = {
         },
       };
     }
-  
+
     try {
       const ventas = await Venta.findAll(filter);
       res.json(ventas);
@@ -167,31 +181,35 @@ const ventasController = {
   actualizarStatusPorFolio: async (req, res) => {
     const { folio } = req.params;
     const { statusVentaId } = req.body;
-  
+
     try {
       // Buscar la venta por su folio
       const venta = await Venta.findOne({ where: { folio } });
-  
+
       // Verificar si la venta existe
       if (!venta) {
         return res.status(404).json({ error: "Venta no encontrada" });
       }
-  
+
       // Actualizar el estado de la venta
       venta.statusVentaId = statusVentaId;
       await venta.save();
-  
+
       // Obtener el nuevo estado de la venta
       const nuevoStatusVenta = await StatusVenta.findByPk(statusVentaId);
-  
+
       // Responder con el estado actualizado de la venta
       res.json({ folio: venta.folio, estado: nuevoStatusVenta.statusVenta });
     } catch (error) {
-      console.error("Error al actualizar el estado de la venta por folio:", error);
-      res.status(500).json({ error: "Error al actualizar el estado de la venta por folio" });
+      console.error(
+        "Error al actualizar el estado de la venta por folio:",
+        error
+      );
+      res
+        .status(500)
+        .json({ error: "Error al actualizar el estado de la venta por folio" });
     }
   },
-  
 
   // Controlador para obtener todos los registros de ventas
   getAllDetailsSales: async (req, res) => {
@@ -280,10 +298,11 @@ const ventasController = {
       res.json(status);
     } catch (error) {
       console.error("Error al obtener los status de ventas:", error);
-      res.status(500).json({ error: "¡Algo salió mal al obtener los status de ventas!" });
+      res
+        .status(500)
+        .json({ error: "¡Algo salió mal al obtener los status de ventas!" });
     }
   },
-
 
   filtrarTodasVentasPorFecha: async (req, res) => {
     const { startDate, endDate } = req.body;
@@ -380,7 +399,6 @@ const ventasController = {
         return res.status(400).json({ error: "La venta ya está cancelada" });
       }
 
-
       if (venta.statusVentaId === 4) {
         await Notificaciones.create({
           evento: "Cancelacion de venta",
@@ -407,8 +425,6 @@ const ventasController = {
         });
       }
 
-      
-
       // Actualizar el estado de la venta a cancelado y agregar el motivo de cancelación
       venta.statusVentaId = 5;
       venta.motivoCancelacion = reason;
@@ -424,17 +440,17 @@ const ventasController = {
 
   crateVentaStripe: async (req, res) => {
     const { items, shipping, venta, customerId, metodoPagoId } = req.body;
-  
+
     try {
       // Imprime para verificar la solicitud
-      console.log('Datos recibidos:', req.body);
-  
+      console.log("Datos recibidos:", req.body);
+
       // Crea una sesión de Checkout
       const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        line_items: items.map(item => ({
+        payment_method_types: ["card"],
+        line_items: items.map((item) => ({
           price_data: {
-            currency: 'mxn',
+            currency: "mxn",
             product_data: {
               name: item.title,
               images: [item.imagen],
@@ -443,45 +459,56 @@ const ventasController = {
           },
           quantity: item.quantity,
         })),
-        mode: 'payment',
-        success_url: 'https://chucherias-y-regalos.vercel.app/purchase-history',
-        cancel_url: 'https://chucherias-y-regalos.vercel.app/select-payment',
-        shipping_options: shipping ? [
-          {
-            shipping_rate_data: {
-              type: 'fixed_amount',
-              fixed_amount: {
-                amount: Math.round(shipping.price), // Convertir a centavos y redondear a entero
-                currency: 'mxn',
-              },
-              display_name: 'Envío',
-              delivery_estimate: {
-                minimum: {
-                  unit: 'hour',
-                  value: 24,
+        mode: "payment",
+        success_url: "https://chucherias-y-regalos.vercel.app/purchase-history",
+        cancel_url: "https://chucherias-y-regalos.vercel.app/select-payment",
+        shipping_options: shipping
+          ? [
+              {
+                shipping_rate_data: {
+                  type: "fixed_amount",
+                  fixed_amount: {
+                    amount: Math.round(shipping.price), // Convertir a centavos y redondear a entero
+                    currency: "mxn",
+                  },
+                  display_name: "Envío",
+                  delivery_estimate: {
+                    minimum: {
+                      unit: "hour",
+                      value: 24,
+                    },
+                    maximum: {
+                      unit: "hour",
+                      value: 72,
+                    },
+                  },
                 },
-                maximum: {
-                  unit: 'hour',
-                  value: 72,
-                },
               },
-            },
-          },
-        ] : [],
-        metadata: {
-        },
+            ]
+          : [],
+        metadata: {},
       });
 
       // Fecha actual
       const fecha = new Date();
 
-       // Fecha actual
-       const year = fecha.getFullYear();
-       const month = String(fecha.getMonth() + 1).padStart(2, '0'); // getMonth() returns 0-based month
+      // Fecha actual
+      const year = fecha.getFullYear();
+      const month = String(fecha.getMonth() + 1).padStart(2, "0"); // getMonth() returns 0-based month
 
-       // Incrementar el contador de folios y generar el folio
-       folioCounter += 1;
-       const folio = `${year}${month}${String(folioCounter).padStart(3, '0')}`;
+      // Función para generar un folio único
+      let folio;
+      let folioExists = true;
+      while (folioExists) {
+        folioCounter += 1;
+        folio = `${year}${month}${String(folioCounter).padStart(3, "0")}`;
+
+        // Verificar si el folio ya existe en la base de datos
+        const existingVenta = await Venta.findOne({ where: { folio } });
+        if (!existingVenta) {
+          folioExists = false;
+        }
+      }
 
       const statusVentaId = 1;
       const nuevaVenta = await Venta.create({
@@ -519,11 +546,11 @@ const ventasController = {
       await axios.delete(
         `https://backend-c-r-production.up.railway.app/cart/clear/${customerId}`
       );
-  
+
       res.json({ id: session.id });
     } catch (error) {
-      console.error('Error al crear la sesión de Checkout:', error);
-      res.status(500).send('Error al crear la sesión de Checkout');
+      console.error("Error al crear la sesión de Checkout:", error);
+      res.status(500).send("Error al crear la sesión de Checkout");
     }
   },
 };
