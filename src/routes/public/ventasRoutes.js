@@ -20,7 +20,7 @@ router.get("/cliente/:customerId", ventasController.obtenerVentasPorCustomerId);
 router.post("/filtroVentas", ventasController.filtrarVentasPorFecha);
 router.post("/getAllSales", ventasController.filtrarTodasVentasPorFecha);
 router.get("/status/getAllStatusVenta", ventasController.getAllStatusVenta);
-router.put('/updateStatusVenta/:folio', ventasController.actualizarStatusPorFolio);
+router.put('/updateStatusVenta/:ventaId', ventasController.actualizarStatusPorId);
 router.post("/cancelar-venta", ventasController.cancelarVenta);
 router.post("/mate", ventasController.obtenerDetalleVentasPorProductoIdYFecha);
 router.get(
