@@ -252,12 +252,8 @@ get http://localhost:5000/ventas/
 ###
 get http://localhost:5000/admin/getNosotros/1
 ###
-PUT http://localhost:5000/products/update/366
-Content-Type: application/json
+get http://localhost:5000/ventas/status/getAllStatusVenta
 
-{
-  "precio": 110
-}
 
 
 ###
