@@ -483,7 +483,7 @@ const ventasController = {
        folioCounter += 1;
        const folio = `${year}${month}${String(folioCounter).padStart(3, '0')}`;
 
-      const statusVentaId = 4;
+      const statusVentaId = 1;
       const nuevaVenta = await Venta.create({
         folio,
         customerId: customerId,
