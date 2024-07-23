@@ -15,7 +15,8 @@ const Venta = sequelize.define('Venta', {
   },
   folio:{
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
+    unique: true
   },
   customerId: {
     type: DataTypes.INTEGER,
