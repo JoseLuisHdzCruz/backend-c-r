@@ -247,7 +247,7 @@ Content-Type: application/json
 }
 
 ###
-get http://localhost:5000/ventas/
+get https://backend-c-r-production.up.railway.app/ventas/
 
 ###
 get http://localhost:5000/admin/getNosotros/1
@@ -271,4 +271,4 @@ Content-Type: application/json
 }
 
 ###
-PUT http://localhost:5000/admin/updatePromociones/
+get http://localhost:5000/admin/cupones/

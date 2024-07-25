@@ -6,6 +6,7 @@ const Nosotros = require("../../../models/nosotrosModel");4
 const Promociones = require("../../../models/promocionesModel");
 const Usuario = require("../../../models/usuarioModel");
 const ClavesTemporales = require("../../../models/clavesTemporalesModels");
+const Cupon = require("../../../models/cuponModel");
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -18,6 +19,16 @@ const {
   enviarCorreoCambioContraseña,
 } = require("../../services/emailService");
 
+const generateUniqueCode = async () => {
+  let code;
+  let existingCoupon;
+  do {
+    code = Math.random().toString(36).substring(2, 7).toUpperCase();
+    existingCoupon = await Cupon.findOne({ where: { codigo: code } });
+  } while (existingCoupon);
+  return code;
+};
+
 const adminController = {
   getAllEmpleados: async (req, res, next) => {
     try {
@@ -28,6 +39,41 @@ const adminController = {
       res
         .status(500)
         .json({ error: "¡Algo salió mal al obtener los empleados!" });
+    }
+  },
+
+  createCoupon: async (req, res) => {
+    const { monto, usuarioId } = req.body;
+    try {
+      const codigo = await generateUniqueCode();
+      const expiracion = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000); // 5 días de expiración
+      const nuevoCupon = await Cupon.create({
+        codigo,
+        monto,
+        customerId: usuarioId,
+        expiracion,
+        statusId: 1, // Activo
+      });
+      res
+        .status(201)
+        .json({ message: "Cupón creado exitosamente", cupon: nuevoCupon });
+    } catch (error) {
+      console.error("Error al crear el cupón:", error);
+      res
+        .status(500)
+        .json({ error: "¡Algo salió mal al crear el cupón!" });
+    }
+  },
+
+  getAllCoupons: async (req, res) => {
+    try {
+      const cupones = await Cupon.findAll();
+      res.json(cupones);
+    } catch (error) {
+      console.error("Error al obtener los cupones:", error);
+      res
+        .status(500)
+        .json({ error: "¡Algo salió mal al obtener los cupones!" });
     }
   },
 

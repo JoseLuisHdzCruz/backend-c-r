@@ -22,5 +22,8 @@ router.put('/update-employee/:id', adminController.updateEmployee);
 router.post('/login', adminController.login);
 router.post('/searchEmployee', adminController.searchUsersAdvance);
 
+router.post("/cupones", adminController.createCoupon);
+router.get("/cupones", adminController.getAllCoupons);
+
 
 module.exports = router;
