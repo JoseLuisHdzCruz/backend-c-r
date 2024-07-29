@@ -272,3 +272,6 @@ Content-Type: application/json
 
 ###
 get http://localhost:5000/admin/cupones/
+
+###
+get http://localhost:5000/cart/getByToken/MCH12

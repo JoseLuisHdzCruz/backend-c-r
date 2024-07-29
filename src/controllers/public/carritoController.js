@@ -1,4 +1,5 @@
 const Carrito = require("../../../models/carritoModel");
+const Usuario = require("../../../models/usuarioModel");
 const jwt = require("jsonwebtoken");
 const secretKey = process.env.JWT_SECRET;
 
@@ -11,6 +12,25 @@ const carritoController = {
         where: {customerId}
       });
       res.json(carritoItems);
+    } catch (error) {
+      console.error("Error al obtener el carrito:", error);
+      res.status(500).json({ error: "Error al obtener el carrito" });
+    }
+  },
+  getCarritoByToken: async (req, res) => {
+    const { token } = req.params;
+    try {
+      const customer = await Usuario.findOne({
+        where: { fcmToken: token }
+      });
+
+      if (customer) {
+        const carritoItems = await Carrito.findAll({
+          where: { customerId: customer.customerId }
+        });
+        res.json(carritoItems);
+      }
+
     } catch (error) {
       console.error("Error al obtener el carrito:", error);
       res.status(500).json({ error: "Error al obtener el carrito" });
