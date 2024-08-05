@@ -81,8 +81,9 @@ module.exports = {
         allowNull: false
       },
       fcmToken: {
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
         allowNull: true,
+        unique: true
       },
     });
   },

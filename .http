@@ -279,12 +279,12 @@ get https://backend-c-r-production.up.railway.app/cart/getByToken/12235
 
 
 ###
-POST http://localhost:5000/cart/addByToken
+POST https://backend-c-r-production.up.railway.app/addByToken
 Content-Type: application/json
 
 {
   "productName": "Peluche Stich",
-  "token": "12235"
+  "token": 12235
 }
 
 

@@ -84,8 +84,9 @@ const Usuario = sequelize.define('Usuario', {
     allowNull: false
   },
   fcmToken: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     allowNull: true,
+    unique: true
   }
 }, {
   // Opciones adicionales del modelo
