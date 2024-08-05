@@ -1,5 +1,6 @@
 const Carrito = require("../../../models/carritoModel");
 const Usuario = require("../../../models/usuarioModel");
+const Producto = require("../../../models/productsModel");
 const jwt = require("jsonwebtoken");
 const secretKey = process.env.JWT_SECRET;
 
@@ -36,6 +37,7 @@ const carritoController = {
       res.status(500).json({ error: "Error al obtener el carrito" });
     }
   },
+  
   addToCarrito: async (req, res) => {
     try {
       const nuevoItem = await Carrito.create(req.body);
@@ -45,6 +47,7 @@ const carritoController = {
       res.status(500).json({ error: "Error al agregar un item al carrito" });
     }
   },
+
   updateCarrito : async (req, res) => {
     const { productoId, customerId } = req.params;
     try {
@@ -107,7 +110,47 @@ const carritoController = {
       req.decoded = decoded;
       next();
     });
-  }
+  },
+  
+  addToCarritoByToken: async (req, res) => {
+    const { productName, token } = req.body;
+    
+    try {
+      // Buscar al usuario por el token
+      const usuario = await Usuario.findOne({
+        where: { fcmToken: token }
+      });
+      
+      if (!usuario) {
+        return res.status(404).json({ error: "Usuario no encontrado" });
+      }
+
+      // Buscar el producto por nombre
+      const producto = await Producto.findOne({
+        where: { nombre: productName }
+      });
+
+      if (!producto) {
+        return res.status(404).json({ error: "Producto no encontrado" });
+      }
+
+      // Crear un nuevo ítem en el carrito
+      const nuevoItem = await Carrito.create({
+        customerId: usuario.customerId,
+        productoId: producto.productoId,
+        producto: producto.nombre,
+        precio: producto.precioFinal,
+        IVA: producto.IVA,
+        cantidad: 1, // Cantidad por defecto
+        imagen: producto.imagen,
+      });
+
+      res.status(201).json(nuevoItem);
+    } catch (error) {
+      console.error("Error al agregar un item al carrito:", error);
+      res.status(500).json({ error: "Error al agregar un item al carrito" });
+    }
+  },
 };
 
 module.exports = carritoController;
