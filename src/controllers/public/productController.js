@@ -362,6 +362,7 @@ module.exports = {
         nombre: producto.nombre,
         descripcion: producto.descripcion,
         precio: producto.precio,
+        precioFinal: producto.precioFinal,
         imagen: producto.imagen,
       }));
 

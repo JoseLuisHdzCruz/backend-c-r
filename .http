@@ -279,11 +279,11 @@ get https://backend-c-r-production.up.railway.app/cart/getByToken/12235
 
 
 ###
-POST https://backend-c-r-production.up.railway.app/addByToken
+POST https://backend-c-r-production.up.railway.app/cart/addByToken
 Content-Type: application/json
 
 {
-  "productName": "Peluche Stich",
+  "productName": "Koala de Felpa",
   "token": 12235
 }
 

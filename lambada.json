@@ -1,0 +1,135 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "chucherÍas y regalos",
+            "intents": [
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": [
+                        "cancelar",
+                        "detener",
+                        "anular",
+                        "cancela",
+                        "cerrar",
+                        "termina"
+                    ]
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": [
+                        "ayuda",
+                        "necesito ayuda",
+                        "qué puedo hacer",
+                        "qué opciones tengo"
+                    ]
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": [
+                        "detener",
+                        "parar",
+                        "terminar"
+                    ]
+                },
+                {
+                    "name": "HelloWorldIntent",
+                    "slots": [],
+                    "samples": [
+                        "hola",
+                        "cómo estás",
+                        "di hola mundo",
+                        "di hola",
+                        "hola mundo"
+                    ]
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": [
+                        "ir al inicio",
+                        "navegar al inicio",
+                        "regresar al inicio"
+                    ]
+                },
+                {
+                    "name": "WelcomeIntent",
+                    "slots": [],
+                    "samples": [
+                        "hola",
+                        "buenos días",
+                        "buenas tardes",
+                        "buenas noches",
+                        "bienvenida"
+                    ]
+                },
+                {
+                    "name": "ProductCatalogIntent",
+                    "slots": [],
+                    "samples": [
+                        "muéstrame el catálogo de productos",
+                        "quiero ver el catálogo",
+                        "qué productos tienes",
+                        "enséñame los productos"
+                    ]
+                },
+                {
+                    "name": "OrderStatusIntent",
+                    "slots": [
+                        {
+                            "name": "folio",
+                            "type": "AMAZON.NUMBER"
+                        }
+                    ],
+                    "samples": [
+                        "cuál es el estado de mi pedido",
+                        "dime el estado de mi pedido {folio}",
+                        "estado del pedido {folio}",
+                        "quiero saber el estado de mi pedido {folio}"
+                    ]
+                },
+                {
+                    "name": "SearchIntent",
+                    "slots": [
+                        {
+                            "name": "search",
+                            "type": "AMAZON.SearchQuery"
+                        }
+                    ],
+                    "samples": [
+                        "dame los productos con el nombre {search}",
+                        "busca productos con el nombre {search}",
+                        "busca {search}"
+                    ]
+                },
+                {
+                    "name": "ProductDetailIntent",
+                    "slots": [
+                        {
+                            "name": "term",
+                            "type": "AMAZON.SearchQuery"
+                        }
+                    ],
+                    "samples": [
+                        "muestra el producto {term}",
+                        "quiero ver el producto {term}",
+                        "detalles del producto {term}"
+                    ]
+                },
+                {
+                    "name": "AddToCartIntent",
+                    "slots": [
+                        {
+                            "name": "token",
+                            "type": "AMAZON.NUMBER"
+                        }
+                    ],
+                    "samples": [
+                        "agrega el producto al carrito {token}",
+                        "añade el producto al carrito {token}",
+                        "pon el producto en el carrito {token}"
+                    ]
+                }
+            ],
+            "types": []
+        }
+    }
+}
