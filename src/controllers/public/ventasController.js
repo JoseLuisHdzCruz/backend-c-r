@@ -178,6 +178,30 @@ const ventasController = {
     }
   },
 
+  obtenerVentasPorFecha: async (req, res) => {
+    const { startDate, endDate } = req.query;
+  
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: 'startDate y endDate son requeridos' });
+    }
+  
+    const filter = {
+      where: {
+        fecha: {
+          [Op.between]: [new Date(startDate), new Date(`${endDate} 23:59:59`)],
+        },
+      },
+    };
+  
+    try {
+      const ventas = await Venta.findAll(filter);
+      res.json(ventas);
+    } catch (error) {
+      console.error('Error al obtener las ventas por fecha:', error);
+      res.status(500).json({ error: 'Error al obtener las ventas por fecha' });
+    }
+  },
+
   actualizarStatusPorId: async (req, res) => {
     const { ventaId } = req.params;
     const { statusVentaId } = req.body;

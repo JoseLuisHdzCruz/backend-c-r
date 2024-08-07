@@ -28,6 +28,7 @@ router.get(
   ventasController.obtenerDetalleStatusPorFolio
 );
 router.post("/create-checkout-session", ventasController.crateVentaStripe);
+router.get('/getAll/por-fecha', ventasController.obtenerVentasPorFecha);
 
 // Rutas para manejar los detalles de venta
 router.get("/detalle/:id", ventasController.obtenerDetalleVentaPorIdVenta);
