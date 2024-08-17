@@ -120,7 +120,7 @@ router.post(
 
     // Limpiar el carrito del cliente
     await axios.delete(
-      `https://backend-c-r.onrender.com/cart/clear/${customerId}`
+      `http://localhost:5000/cart/clear/${customerId}`
     );
 
     res.json({ received: true });

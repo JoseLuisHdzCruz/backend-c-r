@@ -82,7 +82,7 @@ const ventasController = {
       );
 
       await axios.delete(
-        `https://backend-c-r.onrender.com/cart/clear/${customerId}`
+        `http://localhost:5000/cart/clear/${customerId}`
       );
 
       // Obtener el token FCM del usuario
@@ -576,7 +576,7 @@ const ventasController = {
       );
 
       await axios.delete(
-        `https://backend-c-r.onrender.com/cart/clear/${customerId}`
+        `http://localhost:5000/cart/clear/${customerId}`
       );
 
       res.json({ id: session.id });
