@@ -27,6 +27,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true
       },
+      ranking: {
+        type: Sequelize.INTEGER,
+        allowNull: true
+      },
       categoriaId: {
         type: Sequelize.INTEGER,
         allowNull: false,

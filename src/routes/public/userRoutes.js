@@ -2,6 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
+const upload = require('../../config/multerConfig');
 const userController = require('../../controllers/public/userController');
 
 // Ruta para obtener todos los usuarios
@@ -58,6 +59,8 @@ router.put('/notificaciones/:notificationId', userController.actualizarEstadoNot
 router.post('/api/store-fcm-token', userController.fcmToken);
 
 router.post('/searchAdvance', userController.searchUsersAdvance);
+
+router.put('/banner/:id', upload.single('imagen'), userController.updateImgUser);
 
 
 

@@ -7,7 +7,8 @@ const HistorialContrasenas = require("../../../models/historialContraseñas");
 const UserActivityLog = require("../../../models/logsModel");
 const Session = require("../../../models/sesionModel");
 const Notificaciones = require("../../../models/notificacionesModel");
-
+const cloudinary = require('../../config/cloudinaryConfig');
+const streamifier = require('streamifier');
 const axios = require("axios");
 const { Op } = require("sequelize");
 const twilio = require("twilio");
@@ -713,6 +714,57 @@ module.exports = {
       console.error("Error al buscar usuarios:", error);
       res.status(500).json({ error: "¡Algo salió mal al buscar usuarios!" });
     }
-  }
+  },
+
+  updateImgUser: async (req, res, next) => {
+    const userId = req.params.id;
+  
+    try {
+  
+      const existingUser = await Usuario.findByPk(userId);
+      if (!existingUser) {
+        return res.status(404).json({ error: 'Usuario no encontrado' });
+      }
+  
+      let imagenUrl = existingUser.imagen;
+  
+      // Si hay una nueva imagen en el request, subirla a Cloudinary
+      if (req.file) {
+        const imageFile = req.file;
+  
+        // Subir la imagen a Cloudinary
+        const resultUrl = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { resource_type: 'image' },
+            (error, result) => {
+              if (error) {
+                reject(error);
+              } else {
+                resolve(result.secure_url);
+              }
+            }
+          );
+  
+          streamifier.createReadStream(imageFile.buffer).pipe(stream);
+        });
+  
+        imagenUrl = resultUrl;
+      }
+  
+      await existingUser.update({
+        imagen: imagenUrl
+      });
+  
+      res.json(existingUser);
+    } catch (error) {
+      if (error.name === 'ValidationError') {
+        const errors = error.errors.map((err) => err.message);
+        return res.status(400).json({ errors });
+      }
+  
+      console.error('Error al actualizar el banner del usuario:', error);
+      res.status(500).json({ error: '¡Algo salió mal al actualizar banner del usuario!' });
+    }
+  },
 
 };

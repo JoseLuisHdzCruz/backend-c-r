@@ -3,10 +3,12 @@ const DetalleVenta = require("../../../models/detalleVentaModel");
 const Notificaciones = require("../../../models/notificacionesModel");
 const NotificacionesAdmin = require("../../../models/notificacionesAdminModel");
 const StatusVenta = require("../../../models/statusVentaModel");
+const Producto = require("../../../models/productsModel");
 const fcmServerKey = process.env.FCM_SERVER_KEY;
 const { Op } = require("sequelize");
 const axios = require("axios");
 const Usuario = require("../../../models/usuarioModel");
+const sequelize = require("sequelize");
 const stripe = require("stripe")(
   "sk_test_51Pf8IA2NI1ZNadeOuyF3F0Maonkrfcy5iN7LdgJFvslXY8gWof16cLI4L1kj9Q5yNynMrcU2OTgLidxQ2Oxc0tgK00qpJdKqVv"
 );
@@ -69,12 +71,18 @@ const ventasController = {
             totalDV: producto.totalDV,
             ventaId: nuevaVenta.ventaId,
           });
+
+          // Actualizar la existencia del producto
+          await Producto.update(
+            { existencia: sequelize.literal(`existencia - ${producto.cantidad}`) },
+            { where: { productoId: producto.productoId } }
+        );
           return detalleVenta;
         })
       );
 
       await axios.delete(
-        `https://backend-c-r-production.up.railway.app/cart/clear/${customerId}`
+        `http://localhost:5000/cart/clear/${customerId}`
       );
 
       // Obtener el token FCM del usuario
@@ -568,7 +576,7 @@ const ventasController = {
       );
 
       await axios.delete(
-        `https://backend-c-r-production.up.railway.app/cart/clear/${customerId}`
+        `http://localhost:5000/cart/clear/${customerId}`
       );
 
       res.json({ id: session.id });

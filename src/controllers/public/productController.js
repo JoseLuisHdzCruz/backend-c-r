@@ -364,6 +364,7 @@ module.exports = {
         precio: producto.precio,
         precioFinal: producto.precioFinal,
         imagen: producto.imagen,
+        ranking: producto.ranking
       }));
 
       res.json(respuesta);

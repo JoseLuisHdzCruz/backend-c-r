@@ -263,11 +263,12 @@ GET http://localhost:5000/ventas/detalle/5
 GET http://localhost:5000/products/getSearchTerm/Peluche stich
 
 ###
-PUT http://localhost:5000/admin/status/105
+POST http://localhost:5000/users/keyCompare
 Content-Type: application/json
 
 {
-  "statusId": 1
+  "correo": "dareckluis@gmail.com",
+  "clave":
 }
 
 ###
@@ -290,4 +291,4 @@ Content-Type: application/json
 
 
 ###
-GET http://localhost:5000/cart/getByToken/12235
+GET http://localhost:5000/products/categories/getAll

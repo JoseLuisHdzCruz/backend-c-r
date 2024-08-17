@@ -31,6 +31,10 @@ const Producto = sequelize.define('Producto', {
     type: DataTypes.INTEGER,
     allowNull: true
   },
+  ranking: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
   categoriaId: {
     type: DataTypes.INTEGER,
     allowNull: false,

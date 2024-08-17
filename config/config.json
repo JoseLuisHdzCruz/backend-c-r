@@ -1,12 +1,11 @@
 {
   "development": {
-    "host": "viaduct.proxy.rlwy.net",
-    "port": "51144",
-    "username": "root",
-    "password": "B-heAfA65BC6GHbBFD51a-4AAdF5GGDF",
-    "database": "railway",
-    "dialect": "mysql",
-    "logging": false
+    "host": "sql5.freesqldatabase.com",
+    "port": "3306",
+    "username": "sql5726614",
+    "password": "7isI5u1ksP",
+    "database": "sql5726614",
+    "dialect": "mysql"
   },
   "test": {
     "username": "root",
@@ -16,11 +15,11 @@
     "dialect": "mysql"
   },
   "production": {
-    "host": "viaduct.proxy.rlwy.net",
-    "port": "51144",
-    "username": "root",
-    "password": "B-heAfA65BC6GHbBFD51a-4AAdF5GGDF",
-    "database": "railway",
+    "host": "bqupeca35vkyifynir40-mysql.services.clever-cloud.com",
+    "port": "3306",
+    "username": "uxisz9rbqkrjugyt",
+    "password": "MpEJxxFmLSHSBlsTR0Xf",
+    "database": "bqupeca35vkyifynir40",
     "dialect": "mysql"
   }
 }

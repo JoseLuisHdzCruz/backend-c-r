@@ -75,7 +75,7 @@ const paymentController = {
           pending: "https://chucherias-y-regalos.vercel.app/",
         },
         auto_return: "approved",
-        notification_url: `https://backend-c-r-production.up.railway.app/order/webhook?customerId=${customerId}&ventaId=${ventaId}`,
+        notification_url: `http://localhost:5000/order/webhook?customerId=${customerId}&ventaId=${ventaId}`,
       };
 
       // Realizar la solicitud para crear el pago
@@ -148,7 +148,7 @@ const paymentController = {
         );
 
         await axios.delete(
-          `https://backend-c-r-production.up.railway.app/cart/clear/${customerId}`
+          `http://localhost:5000/cart/clear/${customerId}`
         );
 
         res.status(201).json({ message: "Success" });
