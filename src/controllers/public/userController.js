@@ -329,7 +329,7 @@ module.exports = {
       });
 
       // Enviar una respuesta exitosa si las credenciales son válidas
-      res.status(200).json({ token, message: "Inicio de sesión exitoso" });
+      res.status(200).json({ token, message: `Inicio de sesión exitoso \n Bienvenido ${user.nombre} !!` });
     } catch (error) {
       console.error("Error al iniciar sesión:", error);
       res.status(500).json({ error: "¡Algo salió mal al iniciar sesión!" });

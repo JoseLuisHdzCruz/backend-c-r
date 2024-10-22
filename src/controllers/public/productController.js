@@ -4,11 +4,12 @@ const Producto = require("../../../models/productsModel");
 const Categoria = require("../../../models/categoriaModel");
 const DetalleVenta = require("../../../models/detalleVentaModel");
 const Status = require("../../../models/statusModel");
-
+const ProductReview = require("../../../models/productReviewModel.js")
 const cloudinary = require('../../config/cloudinaryConfig');
 const streamifier = require('streamifier');
 const Yup = require("yup");
-const { Op, Sequelize } = require("sequelize");
+const { Op, Sequelize, where } = require("sequelize");
+const Usuario = require("../../../models/usuarioModel");
 
 const validationSchema = Yup.object().shape({
   nombre: Yup.string().required("El nombre es obligatorio"),
@@ -93,7 +94,22 @@ module.exports = {
   getProductById: async (req, res, next) => {
     const productId = req.params.id;
     try {
-      const product = await Producto.findByPk(productId);
+      const product = await Producto.findByPk(productId,{
+        include: [
+          {
+              model: ProductReview,
+              where: { productoId: productId },
+              required: false,
+              include: [
+                {
+                  model: Usuario,
+                  attributes: ['imagen', 'sexo', 'nombre', 'aPaterno', 'aMaterno'],
+                  required: false
+                }
+              ]
+          }
+      ]
+      });
       if (product) {
         res.json(product);
       } else {

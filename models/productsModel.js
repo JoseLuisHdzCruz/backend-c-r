@@ -32,7 +32,7 @@ const Producto = sequelize.define('Producto', {
     allowNull: true
   },
   ranking: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.DECIMAL(10,1),
     allowNull: true
   },
   categoriaId: {

@@ -28,14 +28,14 @@ module.exports = {
         allowNull: true
       },
       ranking: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.DECIMAL(10,1),
         allowNull: true
       },
       categoriaId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "categoria", // Asegúrate de reemplazar 'Categoria' con el modelo de categoría adecuado si existe
+          model: "categoria",
           key: 'categoriaId'
         } 
       },
@@ -43,7 +43,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "status", // Asegúrate de reemplazar 'Status' con el modelo de estatus adecuado si existe
+          model: "status",
           key: 'statusId'
         } 
       },

@@ -1,10 +1,10 @@
 {
   "development": {
-    "host": "sql5.freesqldatabase.com",
+    "host": "localhost",
     "port": "3306",
-    "username": "sql5726614",
-    "password": "7isI5u1ksP",
-    "database": "sql5726614",
+    "username": "root",
+    "password": "",
+    "database": "proyecto_ing",
     "dialect": "mysql"
   },
   "test": {

@@ -263,16 +263,20 @@ GET http://localhost:5000/ventas/detalle/5
 GET http://localhost:5000/products/getSearchTerm/Peluche stich
 
 ###
-POST http://localhost:5000/users/keyCompare
+POST http://localhost:5000/users/login
 Content-Type: application/json
 
 {
   "correo": "dareckluis@gmail.com",
-  "clave":
+  "contraseña": "JOse61@#"
 }
 
 ###
 get http://localhost:5000/admin/cupones/
+
+
+###
+get http://localhost:5000/products/productos/mas-vendidos
 
 ###
 get https://backend-c-r-production.up.railway.app/cart/getByToken/12235
@@ -288,7 +292,12 @@ Content-Type: application/json
   "token": 12235
 }
 
+###
+GET http://localhost:5000/products/1
 
 
 ###
 GET http://localhost:5000/products/categories/getAll
+
+
+                                                                      
