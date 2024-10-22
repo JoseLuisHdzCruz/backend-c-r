@@ -201,7 +201,7 @@ Content-Type: application/json
   "customerId": 1,
   "Nombre": "Jose Luis Hdez",
   "Telefono": "7658337003",
-  "NumExterior": "833",
+  "NumExterior": "83322",
   "NumInterior": ""
 }
 
