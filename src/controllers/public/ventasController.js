@@ -585,6 +585,122 @@ const ventasController = {
       res.status(500).send("Error al crear la sesión de Checkout");
     }
   },
+
+  crateVentaStripeMovil: async (req, res) => {
+    const { items, shipping, venta, customerId, metodoPagoId } = req.body;
+
+    try {
+      // Imprime para verificar la solicitud
+      console.log("Datos recibidos:", req.body);
+
+      // Crea una sesión de Checkout
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: items.map((item) => ({
+          price_data: {
+            currency: "mxn",
+            product_data: {
+              name: item.title,
+              images: [item.imagen],
+            },
+            unit_amount: Math.round(item.price), // Convertir a centavos y redondear a entero
+          },
+          quantity: item.quantity,
+        })),
+        mode: "payment",
+        success_url: "http://localhost:8100/purchase-history",
+        cancel_url: "http://localhost:8100/select-payment",
+        shipping_options: shipping
+          ? [
+              {
+                shipping_rate_data: {
+                  type: "fixed_amount",
+                  fixed_amount: {
+                    amount: Math.round(shipping.price), // Convertir a centavos y redondear a entero
+                    currency: "mxn",
+                  },
+                  display_name: "Envío",
+                  delivery_estimate: {
+                    minimum: {
+                      unit: "hour",
+                      value: 24,
+                    },
+                    maximum: {
+                      unit: "hour",
+                      value: 72,
+                    },
+                  },
+                },
+              },
+            ]
+          : [],
+        metadata: {},
+      });
+
+      // Fecha actual
+      const fecha = new Date();
+
+      // Fecha actual
+      const year = fecha.getFullYear();
+      const month = String(fecha.getMonth() + 1).padStart(2, "0"); // getMonth() returns 0-based month
+
+      // Función para generar un folio único
+      let folio;
+      let folioExists = true;
+      while (folioExists) {
+        folioCounter += 1;
+        folio = `${year}${month}${String(folioCounter).padStart(3, "0")}`;
+
+        // Verificar si el folio ya existe en la base de datos
+        const existingVenta = await Venta.findOne({ where: { folio } });
+        if (!existingVenta) {
+          folioExists = false;
+        }
+      }
+
+      const statusVentaId = 1;
+      const nuevaVenta = await Venta.create({
+        folio,
+        customerId: customerId,
+        cantidad: venta.cantidad,
+        total: venta.total,
+        totalProductos: venta.totalProductos,
+        totalEnvio: venta.totalEnvio,
+        totalIVA: venta.totalIVA,
+        fecha,
+        statusVentaId,
+        metodoPagoId: metodoPagoId,
+        sucursalesId: venta.sucursalesId,
+        domicilioId: venta.domicilioId,
+        descuentoPromocion: null,
+      });
+      // Crear los registros de detalle de venta
+      const detallesVenta = await Promise.all(
+        venta.productos.map(async (producto) => {
+          const detalleVenta = await DetalleVenta.create({
+            productoId: producto.productoId,
+            producto: producto.producto,
+            precio: producto.precio,
+            imagen: producto.imagen,
+            IVA: producto.IVA,
+            cantidad: producto.cantidad,
+            totalDV: producto.totalDV,
+            ventaId: nuevaVenta.ventaId,
+          });
+          return detalleVenta;
+        })
+      );
+
+      await axios.delete(
+        `http://localhost:5000/cart/clear/${customerId}`
+      );
+
+      res.json({ id: session.id });
+    } catch (error) {
+      console.error("Error al crear la sesión de Checkout:", error);
+      res.status(500).send("Error al crear la sesión de Checkout");
+    }
+  },
 };
 
 module.exports = ventasController;

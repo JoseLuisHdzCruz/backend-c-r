@@ -87,7 +87,11 @@ const Usuario = sequelize.define('Usuario', {
     type: DataTypes.INTEGER,
     allowNull: true,
     unique: true
-  }
+  },
+  encuestado: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
 }, {
   // Opciones adicionales del modelo
   tableName: 'usuarios'

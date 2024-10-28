@@ -297,7 +297,7 @@ GET http://localhost:5000/products/1
 
 
 ###
-GET http://localhost:5000/products/categories/getAll
+GET http://localhost:5000/users
 
 
                                                                       

@@ -15,11 +15,11 @@
     "dialect": "mysql"
   },
   "production": {
-    "host": "bqupeca35vkyifynir40-mysql.services.clever-cloud.com",
+    "host": "mysql.railway.internal",
     "port": "3306",
-    "username": "uxisz9rbqkrjugyt",
-    "password": "MpEJxxFmLSHSBlsTR0Xf",
-    "database": "bqupeca35vkyifynir40",
+    "username": "root",
+    "password": "jTmtkNfSqKObMGNlJHsTBgMVvgnkgEGo",
+    "database": "railway",
     "dialect": "mysql"
   }
 }

@@ -85,6 +85,10 @@ module.exports = {
         allowNull: true,
         unique: true
       },
+      encuestado: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
     });
   },
   down: async (queryInterface, Sequelize) => {
