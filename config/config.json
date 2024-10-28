@@ -16,7 +16,7 @@
   },
   "production": {
     "host": "mysql.railway.internal",
-    "port": "3306",
+    "port": "51144",
     "username": "root",
     "password": "jTmtkNfSqKObMGNlJHsTBgMVvgnkgEGo",
     "database": "railway",
