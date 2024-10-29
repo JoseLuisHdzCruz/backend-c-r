@@ -1,10 +1,10 @@
 {
   "development": {
-    "host": "localhost",
-    "port": "3306",
+    "host": "mysql.railway.internal",
+    "port": "51144",
     "username": "root",
-    "password": "",
-    "database": "proyecto_ing",
+    "password": "jTmtkNfSqKObMGNlJHsTBgMVvgnkgEGo",
+    "database": "railway",
     "dialect": "mysql"
   },
   "test": {
