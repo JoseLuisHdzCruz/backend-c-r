@@ -6,7 +6,7 @@ dotenv.config(); // Cargar variables de entorno desde .env
 const sequelize = new Sequelize({
   dialect: 'mysql',
   host: process.env.DB_HOST,
-  port: process.env.DB_PORT || 51144,
+  port: process.env.DB_PORT || 38195,
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
