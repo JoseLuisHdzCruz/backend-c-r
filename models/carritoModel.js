@@ -44,10 +44,18 @@ const Carrito = sequelize.define('Carrito', {
   imagen: {
     type: DataTypes.STRING,
     allowNull: true
-  }
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
 }, {
   tableName: 'carrito',
-  timestamps: false,
+  timestamps: true,
 });
 
 Carrito.belongsTo(Usuario, { foreignKey: 'customerId' });

@@ -720,51 +720,56 @@ module.exports = {
     const userId = req.params.id;
   
     try {
+        const existingUser = await Usuario.findByPk(userId);
+        if (!existingUser) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
   
-      const existingUser = await Usuario.findByPk(userId);
-      if (!existingUser) {
-        return res.status(404).json({ error: 'Usuario no encontrado' });
-      }
+        let imagenUrl = existingUser.imagen;
   
-      let imagenUrl = existingUser.imagen;
+        // Si hay una nueva imagen en el request, subirla a Cloudinary
+        if (req.file) {
+            const imageFile = req.file;
   
-      // Si hay una nueva imagen en el request, subirla a Cloudinary
-      if (req.file) {
-        const imageFile = req.file;
+            // Subir la imagen a Cloudinary con transformación cuadrada
+            const resultUrl = await new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    {
+                        resource_type: 'image',
+                        transformation: [
+                            { width: 500, height: 500, crop: 'fill' } // Recorte cuadrado de 500x500
+                        ]
+                    },
+                    (error, result) => {
+                        if (error) {
+                            reject(error);
+                        } else {
+                            resolve(result.secure_url);
+                        }
+                    }
+                );
   
-        // Subir la imagen a Cloudinary
-        const resultUrl = await new Promise((resolve, reject) => {
-          const stream = cloudinary.uploader.upload_stream(
-            { resource_type: 'image' },
-            (error, result) => {
-              if (error) {
-                reject(error);
-              } else {
-                resolve(result.secure_url);
-              }
-            }
-          );
+                streamifier.createReadStream(imageFile.buffer).pipe(stream);
+            });
   
-          streamifier.createReadStream(imageFile.buffer).pipe(stream);
+            imagenUrl = resultUrl;
+        }
+  
+        await existingUser.update({
+            imagen: imagenUrl
         });
   
-        imagenUrl = resultUrl;
-      }
-  
-      await existingUser.update({
-        imagen: imagenUrl
-      });
-  
-      res.json(existingUser);
+        res.json(existingUser);
     } catch (error) {
-      if (error.name === 'ValidationError') {
-        const errors = error.errors.map((err) => err.message);
-        return res.status(400).json({ errors });
-      }
+        if (error.name === 'ValidationError') {
+            const errors = error.errors.map((err) => err.message);
+            return res.status(400).json({ errors });
+        }
   
-      console.error('Error al actualizar el banner del usuario:', error);
-      res.status(500).json({ error: '¡Algo salió mal al actualizar banner del usuario!' });
+        console.error('Error al actualizar el banner del usuario:', error);
+        res.status(500).json({ error: '¡Algo salió mal al actualizar banner del usuario!' });
     }
-  },
+},
+
 
 };
