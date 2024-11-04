@@ -82,7 +82,7 @@ const ventasController = {
       );
 
       await axios.delete(
-        `http://localhost:5000/cart/clear/${customerId}`
+        `https://backend-c-r-production.up.railway.app/cart/clear/${customerId}`
       );
 
       // Obtener el token FCM del usuario
@@ -576,7 +576,7 @@ const ventasController = {
       );
 
       await axios.delete(
-        `http://localhost:5000/cart/clear/${customerId}`
+        `https://backend-c-r-production.up.railway.app/cart/clear/${customerId}`
       );
 
       res.json({ id: session.id });
@@ -692,7 +692,7 @@ const ventasController = {
       );
 
       await axios.delete(
-        `http://localhost:5000/cart/clear/${customerId}`
+        `https://backend-c-r-production.up.railway.app/cart/clear/${customerId}`
       );
 
       res.json({ id: session.id });
