@@ -191,6 +191,7 @@ module.exports = {
         ultimoIntentoFallido: null,
         ultimoAcceso: null,
         imagen: null,
+        encuestado: "no"
       });
 
       await HistorialContrasenas.create({
