@@ -12,7 +12,6 @@ const paymentRoutes = require('./src/routes/public/paymentRoutes')
 const adminRoutes = require('./src/routes/admin/adminRoutes')
 const crypto = require('crypto');
 const fs = require('fs');
-require("./src/jobs/cartNotifications")
 
 // Lee el contenido del archivo .env si existe
 let envData = '';

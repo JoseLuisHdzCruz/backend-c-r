@@ -1,7 +1,6 @@
 const Carrito = require("../../../models/carritoModel");
 const Usuario = require("../../../models/usuarioModel");
 const Producto = require("../../../models/productsModel");
-const sendPushNotification = require("../../services/notifications")
 const jwt = require("jsonwebtoken");
 const secretKey = process.env.JWT_SECRET;
 const { Op } = require("sequelize");
@@ -154,33 +153,6 @@ const carritoController = {
       res.status(500).json({ error: "Error al agregar un item al carrito" });
     }
   },
-
-  notifyAbandonedCart : async () => {
-    try {
-      // Buscar los carritos abandonados (Ejemplo: hace más de 24 horas)
-      const abandonedCarts = await Carrito.findAll({
-        where: {
-          updatedAt: {
-            [Op.lt]: new Date(Date.now() - 24 * 60 * 60 * 1000), // Carritos con más de 24 horas sin actualizar
-          },
-        },
-        include: [Usuario], // Incluye al usuario para obtener el token FCM
-      });
-  
-      abandonedCarts.forEach(async (cart) => {
-        const token = cart.Usuario.fcmToken;
-  
-        const payload = {
-          title: "¡Tu carrito te está esperando!",
-          body: "No olvides completar tu compra y obtener tus productos favoritos.",
-        };
-  
-        await sendPushNotification(token, payload);
-      });
-    } catch (error) {
-      console.error("Error al enviar notificaciones de carrito abandonado:", error);
-    }
-  }
 };
 
 module.exports = carritoController;
