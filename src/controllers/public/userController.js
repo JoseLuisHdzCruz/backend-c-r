@@ -7,8 +7,9 @@ const HistorialContrasenas = require("../../../models/historialContraseñas");
 const UserActivityLog = require("../../../models/logsModel");
 const Session = require("../../../models/sesionModel");
 const Notificaciones = require("../../../models/notificacionesModel");
-const cloudinary = require('../../config/cloudinaryConfig');
-const streamifier = require('streamifier');
+const cloudinary = require("../../config/cloudinaryConfig");
+const NotificacionesPush = require("../../../models/notificacionesPushModel");
+const streamifier = require("streamifier");
 const axios = require("axios");
 const { Op } = require("sequelize");
 const twilio = require("twilio");
@@ -191,7 +192,8 @@ module.exports = {
         ultimoIntentoFallido: null,
         ultimoAcceso: null,
         imagen: null,
-        encuestado: "no"
+        encuestado: "no",
+        token: null,
       });
 
       await HistorialContrasenas.create({
@@ -220,14 +222,17 @@ module.exports = {
 
   fcmToken: async (req, res) => {
     const { token, customerId } = req.body;
-  
+
     try {
       // Actualizar el token FCM del usuario
-      await Usuario.update({ fcmToken: token }, { where: { customerId: customerId } });
-      res.status(200).send({ message: 'Token successfully stored' });
+      await Usuario.update(
+        { fcmToken: token },
+        { where: { customerId: customerId } }
+      );
+      res.status(200).send({ message: "Token successfully stored" });
     } catch (error) {
-      console.error('Error storing token:', error);
-      res.status(500).send({ message: 'Error storing token' });
+      console.error("Error storing token:", error);
+      res.status(500).send({ message: "Error storing token" });
     }
   },
 
@@ -330,7 +335,12 @@ module.exports = {
       });
 
       // Enviar una respuesta exitosa si las credenciales son válidas
-      res.status(200).json({ token, message: `Inicio de sesión exitoso \n Bienvenido ${user.nombre} !!` });
+      res
+        .status(200)
+        .json({
+          token,
+          message: `Inicio de sesión exitoso \n Bienvenido ${user.nombre} !!`,
+        });
     } catch (error) {
       console.error("Error al iniciar sesión:", error);
       res.status(500).json({ error: "¡Algo salió mal al iniciar sesión!" });
@@ -636,17 +646,29 @@ module.exports = {
 
       // Verificar si se encontró al usuario
       if (!user) {
-        return res.status(404).json({ success: false, error: "Usuario no encontrado" });
+        return res
+          .status(404)
+          .json({ success: false, error: "Usuario no encontrado" });
       }
 
       // Actualizar la pregunta y respuesta secreta del usuario
       await user.update({ preguntaSecreta, respuestaPSecreta });
 
       // Responder con un mensaje de éxito
-      res.status(200).json({ success: true, message: "Pregunta y respuesta secretas actualizadas exitosamente" });
+      res
+        .status(200)
+        .json({
+          success: true,
+          message: "Pregunta y respuesta secretas actualizadas exitosamente",
+        });
     } catch (error) {
       console.error("Error al actualizar pregunta y respuesta secreta:", error);
-      res.status(500).json({ success: false, error: "¡Algo salió mal al actualizar pregunta y respuesta secreta!" });
+      res
+        .status(500)
+        .json({
+          success: false,
+          error: "¡Algo salió mal al actualizar pregunta y respuesta secreta!",
+        });
     }
   },
 
@@ -655,47 +677,51 @@ module.exports = {
     try {
       const notificaciones = await Notificaciones.findAll({
         where: {
-          customerId // Filtrar por customerId
-        }
+          customerId, // Filtrar por customerId
+        },
       });
       res.json(notificaciones);
     } catch (error) {
       console.error("Error al obtener todas las notificaciones:", error);
       res
         .status(500)
-        .json({ error: "¡Algo salió mal al obtener todas las notificaciones!" });
+        .json({
+          error: "¡Algo salió mal al obtener todas las notificaciones!",
+        });
     }
   },
 
   actualizarEstadoNotificacion: async (req, res) => {
     const notificationId = req.params.notificationId;
-  
+
     try {
       // Buscar la notificación por su id
       const notificacion = await Notificaciones.findByPk(notificationId);
-  
+
       // Verificar si la notificación existe
       if (!notificacion) {
-        return res.status(404).json({ message: 'Notificación no encontrada' });
+        return res.status(404).json({ message: "Notificación no encontrada" });
       }
-  
+
       // Actualizar el estado de la notificación
-      await notificacion.update({ estado: 'Leido' }); // Cambiar 'leido' por el estado deseado
-  
-      return res.status(200).json({ message: 'Estado de notificación actualizado correctamente' });
+      await notificacion.update({ estado: "Leido" }); // Cambiar 'leido' por el estado deseado
+
+      return res
+        .status(200)
+        .json({ message: "Estado de notificación actualizado correctamente" });
     } catch (error) {
-      console.error('Error al actualizar estado de notificación:', error);
-      return res.status(500).json({ message: 'Error interno del servidor' });
+      console.error("Error al actualizar estado de notificación:", error);
+      return res.status(500).json({ message: "Error interno del servidor" });
     }
   },
 
-  searchUsersAdvance : async (req, res, next) => {
+  searchUsersAdvance: async (req, res, next) => {
     const { correo, statusId } = req.body;
-  
+
     try {
       // Crear el objeto de condiciones
       const conditions = {};
-  
+
       // Convertir las cadenas de búsqueda a minúsculas para hacer la búsqueda insensible a mayúsculas y minúsculas
       if (correo) {
         conditions.correo = { [Op.like]: `%${correo.toLowerCase()}%` };
@@ -703,12 +729,12 @@ module.exports = {
       if (statusId) {
         conditions.statusId = statusId;
       }
-  
+
       // Realizar la búsqueda de usuarios con las condiciones construidas
       const users = await Usuario.findAll({
         where: conditions,
       });
-  
+
       // Responder con los usuarios encontrados
       res.json(users);
     } catch (error) {
@@ -719,58 +745,90 @@ module.exports = {
 
   updateImgUser: async (req, res, next) => {
     const userId = req.params.id;
-  
+
     try {
-        const existingUser = await Usuario.findByPk(userId);
-        if (!existingUser) {
-            return res.status(404).json({ error: 'Usuario no encontrado' });
-        }
-  
-        let imagenUrl = existingUser.imagen;
-  
-        // Si hay una nueva imagen en el request, subirla a Cloudinary
-        if (req.file) {
-            const imageFile = req.file;
-  
-            // Subir la imagen a Cloudinary con transformación cuadrada
-            const resultUrl = await new Promise((resolve, reject) => {
-                const stream = cloudinary.uploader.upload_stream(
-                    {
-                        resource_type: 'image',
-                        transformation: [
-                            { width: 500, height: 500, crop: 'fill' } // Recorte cuadrado de 500x500
-                        ]
-                    },
-                    (error, result) => {
-                        if (error) {
-                            reject(error);
-                        } else {
-                            resolve(result.secure_url);
-                        }
-                    }
-                );
-  
-                streamifier.createReadStream(imageFile.buffer).pipe(stream);
-            });
-  
-            imagenUrl = resultUrl;
-        }
-  
-        await existingUser.update({
-            imagen: imagenUrl
+      const existingUser = await Usuario.findByPk(userId);
+      if (!existingUser) {
+        return res.status(404).json({ error: "Usuario no encontrado" });
+      }
+
+      let imagenUrl = existingUser.imagen;
+
+      // Si hay una nueva imagen en el request, subirla a Cloudinary
+      if (req.file) {
+        const imageFile = req.file;
+
+        // Subir la imagen a Cloudinary con transformación cuadrada
+        const resultUrl = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            {
+              resource_type: "image",
+              transformation: [
+                { width: 500, height: 500, crop: "fill" }, // Recorte cuadrado de 500x500
+              ],
+            },
+            (error, result) => {
+              if (error) {
+                reject(error);
+              } else {
+                resolve(result.secure_url);
+              }
+            }
+          );
+
+          streamifier.createReadStream(imageFile.buffer).pipe(stream);
         });
-  
-        res.json(existingUser);
+
+        imagenUrl = resultUrl;
+      }
+
+      await existingUser.update({
+        imagen: imagenUrl,
+      });
+
+      res.json(existingUser);
     } catch (error) {
-        if (error.name === 'ValidationError') {
-            const errors = error.errors.map((err) => err.message);
-            return res.status(400).json({ errors });
-        }
-  
-        console.error('Error al actualizar el banner del usuario:', error);
-        res.status(500).json({ error: '¡Algo salió mal al actualizar banner del usuario!' });
+      if (error.name === "ValidationError") {
+        const errors = error.errors.map((err) => err.message);
+        return res.status(400).json({ errors });
+      }
+
+      console.error("Error al actualizar el banner del usuario:", error);
+      res
+        .status(500)
+        .json({ error: "¡Algo salió mal al actualizar banner del usuario!" });
     }
-},
+  },
 
+  subscribeNotification: async (req, res, next) => {
+    const { userId } = req.params;
+    const { subscription } = req.body;
 
+    try {
+      // Validar que el usuario exista
+      const usuario = await Usuario.findByPk(userId);
+      if (!usuario) {
+        return res.status(404).json({ error: "Usuario no encontrado." });
+      }
+
+      // Guardar la suscripción en la base de datos
+      const nuevaSuscripcion = await NotificacionesPush.create({
+        customerId: userId,
+        endpoint: subscription.endpoint,
+        keys: subscription.keys,
+      });
+
+      res.status(201).json({
+        success: true,
+        message: "Suscripción a notificaciones push registrada con éxito.",
+        data: nuevaSuscripcion,
+      });
+    } catch (error) {
+      console.error("Error al registrar la suscripción:", error);
+      res.status(500).json({
+        success: false,
+        error: "Hubo un error al registrar la suscripción.",
+      });
+    }
+  },
 };
