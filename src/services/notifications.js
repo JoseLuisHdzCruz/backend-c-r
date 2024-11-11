@@ -6,7 +6,7 @@ const vapidKeys = {
 };
 
 webpush.setVapidDetails(
-  'mailto:chucheriasyregalos01@gmail.com',
+  'https://chucherias-y-regalos.vercel.app/',
   vapidKeys.publicKey,
   vapidKeys.privateKey
 );
