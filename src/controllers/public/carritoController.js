@@ -160,13 +160,13 @@ const carritoController = {
   sendCartNotification: async () => {
     try {
       // Obtener la fecha actual menos 2 horas
-      const twoHoursAgo = new Date(new Date() - 1 * 60 * 1000);
+      const sixHoursAgo = new Date(new Date() - 6 * 60 * 60 * 1000);
 
       // Obtener todos los carritos cuya fecha de creación sea mayor a 2 horas
       const carritoItems = await Carrito.findAll({
         where: {
           createdAt: {
-            [Op.lte]: twoHoursAgo // Carritos creados hace más de 2 horas
+            [Op.lte]: sixHoursAgo // Carritos creados hace más de 2 horas
           }
         }
       });
