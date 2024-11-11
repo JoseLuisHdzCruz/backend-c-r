@@ -1,9 +1,12 @@
 const Carrito = require("../../../models/carritoModel");
 const Usuario = require("../../../models/usuarioModel");
 const Producto = require("../../../models/productsModel");
+const NotificacionesPush = require("../../../models/notificacionesPushModel");
 const jwt = require("jsonwebtoken");
 const secretKey = process.env.JWT_SECRET;
 const { Op } = require("sequelize");
+const sendPushNotification = require('../../services/notifications');
+
 
 
 
@@ -151,6 +154,54 @@ const carritoController = {
     } catch (error) {
       console.error("Error al agregar un item al carrito:", error);
       res.status(500).json({ error: "Error al agregar un item al carrito" });
+    }
+  },
+
+  sendCartNotification: async () => {
+    try {
+      // Obtener la fecha actual menos 2 horas
+      const twoHoursAgo = new Date(new Date() - 1 * 60 * 1000);
+
+      // Obtener todos los carritos cuya fecha de creación sea mayor a 2 horas
+      const carritoItems = await Carrito.findAll({
+        where: {
+          createdAt: {
+            [Op.lte]: twoHoursAgo // Carritos creados hace más de 2 horas
+          }
+        }
+      });
+
+      // Si hay carritos pendientes
+      if (carritoItems.length > 0) {
+        // Obtener los customerIds únicos de los carritos
+        const customerIds = [...new Set(carritoItems.map(item => item.customerId))];
+
+        // Recorrer cada customerId para enviar notificaciones
+        for (let customerId of customerIds) {
+          // Crear la carga útil para la notificación
+          const payload = {
+            title: "Tu carrito te está esperando",
+            message: "Hay productos en tu carrito listos para la compra.",
+            data: { customerId } // Usar customerId para identificador único en el frontend
+          };
+
+          // Obtener todas las suscripciones de notificaciones para el cliente
+          const subscriptions = await NotificacionesPush.findAll({
+            where: { customerId }
+          });
+
+          // Enviar la notificación a cada suscripción
+          subscriptions.forEach(async (subscription) => {
+            await sendPushNotification(subscription, payload);
+          });
+        }
+
+        console.log("Notificaciones de carrito enviadas a los usuarios con carritos pendientes.");
+      } else {
+        console.log("No hay carritos pendientes.");
+      }
+    } catch (error) {
+      console.error("Error al enviar notificación de carrito:", error);
     }
   },
 };

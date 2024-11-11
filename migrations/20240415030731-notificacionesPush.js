@@ -11,7 +11,7 @@ module.exports = {
       },
       customerId: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: "usuarios", // Nombre de la tabla de Usuario
           key: "customerId",
@@ -20,7 +20,7 @@ module.exports = {
         onDelete: "CASCADE",
       },
       endpoint: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
         allowNull: false,
       },
       keys: {

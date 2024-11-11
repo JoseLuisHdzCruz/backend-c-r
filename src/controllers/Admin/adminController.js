@@ -7,6 +7,8 @@ const Promociones = require("../../../models/promocionesModel");
 const Usuario = require("../../../models/usuarioModel");
 const ClavesTemporales = require("../../../models/clavesTemporalesModels");
 const Cupon = require("../../../models/cuponModel");
+const NotificacionesPush = require("../../../models/notificacionesPushModel");
+const sendPushNotification = require('../../services/notifications');
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -121,25 +123,42 @@ const adminController = {
 
   createPromocion: async (req, res) => {
     const { evento, fecha_inicio, fecha_final, descuento, categoriaId } = req.body;
-  
-    try {
-      const nuevaPromocion = await Promociones.create({
-        evento,
-        fecha_inicio,
-        fecha_final,
-        descuento,
-        categoriaId,
-      });
-  
-      res
-        .status(201)
-        .json({ message: "Promoción creada exitosamente", promocion: nuevaPromocion });
-    } catch (error) {
-      console.error("Error al crear la promoción:", error);
-      res
-        .status(500)
-        .json({ error: "¡Algo salió mal al crear la promoción!" });
-    }
+
+  try {
+    // Crear la promoción en la base de datos
+    const nuevaPromocion = await Promociones.create({
+      evento,
+      fecha_inicio,
+      fecha_final,
+      descuento,
+      categoriaId,
+    });
+
+    // Preparar la carga útil de la notificación
+    const payload = {
+      title: "Nueva Promoción",
+      message: `¡Nueva promoción disponible: ${evento}! Descuento: ${descuento}%`,
+      data: { id: nuevaPromocion.id },
+    };
+
+    // Obtener todas las suscripciones de los usuarios desde la base de datos
+    const subscriptions = await NotificacionesPush.findAll();
+
+    // Enviar notificación a cada suscripción
+    subscriptions.forEach(async (subscription) => {
+      await sendPushNotification(subscription, payload);
+    });
+
+    res
+      .status(201)
+      .json({ message: "Promoción creada exitosamente", promocion: nuevaPromocion });
+  } catch (error) {
+    console.error("Error al crear la promoción:", error);
+    res
+      .status(500)
+      .json({ error: "¡Algo salió mal al crear la promoción!" });
+  }
+
   },
 
   verificarCorreoYEnviarClave: async (req, res, next) => {

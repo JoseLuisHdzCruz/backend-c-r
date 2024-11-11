@@ -335,12 +335,10 @@ module.exports = {
       });
 
       // Enviar una respuesta exitosa si las credenciales son válidas
-      res
-        .status(200)
-        .json({
-          token,
-          message: `Inicio de sesión exitoso \n Bienvenido ${user.nombre} !!`,
-        });
+      res.status(200).json({
+        token,
+        message: `Inicio de sesión exitoso \n Bienvenido ${user.nombre} !!`,
+      });
     } catch (error) {
       console.error("Error al iniciar sesión:", error);
       res.status(500).json({ error: "¡Algo salió mal al iniciar sesión!" });
@@ -655,20 +653,16 @@ module.exports = {
       await user.update({ preguntaSecreta, respuestaPSecreta });
 
       // Responder con un mensaje de éxito
-      res
-        .status(200)
-        .json({
-          success: true,
-          message: "Pregunta y respuesta secretas actualizadas exitosamente",
-        });
+      res.status(200).json({
+        success: true,
+        message: "Pregunta y respuesta secretas actualizadas exitosamente",
+      });
     } catch (error) {
       console.error("Error al actualizar pregunta y respuesta secreta:", error);
-      res
-        .status(500)
-        .json({
-          success: false,
-          error: "¡Algo salió mal al actualizar pregunta y respuesta secreta!",
-        });
+      res.status(500).json({
+        success: false,
+        error: "¡Algo salió mal al actualizar pregunta y respuesta secreta!",
+      });
     }
   },
 
@@ -683,11 +677,9 @@ module.exports = {
       res.json(notificaciones);
     } catch (error) {
       console.error("Error al obtener todas las notificaciones:", error);
-      res
-        .status(500)
-        .json({
-          error: "¡Algo salió mal al obtener todas las notificaciones!",
-        });
+      res.status(500).json({
+        error: "¡Algo salió mal al obtener todas las notificaciones!",
+      });
     }
   },
 
@@ -800,22 +792,65 @@ module.exports = {
     }
   },
 
-  subscribeNotification: async (req, res, next) => {
-    const { userId } = req.params;
-    const { subscription } = req.body;
+  createOrUpdateSubscription: async (req, res) => {
+    try {
+      const { subscription, customerId } = req.body;
+      
+      // Buscar una suscripción existente por el endpoint
+      const existingSubscription = await NotificacionesPush.findOne({
+        where: { endpoint: subscription.endpoint },
+      });
+  
+      if (existingSubscription) {
+        // Si el endpoint es el mismo pero el customerId es diferente, actualizar el customerId
+        if (existingSubscription.customerId !== customerId) {
+          existingSubscription.customerId = customerId;
+          await existingSubscription.save();
+          return res
+            .status(200)
+            .json({ message: "Suscripción actualizada exitosamente" });
+        } else {
+          // Si el endpoint y el customerId son los mismos, no hacer nada
+          return res
+            .status(200)
+            .json({ message: "La suscripción ya existe y no es necesario actualizar" });
+        }
+      } else {
+        // Si no existe ninguna suscripción con este endpoint, crear una nueva
+        const newSubscription = new NotificacionesPush({
+          ...subscription,
+          customerId: customerId,
+        });
+        await newSubscription.save();
+        return res
+          .status(201)
+          .json({ message: "Suscripción creada exitosamente" });
+      }
+    } catch (error) {
+      console.error("Error al crear o actualizar la suscripción:", error);
+      res
+        .status(500)
+        .json({ error: "Error al crear o actualizar la suscripción" });
+    }
+  },
+  
+
+  createSubscription: async (req, res) => {
+    const { endpoint, keys } = req.body;
 
     try {
-      // Validar que el usuario exista
-      const usuario = await Usuario.findByPk(userId);
-      if (!usuario) {
-        return res.status(404).json({ error: "Usuario no encontrado." });
+      // Verificar que se proporcionen los datos necesarios
+      if (!endpoint || !keys) {
+        return res.status(400).json({
+          success: false,
+          message: "La suscripción debe incluir 'endpoint' y 'keys'.",
+        });
       }
 
-      // Guardar la suscripción en la base de datos
+      // Crear y almacenar la suscripción en la base de datos
       const nuevaSuscripcion = await NotificacionesPush.create({
-        customerId: userId,
-        endpoint: subscription.endpoint,
-        keys: subscription.keys,
+        endpoint,
+        keys,
       });
 
       res.status(201).json({
@@ -827,7 +862,7 @@ module.exports = {
       console.error("Error al registrar la suscripción:", error);
       res.status(500).json({
         success: false,
-        error: "Hubo un error al registrar la suscripción.",
+        message: "Hubo un error al registrar la suscripción.",
       });
     }
   },

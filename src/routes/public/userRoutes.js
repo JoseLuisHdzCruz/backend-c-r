@@ -63,8 +63,8 @@ router.post('/searchAdvance', userController.searchUsersAdvance);
 router.put('/banner/:id', upload.single('imagen'), userController.updateImgUser);
 
 // Ruta para suscripción a notificaciones push
-router.post("/subscribe-notification/create/:userId", userController.subscribeNotification);
+router.post("/subscription/update", userController.createOrUpdateSubscription);
 
-
+router.post("/subscription-general/create", userController.createSubscription);
 
 module.exports = router;

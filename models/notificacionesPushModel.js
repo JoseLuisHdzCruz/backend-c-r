@@ -12,14 +12,14 @@ const NotificacionesPush = sequelize.define(
     },
     customerId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: "Usuario",
         key: "customerId",
       },
     },
     endpoint: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     keys: {

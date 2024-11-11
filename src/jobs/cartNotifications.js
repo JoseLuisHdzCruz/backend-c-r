@@ -1,8 +1,18 @@
 const cron = require("node-cron");
-const { notifyAbandonedCart } = require("../controllers/public/carritoController"); // Asegúrate de que el path sea correcto
+const carritoController = require("../controllers/public/carritoController");
 
-// Ejecuta notifyAbandonedCart todos los días a la medianoche
-cron.schedule("*/59 * * * *", notifyAbandonedCart, {
-    scheduled: true,
-    timezone: "America/Mexico_City" // Ajusta a tu zona horaria si es necesario
-  });
+// Configura el job para enviar notificación cada minuto (para pruebas)
+cron.schedule("* * * * *", async () => {
+  console.log("Ejecutando job de notificación de carrito pendiente...");
+  
+  try {
+    // Llamar la función que envía las notificaciones de carrito
+  console.log("Entro");
+
+    await carritoController.sendCartNotification();
+  console.log("Salio xD");
+
+  } catch (error) {
+    console.error("Error al ejecutar el job de notificación de carrito:", error);
+  }
+});
