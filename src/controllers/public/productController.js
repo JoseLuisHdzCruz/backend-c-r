@@ -10,6 +10,7 @@ const streamifier = require('streamifier');
 const Yup = require("yup");
 const { Op, Sequelize, where } = require("sequelize");
 const Usuario = require("../../../models/usuarioModel");
+const sendPushNotification = require('../../services/notifications.js');
 
 const validationSchema = Yup.object().shape({
   nombre: Yup.string().required("El nombre es obligatorio"),
@@ -203,15 +204,14 @@ module.exports = {
 
   createProduct: async (req, res, next) => {
     const productData = req.body;
-  
+    
     try {
       let imagenUrl = '';
-  
-      // Si hay una imagen en el request, subirla a Cloudinary
+
+      // Subir la imagen a Cloudinary si está presente en el request
       if (req.file) {
         const imageFile = req.file;
-  
-        // Subir la imagen a Cloudinary
+
         imagenUrl = await new Promise((resolve, reject) => {
           const stream = cloudinary.uploader.upload_stream(
             { resource_type: 'image' },
@@ -223,13 +223,13 @@ module.exports = {
               }
             }
           );
-  
+
           streamifier.createReadStream(imageFile.buffer).pipe(stream);
         });
       }
-  
+
       const precio = parseFloat(productData.precio);
-  
+
       const newProduct = await Producto.create({
         nombre: productData.nombre,
         descripcion: productData.descripcion,
@@ -241,14 +241,32 @@ module.exports = {
         IVA: precio * 0.16,
         precioFinal: precio + (precio * 0.16),
       });
-  
-      res.status(201).json(newProduct);
+
+      // Preparar la carga útil de la notificación
+      const payload = {
+        title: "Nuevo Producto Disponible",
+        message: `¡Nuevo producto agregado: ${productData.nombre}! Precio: $${(precio + (precio * 0.16)).toFixed(2)}`,
+        image: imagenUrl,
+        data: { id: newProduct.id },
+      };
+
+      // Obtener todas las suscripciones de los usuarios
+      const subscriptions = await NotificacionesPush.findAll();
+
+      // Enviar notificación a cada suscripción
+      for (const subscription of subscriptions) {
+        await sendPushNotification(subscription, payload);
+      }
+
+      res.status(201).json({
+        message: "Producto creado y notificación enviada exitosamente",
+        producto: newProduct,
+      });
     } catch (error) {
       console.error("Error al crear producto:", error);
       res.status(500).json({ error: "¡Algo salió mal al crear producto!" });
     }
-  },
-  
+  },  
 
   updateProduct: async (req, res, next) => {
     const productId = req.params.id;
