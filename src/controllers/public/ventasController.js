@@ -8,6 +8,8 @@ const fcmServerKey = process.env.FCM_SERVER_KEY;
 const { Op } = require("sequelize");
 const axios = require("axios");
 const Usuario = require("../../../models/usuarioModel");
+const NotificacionesPush = require("../../../models/notificacionesPushModel");
+const sendPushNotification = require("../../services/notifications");
 const sequelize = require("sequelize");
 const stripe = require("stripe")(
   "sk_test_51Pf8IA2NI1ZNadeOuyF3F0Maonkrfcy5iN7LdgJFvslXY8gWof16cLI4L1kj9Q5yNynMrcU2OTgLidxQ2Oxc0tgK00qpJdKqVv"
@@ -74,9 +76,13 @@ const ventasController = {
 
           // Actualizar la existencia del producto
           await Producto.update(
-            { existencia: sequelize.literal(`existencia - ${producto.cantidad}`) },
+            {
+              existencia: sequelize.literal(
+                `existencia - ${producto.cantidad}`
+              ),
+            },
             { where: { productoId: producto.productoId } }
-        );
+          );
           return detalleVenta;
         })
       );
@@ -188,11 +194,13 @@ const ventasController = {
 
   obtenerVentasPorFecha: async (req, res) => {
     const { startDate, endDate } = req.query;
-  
+
     if (!startDate || !endDate) {
-      return res.status(400).json({ error: 'startDate y endDate son requeridos' });
+      return res
+        .status(400)
+        .json({ error: "startDate y endDate son requeridos" });
     }
-  
+
     const filter = {
       where: {
         fecha: {
@@ -200,13 +208,13 @@ const ventasController = {
         },
       },
     };
-  
+
     try {
       const ventas = await Venta.findAll(filter);
       res.json(ventas);
     } catch (error) {
-      console.error('Error al obtener las ventas por fecha:', error);
-      res.status(500).json({ error: 'Error al obtener las ventas por fecha' });
+      console.error("Error al obtener las ventas por fecha:", error);
+      res.status(500).json({ error: "Error al obtener las ventas por fecha" });
     }
   },
 
@@ -215,23 +223,47 @@ const ventasController = {
     const { statusVentaId } = req.body;
 
     try {
-        // Buscar la venta por su ID
-        const venta = await Venta.findByPk(ventaId);
+      // Buscar la venta por su ID
+      const venta = await Venta.findByPk(ventaId);
 
-        // Verificar si la venta existe
-        if (!venta) {
-            return res.status(404).json({ error: "Venta no encontrada" });
-        }
+      // Verificar si la venta existe
+      if (!venta) {
+        return res.status(404).json({ error: "Venta no encontrada" });
+      }
 
-        // Actualizar el estado de la venta
-        venta.statusVentaId = statusVentaId;
-        await venta.save();
+      // Actualizar el estado de la venta
+      venta.statusVentaId = statusVentaId;
+      await venta.save();
 
-        // Obtener el nuevo estado de la venta
-        const nuevoStatusVenta = await StatusVenta.findByPk(statusVentaId);
+      // Obtener el nuevo estado de la venta
+      const nuevoStatusVenta = await StatusVenta.findByPk(statusVentaId);
 
-        // Responder con el estado actualizado de la venta
-        res.json({ ventaId: venta.ventaId, estado: nuevoStatusVenta.statusVenta });
+      // Enviar notificación al cliente
+      const customerId = venta.customerId;
+      const folio = venta.folio;
+
+      // Preparar la carga útil de la notificación
+      const payload = {
+        title: "Estado de Venta Actualizado",
+        message: `Su venta con folio ${folio} ha sido actualizada al estado: ${nuevoStatusVenta.statusVenta}`,
+        data: { ventaId: venta.ventaId },
+      };
+
+      // Obtener todas las suscripciones de notificaciones del cliente
+      const subscriptions = await NotificacionesPush.findAll({
+        where: { customerId },
+      });
+
+      // Enviar notificación a cada suscripción del cliente
+      subscriptions.forEach(async (subscription) => {
+        await sendPushNotification(subscription, payload);
+      });
+
+      // Responder con el estado actualizado de la venta
+      res.json({
+        ventaId: venta.ventaId,
+        estado: nuevoStatusVenta.statusVenta,
+      });
     } catch (error) {
       console.error(
         "Error al actualizar el estado de la venta por folio:",
