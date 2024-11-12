@@ -10,6 +10,7 @@ const carritoRoutes = require('./src/routes/public/carritoRoutes');
 const ventasRoutes = require('./src/routes/public/ventasRoutes');
 const paymentRoutes = require('./src/routes/public/paymentRoutes')
 const adminRoutes = require('./src/routes/admin/adminRoutes')
+const feedbackRoutes = require('./src/routes/admin/feedbackRoutes')
 const crypto = require('crypto');
 const fs = require('fs');
 require ('./src/jobs/cartNotifications')
@@ -56,6 +57,7 @@ app.use('/order', paymentRoutes);
 
 //Rutas de Administrador
 app.use('/admin', adminRoutes);
+app.use('/feedback', feedbackRoutes);
 
 // Manejo de errores
 app.use((err, req, res, next) => {
