@@ -10,6 +10,7 @@ const streamifier = require('streamifier');
 const Yup = require("yup");
 const { Op, Sequelize, where } = require("sequelize");
 const Usuario = require("../../../models/usuarioModel");
+const NotificacionesPush = require("../../../models/notificacionesPushModel.js")
 const sendPushNotification = require('../../services/notifications.js');
 
 const validationSchema = Yup.object().shape({
