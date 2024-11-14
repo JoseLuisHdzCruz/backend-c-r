@@ -618,82 +618,50 @@ const ventasController = {
     }
   },
 
+  crearFolioUnico: async () => {
+    const fecha = new Date();
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, "0");
+
+    let folio;
+    let folioExists = true;
+    while (folioExists) {
+      folioCounter += 1;
+      folio = `${year}${month}${String(folioCounter).padStart(3, "0")}`;
+
+      // Verificar si el folio ya existe en la base de datos
+      const existingVenta = await Venta.findOne({ where: { folio } });
+      if (!existingVenta) {
+        folioExists = false;
+      }
+    }
+    return folio;
+  },
+
   crateVentaStripeMovil: async (req, res) => {
-    const { items, shipping, venta, customerId, metodoPagoId } = req.body;
+    const { items, shipping, venta, customerId } = req.body;
 
     try {
-      // Imprime para verificar la solicitud
-      console.log("Datos recibidos:", req.body);
+      // Genera el folio único
+      const folio = await ventasController.crearFolioUnico();
 
-      // Crea una sesión de Checkout
-      const session = await stripe.checkout.sessions.create({
+      // Crea el Intento de Pago en Stripe con el folio en los metadatos
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(parseFloat(venta.total) * 100), // Enviar en centavos
+        currency: "mxn",
         payment_method_types: ["card"],
-        line_items: items.map((item) => ({
-          price_data: {
-            currency: "mxn",
-            product_data: {
-              name: item.title,
-              images: [item.imagen],
-            },
-            unit_amount: Math.round(item.price), // Convertir a centavos y redondear a entero
-          },
-          quantity: item.quantity,
-        })),
-        mode: "payment",
-        success_url: "http://localhost:8100/purchase-history",
-        cancel_url: "http://localhost:8100/select-payment",
-        shipping_options: shipping
-          ? [
-              {
-                shipping_rate_data: {
-                  type: "fixed_amount",
-                  fixed_amount: {
-                    amount: Math.round(shipping.price), // Convertir a centavos y redondear a entero
-                    currency: "mxn",
-                  },
-                  display_name: "Envío",
-                  delivery_estimate: {
-                    minimum: {
-                      unit: "hour",
-                      value: 24,
-                    },
-                    maximum: {
-                      unit: "hour",
-                      value: 72,
-                    },
-                  },
-                },
-              },
-            ]
-          : [],
-        metadata: {},
+        metadata: {
+          customerId,
+          ventaFolio: folio, // Folio único de la venta
+        },
       });
 
-      // Fecha actual
+      // Crea el registro de venta en la base de datos
       const fecha = new Date();
-
-      // Fecha actual
-      const year = fecha.getFullYear();
-      const month = String(fecha.getMonth() + 1).padStart(2, "0"); // getMonth() returns 0-based month
-
-      // Función para generar un folio único
-      let folio;
-      let folioExists = true;
-      while (folioExists) {
-        folioCounter += 1;
-        folio = `${year}${month}${String(folioCounter).padStart(3, "0")}`;
-
-        // Verificar si el folio ya existe en la base de datos
-        const existingVenta = await Venta.findOne({ where: { folio } });
-        if (!existingVenta) {
-          folioExists = false;
-        }
-      }
-
       const statusVentaId = 1;
       const nuevaVenta = await Venta.create({
         folio,
-        customerId: customerId,
+        customerId,
         cantidad: venta.cantidad,
         total: venta.total,
         totalProductos: venta.totalProductos,
@@ -701,11 +669,12 @@ const ventasController = {
         totalIVA: venta.totalIVA,
         fecha,
         statusVentaId,
-        metodoPagoId: metodoPagoId,
+        metodoPagoId: 4,
         sucursalesId: venta.sucursalesId,
         domicilioId: venta.domicilioId,
         descuentoPromocion: null,
       });
+
       // Crear los registros de detalle de venta
       const detallesVenta = await Promise.all(
         venta.productos.map(async (producto) => {
@@ -723,11 +692,13 @@ const ventasController = {
         })
       );
 
+      // Limpia el carrito de compras
       await axios.delete(
         `https://backend-c-r-production.up.railway.app/cart/clear/${customerId}`
       );
 
-      res.json({ id: session.id });
+      // Envía el ID de paymentIntent de Stripe para procesar el pago desde el cliente
+      res.json({ clientSecret: paymentIntent.client_secret });
     } catch (error) {
       console.error("Error al crear la sesión de Checkout:", error);
       res.status(500).send("Error al crear la sesión de Checkout");
